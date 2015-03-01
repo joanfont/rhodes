@@ -1,26 +1,24 @@
-from application.services.base import BaseService
-from lib.validators import StringValidator
+from application.services.base import BasePersistanceService
+from application.lib.validators import StringValidator
 
-from application.lib.models import SessionWrapper
 from application.lib.models import Message
 
-class PutMessage(BaseService):
+class PutMessage(BasePersistanceService):
 
   def input(self):
     return {
       'message': StringValidator({'required': True}),
     }
 
-  def execute(self, args):
+  def output(self):
+    return lambda x: isinstance(x, Message)
 
+  def execute(self, args):
     message = args.get('message')
     msg = Message(message = message)
-
-    session = SessionWrapper.get_session()
-    session.add(msg)
-    session.commit()
-
+    self.session.add(msg)
     return msg
+
 
 
 

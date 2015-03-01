@@ -17,7 +17,7 @@ class NumbersTest(unittest.TestCase):
 
    msg = pm.call({'message' : 'Lorem ipsum'})
    self.assertEquals('Lorem ipsum', msg.message)
-
+   print msg
 
 if __name__ == '__main__':
   unittest.main()

@@ -10,10 +10,17 @@ Base = declarative_base()
 
 class SessionWrapper(object):
 
-  @staticmethod
-  def get_session():
-    session = sessionmaker(bind = db)
-    return session()
+  def __init__(self):
+    self.session = sessionmaker(bind = db)()
+
+  def add(self, obj):
+    self.session.add(obj)
+
+  def commit(self):
+    self.session.commit()
+
+  def rollback(self):
+    self.session.rollback()
 
 class Message(Base):
   
@@ -22,5 +29,5 @@ class Message(Base):
   id = Column(Integer, primary_key = True)
   message = Column(String(140))
 
-  def __unicode__(self):
+  def __str__(self):
     return '<Message id={id}>'.format(id = self.id)
