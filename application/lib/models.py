@@ -22,7 +22,15 @@ class SessionWrapper(object):
   def rollback(self):
     self.session.rollback()
 
-class Message(Base):
+  def query(self, cls):
+    return self.session.query(cls)
+
+class DictMixin(object):
+
+  def to_dict(self):
+    raise NotImplementedError()
+
+class Message(DictMixin, Base):
   
   __tablename__ = 'message'
 
@@ -31,3 +39,6 @@ class Message(Base):
 
   def __str__(self):
     return '<Message id={id}>'.format(id = self.id)
+
+  def to_dict(self):
+    return {'id': self.id, 'message': self.message}
