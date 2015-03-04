@@ -1,6 +1,7 @@
 from application.lib.validators import BaseValidator
 from application.lib.models import SessionWrapper
 
+from application.lib.validators import ValidationError, VALIDATION_ERROR
 
 class BaseService(object):
     def __init__(self):
@@ -27,10 +28,17 @@ class BaseService(object):
 
     def clean_args(self, args):
         cleaned_args = {}
+        arg_errors = {}
         for (k, v) in self.input_contract.items():
             value = args.get(k)
-            cleaned_args[k] = v.validate(value)
+            try:
+                clean_value = v.validate(value)
+                cleaned_args[k] = clean_value
+            except ValidationError, e:
+                arg_errors[k] = {'error': VALIDATION_ERROR, 'message': e.message}
 
+        if arg_errors:
+            raise ValidationError('Validation error', errors=arg_errors)
         return cleaned_args
 
     def pre_execute(self, args):

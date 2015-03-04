@@ -1,5 +1,15 @@
+
+VALIDATION_ERROR = 'validation_error'
+
+
 class ValidationError(Exception):
-    pass
+
+    def __init__(self, *args, **kwargs):
+        super(ValidationError, self).__init__(*args)
+        self.errors = kwargs.get('errors')
+
+    def get_errors(self):
+        return self.errors
 
 
 class BaseValidator(object):
