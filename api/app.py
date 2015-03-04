@@ -3,6 +3,8 @@ from flask import Flask, jsonify
 from application.services.message import GetMessage
 from application.lib.validators import ValidationError
 
+import status
+
 app = Flask(__name__)
 
 
@@ -12,5 +14,5 @@ def get_message(message_id):
     try:
         message = gm.call({'id': message_id})
     except ValidationError, e:
-        return jsonify(e.get_errors()), 400
-    return jsonify(message.to_dict()), 200
+        return jsonify(e.get_errors()), status.HTTP_400_BAD_REQUEST
+    return jsonify(message.to_dict()), status.HTTP_200_OK

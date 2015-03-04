@@ -28,7 +28,7 @@ class BaseValidator(object):
         if self.options.get('required') and not value:
             raise ValidationError('The value is required for this validator')
 
-        val = value if value != None else self.options.get('default')
+        val = value if value is not None else self.options.get('default')
         return self.check_value(val)
 
     def check_value(self, value):
