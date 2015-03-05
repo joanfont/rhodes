@@ -26,35 +26,13 @@ class SessionWrapper(object):
         return self.session.query(cls)
 
 
-class BaseModel(Base):
+class DictMixin(object):
 
     def to_dict(self):
         raise NotImplementedError()
 
 
-class Message(BaseModel):
-
-    __tablename__ = 'message'
-
-    id = Column(Integer, primary_key=True)
-    sender = Column(Integer, ForeignKey('person.id'))
-
-    message = Column(String(400))
-
-    created_at = Column(DateTime)
-
-
-    def __str__(self):
-        return '<Message id={id}>'.format(id=self.id)
-
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'message': self.message,
-        }
-
-
-class Person(BaseModel):
+class Person(DictMixin, Base):
 
     __tablename__ = 'person'
 
@@ -75,7 +53,36 @@ class Person(BaseModel):
         }
 
 
-class Course(BaseModel):
+class Teacher(Person):
+    pass
+
+
+class Student(Person):
+    pass
+
+
+class Message(DictMixin, Base):
+
+    __tablename__ = 'message'
+
+    id = Column(Integer, primary_key=True)
+    sender = Column(Integer, ForeignKey('person.id'))
+
+    message = Column(String(400))
+
+    created_at = Column(DateTime)
+
+    def __str__(self):
+        return '<Message id={id}>'.format(id=self.id)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'message': self.message,
+        }
+
+
+class Course(DictMixin, Base):
 
     __tablename__ = 'course'
 
@@ -90,8 +97,15 @@ class Course(BaseModel):
             'ends_at': self.ends_at,
         }
 
+teacher_subject = Table(
+    'teacher_subject',
+    Base.metadata,
+    Column('teacher', Integer, ForeignKey('person.id')),
+    Column('subject', Integer, ForeignKey('subject.id')),
+)
 
-class Subject(BaseModel):
+
+class Subject(DictMixin, Base):
 
     __tablename__ = 'subject'
 
@@ -99,6 +113,7 @@ class Subject(BaseModel):
     id = Column(Integer, primary_key=True)
     code = Column(Integer, unique=True)
     name = Column(String(60))
+    teachers = relationship('Teacher', backref='subjects', secondary=teacher_subject)
 
     def to_dict(self):
         return {
@@ -107,22 +122,23 @@ class Subject(BaseModel):
             'name': self.name,
         }
 
-subject_students = Table(
-    'subject_students',
+
+student_group = Table(
+    'student_group',
     Base.metadata,
     Column('student', Integer, ForeignKey('person.id')),
-    Column('subject', Integer, ForeignKey('subject.id')),
+    Column('group', Integer, ForeignKey('group.id')),
 )
 
 
-class Group(BaseModel):
+class Group(DictMixin, Base):
 
     __tablename__ = 'group'
 
     id = Column(Integer, primary_key=True)
     name = Column(String(60))
-    teacher = Column(Integer, ForeignKey('person.id'))
-    students = relationship('Person', backref='subjects', secondary=subject_students)
+    subject = Column(Integer, ForeignKey('subject.id'))
+    students = relationship('Student', backref='subjects', secondary=student_group)
 
     def to_dict(self):
         return {
@@ -131,4 +147,3 @@ class Group(BaseModel):
             'teacher': self.teacher,
             'students': self.students
         }
-
