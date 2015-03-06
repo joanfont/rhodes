@@ -115,12 +115,16 @@ class Subject(DictMixin, Base):
     name = Column(String(60))
     teachers = relationship('Teacher', backref='subjects', secondary=teacher_subject)
 
+    @property
+    def group_list(self):
+        return map(lambda x: x.to_dict(), self.groups)
+
     def to_dict(self):
         return {
             'id': self.id,
             'code': self.code,
             'name': self.name,
-            'groups': self.groups,
+            'groups': self.group_list,
         }
 
 
@@ -149,6 +153,4 @@ class Group(DictMixin, Base):
         return {
             'id': self.id,
             'name': self.name,
-            'teacher': self.teacher,
-            'students': self.students
         }
