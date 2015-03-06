@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy.orm import sessionmaker, relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Table, Column, Integer, String, Date, DateTime, ForeignKey
 
@@ -120,6 +120,7 @@ class Subject(DictMixin, Base):
             'id': self.id,
             'code': self.code,
             'name': self.name,
+            'groups': self.groups,
         }
 
 
@@ -137,7 +138,11 @@ class Group(DictMixin, Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(60))
-    subject = Column(Integer, ForeignKey('subject.id'))
+    subject_id = Column(Integer, ForeignKey('subject.id'))
+    subject = relationship(
+        Subject,
+        backref=backref('groups', uselist=True, cascade='delete,all'))
+
     students = relationship('Student', backref='subjects', secondary=student_group)
 
     def to_dict(self):

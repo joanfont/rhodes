@@ -7,7 +7,7 @@ sys.path.append(os.path.abspath('../'))
 from application.services.message import PutMessage, GetMessage
 
 
-class NumbersTest(unittest.TestCase):
+class MessageTest(unittest.TestCase):
 
     def test_crud(self):
         pm = PutMessage()

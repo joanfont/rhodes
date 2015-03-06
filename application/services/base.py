@@ -16,7 +16,7 @@ class BaseService(object):
     def check_input(self):
         input_contract = self.input()
 
-        if not input_contract:
+        if not isinstance(input_contract, dict):
             raise RuntimeError('You must provide an input contract')
 
         for (k, v) in input_contract.items():
