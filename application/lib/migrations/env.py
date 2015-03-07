@@ -15,11 +15,15 @@ fileConfig(config.config_file_name)
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
+
+# <rhodes_specific_config>
 import sys
 import os
 sys.path.append(os.path.abspath('../../'))
 from application.lib.models import Base
+from config.rhodes import DB_DSN
 target_metadata = Base.metadata
+# </rhodes_specific_config>
 
 
 # other values from the config, defined by the needs of env.py,
@@ -40,7 +44,7 @@ def run_migrations_offline():
     script output.
 
     """
-    url = config.get_main_option("sqlalchemy.url")
+    url = DB_DSN
     context.configure(url=url, target_metadata=target_metadata)
 
     with context.begin_transaction():
