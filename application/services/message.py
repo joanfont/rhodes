@@ -12,6 +12,8 @@ class PutMessage(BasePersistanceService):
     def input(self):
         return {
             'message': StringValidator({'required': True}),
+            'sender_id': IntegerValidator({'required': True}),
+            'recipient_id': IntegerValidator({'required': True})
         }
 
     def output(self):
@@ -19,7 +21,9 @@ class PutMessage(BasePersistanceService):
 
     def execute(self, args):
         message = args.get('message')
-        msg = Message(message=message)
+        sender_id = args.get('sender_id')
+        sender_type = args.get('sender_type')
+        msg = Message(message=message, sender_id=sender_id, sender_type=sender_type)
         self.session.add(msg)
         return msg
 
