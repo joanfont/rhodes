@@ -3,8 +3,8 @@
 set -e
 FLASKDIR=/Users/joanfont/Developer/Python/rhodes
 VIRTUAL_ENV=/Users/joanfont/.virtualenvs/rhodes
-USER=ubuntu
-GROUP=ubuntu
+USER=joanfont
+GROUP=staff
 LOGFILE=$FLASKDIR/log/gunicorn.log
 LOGERRFILE=$FLASKDIR/log/gunicorn_err.log
 
