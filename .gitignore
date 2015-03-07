@@ -7,3 +7,8 @@ __pycache__
 application/lib/migrations/versions/*
 
 log/*
+
+config/rhodes.py
+config/supervisor.conf
+config/gunicorn.sh
+config/nginx.conf
