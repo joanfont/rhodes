@@ -1,35 +1,19 @@
+import sys
+import os
+
 from __future__ import with_statement
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 from logging.config import fileConfig
 
-# this is the Alembic Config object, which provides
-# access to the values within the .ini file in use.
-config = context.config
-
-# Interpret the config file for Python logging.
-# This line sets up loggers basically.
-fileConfig(config.config_file_name)
-
-# add your model's MetaData object here
-# for 'autogenerate' support
-# from myapp import mymodel
-# target_metadata = mymodel.Base.metadata
-
-# <rhodes_specific_config>
-import sys
-import os
 sys.path.append(os.path.abspath('../../'))
 from application.lib.models import Base
 from config.rhodes import DB_DSN
+
+config = context.config
+fileConfig(config.config_file_name)
 target_metadata = Base.metadata
-# </rhodes_specific_config>
-
-
-# other values from the config, defined by the needs of env.py,
-# can be acquired:
-# my_important_option = config.get_main_option("my_important_option")
-# ... etc.
+config.set_main_option('sqlalchemy.url', DB_DSN)
 
 
 def run_migrations_offline():
@@ -44,7 +28,7 @@ def run_migrations_offline():
     script output.
 
     """
-    url = DB_DSN
+    url = config.get_main_option('sqlalchemy.url')
     context.configure(url=url, target_metadata=target_metadata)
 
     with context.begin_transaction():
