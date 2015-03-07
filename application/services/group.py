@@ -36,7 +36,7 @@ class GetSubjectGroups(BasePersistanceService):
         }
 
     def output(self):
-        return lambda x: Helper.array_of(x, Group) or x is None
+        return lambda x: Helper.array_of(x, Group) or x is []
 
     def execute(self, args):
         subject_id = args.get('subject_id')

@@ -22,8 +22,8 @@ class SessionWrapper(object):
     def rollback(self):
         self.session.rollback()
 
-    def query(self, cls):
-        return self.session.query(cls)
+    def query(self, *args):
+        return self.session.query(*args)
 
 
 class DictMixin(object):
@@ -32,19 +32,20 @@ class DictMixin(object):
         raise NotImplementedError()
 
 
-student_group = Table(
-    'student_group',
-    Base.metadata,
-    Column('student_id', Integer, ForeignKey('person.id')),
-    Column('group_id', Integer, ForeignKey('group.id')),
-)
+class StudentGroup(Base):
 
-teacher_subject = Table(
-    'teacher_subject',
-    Base.metadata,
-    Column('teacher_id', Integer, ForeignKey('person.id')),
-    Column('subject_id', Integer, ForeignKey('subject.id')),
-)
+    __tablename__ = 'student_group'
+
+    student_id = Column(Integer, ForeignKey('person.id'), primary_key=True)
+    group_id = Column(Integer, ForeignKey('group.id'), primary_key=True)
+
+
+class TeacherSubject(Base):
+
+    __tablename__ = 'teacher_subject'
+
+    teacher_id = Column(Integer, ForeignKey('person.id'), primary_key=True)
+    subject_id = Column(Integer, ForeignKey('subject.id'), primary_key=True)
 
 
 class PersonType(Base):
@@ -103,15 +104,13 @@ class Subject(DictMixin, Base):
     id = Column(Integer, primary_key=True)
     code = Column(Integer, unique=True)
     name = Column(String(60))
-    teachers = relationship('Person', backref='subjects', secondary=teacher_subject)
-
+    teachers = relationship('Person', backref='subjects', secondary=TeacherSubject.__table__)
 
     def to_dict(self):
         return {
             'id': self.id,
             'code': self.code,
             'name': self.name,
-            'groups': self.groups,
         }
 
 
@@ -126,7 +125,7 @@ class Group(DictMixin, Base):
         Subject,
         backref=backref('groups', uselist=True, cascade='delete,all'))
 
-    students = relationship('Person', backref='groups', secondary=student_group)
+    students = relationship('Person', backref='groups', secondary=StudentGroup.__table__)
 
     def to_dict(self):
         return {
