@@ -1,10 +1,11 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Table, Column, Integer, Boolean, String, Date, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, Date, DateTime, ForeignKey
 
-dsn = 'mysql://root:@localhost/rhodes'
-db = create_engine(dsn)
+from config.rhodes import DB_DSN
+
+db = create_engine(DB_DSN)
 
 Base = declarative_base()
 
