@@ -1,5 +1,13 @@
 *.pyc
 .DS_Store
 __pycache__
+
 .idea
+
 application/lib/migrations/versions/*
+
+log/*
+
+external/gunicorn.sh
+external/nginx.conf
+external/supervisor.conf
