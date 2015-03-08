@@ -37,7 +37,7 @@ class StudentGroup(Base):
 
     __tablename__ = 'student_group'
 
-    student_id = Column(Integer, ForeignKey('person.id'), primary_key=True)
+    student_id = Column(Integer, ForeignKey('user.id'), primary_key=True)
     group_id = Column(Integer, ForeignKey('group.id'), primary_key=True)
 
 
@@ -45,31 +45,31 @@ class TeacherSubject(Base):
 
     __tablename__ = 'teacher_subject'
 
-    teacher_id = Column(Integer, ForeignKey('person.id'), primary_key=True)
+    teacher_id = Column(Integer, ForeignKey('user.id'), primary_key=True)
     subject_id = Column(Integer, ForeignKey('subject.id'), primary_key=True)
 
 
-class PersonType(Base):
+class UserType(Base):
 
-    __tablename__ = 'person_type'
+    __tablename__ = 'user_type'
 
     id = Column(Integer, primary_key=True)
     name = Column(String(15))
 
 
-class Person(DictMixin, Base):
+class User(DictMixin, Base):
 
-    __tablename__ = 'person'
+    __tablename__ = 'user'
 
     id = Column(Integer, primary_key=True)
     first_name = Column(String(60))
     last_name = Column(String(120))
 
     user = Column(String(6), unique=True)
-    type_id = Column(Integer, ForeignKey('person_type.id'))
+    type_id = Column(Integer, ForeignKey('user_type.id'))
     type = relationship(
-        PersonType,
-        backref=backref('persons', uselist=True, cascade='delete,all'))
+        UserType,
+        backref=backref('users', uselist=True, cascade='delete,all'))
 
     def to_dict(self):
         return {
@@ -105,7 +105,7 @@ class Subject(DictMixin, Base):
     id = Column(Integer, primary_key=True)
     code = Column(Integer, unique=True)
     name = Column(String(60))
-    teachers = relationship('Person', backref='subjects', secondary=TeacherSubject.__table__)
+    teachers = relationship('User', backref='subjects', secondary=TeacherSubject.__table__)
 
     def to_dict(self):
         return {
@@ -126,7 +126,7 @@ class Group(DictMixin, Base):
         Subject,
         backref=backref('groups', uselist=True, cascade='delete,all'))
 
-    students = relationship('Person', backref='groups', secondary=StudentGroup.__table__)
+    students = relationship('User', backref='groups', secondary=StudentGroup.__table__)
 
     def to_dict(self):
         return {
@@ -156,11 +156,11 @@ class Message(DictMixin, Base):
 
     type = Column(String(20), ForeignKey('message_type.name'))
 
-    sender_id = Column(Integer, ForeignKey('person.id'))
+    sender_id = Column(Integer, ForeignKey('user.id'))
     sender = relationship(
-        Person,
+        User,
         backref=backref('sent_messages', uselist=True, cascade='delete,all'),
-        primaryjoin=sender_id == Person.id)
+        primaryjoin=sender_id == User.id)
 
     def __str__(self):
         return '<Message id={id}>'.format(id=self.id)
@@ -176,17 +176,17 @@ class Message(DictMixin, Base):
 
 class DirectMessage(Message):
 
-    person_id = Column(Integer, ForeignKey('person.id'))
-    person = relationship(
-        Person,
+    user_id = Column(Integer, ForeignKey('user.id'))
+    user = relationship(
+        User,
         backref=backref('received_direct_messages', uselist=True, cascade='delete,all'),
-        primaryjoin=person_id == Person.id)
+        primaryjoin=user_id == User.id)
 
     __mapper_args__ = {'polymorphic_identity': MessageType.DIRECT_MESSAGE}
 
     def to_dict(self):
         message = super(DirectMessage, self).to_dict()
-        message.update({'person': self.person})
+        message.update({'user': self.user})
         return message
 
 

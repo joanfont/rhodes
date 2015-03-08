@@ -1,17 +1,4 @@
 
-VALIDATION_ERROR = 'validation_error'
-
-
-class ValidationError(Exception):
-
-    def __init__(self, *args, **kwargs):
-        super(ValidationError, self).__init__(*args)
-        self.errors = kwargs.get('errors')
-
-    def get_errors(self):
-        return self.errors
-
-
 class BaseValidator(object):
     def __init__(self, options):
         for (k, v) in options.items():
@@ -26,7 +13,7 @@ class BaseValidator(object):
 
     def validate(self, value):
         if self.options.get('required') and not value:
-            raise ValidationError('The value is required for this validator')
+            raise ValueError('The value is required for this validator')
 
         val = value if value is not None else self.options.get('default')
         return self.check_value(val)
@@ -40,7 +27,7 @@ class IntegerValidator(BaseValidator):
         try:
             value = int(value)
         except ValueError:
-            raise ValidationError('The value is not an integer')
+            raise ValueError('The value is not an integer')
 
         return value
 
@@ -53,13 +40,13 @@ class StringValidator(BaseValidator):
 
     def check_value(self, value):
         if not isinstance(value, (basestring, unicode)):
-            raise ValidationError('The value is not an string')
+            raise ValueError('The value is not an string')
 
         if self.options.get('min_length') and len(value) < self.options.get('min_length'):
-            raise ValidationError('The value\'s length is lower than the min_length provided')
+            raise ValueError('The value\'s length is lower than the min_length provided')
 
         if self.options.get('max_length') and len(value) > self.options.get('max_length'):
-            raise ValidationError('The value\'s length is greater than the min_length provided')
+            raise ValueError('The value\'s length is greater than the min_length provided')
 
         return value
 

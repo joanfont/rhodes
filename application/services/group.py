@@ -1,11 +1,9 @@
 from application.services.base import BasePersistanceService
 from application.lib.validators import IntegerValidator
-from application.lib.helper import Helper
 from application.lib.models import Group
 
-
-class GroupNotFoundError(Exception):
-    pass
+from common.helper import Helper
+from common.exceptions import GroupNotFoundError
 
 
 class GetGroup(BasePersistanceService):
