@@ -28,14 +28,14 @@ class BaseService(object):
 
     def clean_args(self, args):
         cleaned_args = {}
-        arg_errors = {}
+        arg_errors = []
         for (k, v) in self.input_contract.items():
             value = args.get(k)
             try:
                 clean_value = v.validate(value)
                 cleaned_args[k] = clean_value
             except ValueError, e:
-                arg_errors[k] = e.message
+                arg_errors.append({'field': k, 'code': ValidationError.CODE, 'message': e.message})
 
         if arg_errors:
             raise ValidationError(errors=arg_errors)
@@ -53,7 +53,7 @@ class BaseService(object):
 
     def post_execute(self, valid):
         if not valid:
-            raise ValueError('The service\'s result does not sattisfy the output contract given')
+            raise ValueError('The service\'s result does not satisfy the output contract given')
 
     def call(self, args):
         cleaned_args, output_fnx = self.pre_execute(args)
