@@ -38,7 +38,9 @@ class BaseService(object):
                 arg_errors.append({'field': k, 'code': ValidationError.CODE, 'message': e.message})
 
         if arg_errors:
-            raise ValidationError(errors=arg_errors)
+            e = ValidationError()
+            e.append_errors(arg_errors)
+            raise e
         return cleaned_args
 
     def pre_execute(self, args):

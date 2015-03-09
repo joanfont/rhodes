@@ -21,7 +21,7 @@ class ModelAPIView(MethodView):
             response = ModelAPIView.to_dict(data)
             code = status.HTTP_200_OK
         except BaseError, e:
-            response = {'errors': e.errors}
+            response = e.error
             code = e.status_code
 
         return jsonify(response), code

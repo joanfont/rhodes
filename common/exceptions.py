@@ -10,11 +10,11 @@ class BaseError(Exception):
     def __init__(self, *args, **kwargs):
         super(BaseError, self).__init__(*args)
         self.status_code = kwargs.get('status_code', self.STATUS_CODE)
-        if kwargs.get('errors'):
-            self.errors = kwargs.get('errors')
+        if kwargs.get('error'):
+            self.error = kwargs.get('error')
         else:
             message = kwargs.get('error_message', self.MESSAGE)
-            self.errors = [{'code': self.CODE, 'message': message}]
+            self.error = {'code': self.CODE, 'message': message}
 
 
 # Validation exception
@@ -22,6 +22,9 @@ class ValidationError(BaseError):
     STATUS_CODE = status.HTTP_400_BAD_REQUEST
     CODE = 'validation_error'
     MESSAGE = 'Validation error'
+
+    def append_errors(self, errors):
+        self.error.update({'errors': errors})
 
 
 # Service exceptions
