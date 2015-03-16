@@ -1,5 +1,6 @@
 from datetime import datetime
 
+
 class BaseValidator(object):
 
     def __init__(self, options):
@@ -106,4 +107,13 @@ class DateValidator(BaseValidator):
         return date
 
 
+class BooleanValidator(BaseValidator):
 
+    def check_value(self, value):
+
+        try:
+            val = bool(value)
+        except:
+            raise ValueError('Value must be boolean')
+
+        return val

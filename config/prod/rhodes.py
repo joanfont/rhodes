@@ -9,3 +9,5 @@ DB_DSN = '{driver}://{user}:{passw}@{host}/{name}?charset=utf8'.format(driver=DB
                                                                        passw=DB_PASS,
                                                                        host=DB_HOST,
                                                                        name=DB_NAME)
+
+DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'

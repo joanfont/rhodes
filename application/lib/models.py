@@ -3,9 +3,10 @@ from sqlalchemy.orm import sessionmaker, relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Date, DateTime, ForeignKey
 
-from config.rhodes import DB_DSN
+from config import rhodes as config
+from common.helper import Helper
 
-db = create_engine(DB_DSN)
+db = create_engine(config.DB_DSN)
 
 Base = declarative_base()
 
@@ -29,7 +30,7 @@ class SessionWrapper(object):
 
 class DictMixin(object):
 
-    def to_dict(self):
+    def to_dict(self, **kwargs):
         raise NotImplementedError()
 
 
@@ -76,7 +77,7 @@ class User(DictMixin, Base):
         UserType,
         backref=backref('users', uselist=True, cascade='delete,all'))
 
-    def to_dict(self):
+    def to_dict(self, **kwargs):
         return {
             'id': self.id,
             'first_name': self.first_name,
@@ -84,6 +85,12 @@ class User(DictMixin, Base):
             'user': self.user,
             'type': self.type,
         }
+
+    def is_teacher(self):
+        return self.type.id == UserType.TEACHER
+
+    def is_student(self):
+        return self.type.id == UserType.STUDENT
 
 
 class Course(DictMixin, Base):
@@ -94,7 +101,7 @@ class Course(DictMixin, Base):
     starts_at = Column(Date)
     ends_at = Column(Date)
 
-    def to_dict(self):
+    def to_dict(self, **kwargs):
         return {
             'id': self.id,
             'starts_at': self.starts_at,
@@ -112,12 +119,21 @@ class Subject(DictMixin, Base):
     name = Column(String(60))
     teachers = relationship('User', backref='subjects', secondary=TeacherSubject.__table__)
 
-    def to_dict(self):
-        return {
+    def to_dict(self, **kwargs):
+        base = {
             'id': self.id,
             'code': self.code,
             'name': self.name,
         }
+
+        if kwargs.get('with_student_group'):
+            base.update({'group': self.group.to_dict(**kwargs)})
+
+        if kwargs.get('with_groups'):
+            groups = map(lambda x: x.to_dict(**kwargs), self.groups)
+            base.update({'groups': groups})
+
+        return base
 
 
 class Group(DictMixin, Base):
@@ -133,11 +149,10 @@ class Group(DictMixin, Base):
 
     students = relationship('User', backref='groups', secondary=StudentGroup.__table__)
 
-    def to_dict(self):
+    def to_dict(self, **kwargs):
         return {
             'id': self.id,
             'name': self.name,
-            'subject': self.subject.to_dict()
         }
 
 
@@ -175,10 +190,11 @@ class Message(DictMixin, Base):
     def __str__(self):
         return '<Message id={id}>'.format(id=self.id)
 
-    def to_dict(self):
+    def to_dict(self, **kwargs):
         return {
             'id': self.id,
             'body': self.body,
+            'created_at': Helper.datetime_format(self.created_at),
         }
 
     __mapper_args__ = {'polymorphic_on': type}
