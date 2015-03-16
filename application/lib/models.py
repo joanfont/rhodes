@@ -53,6 +53,11 @@ class UserType(Base):
 
     __tablename__ = 'user_type'
 
+    TEACHER = 1
+    STUDENT = 2
+
+    CHOICES = [TEACHER, STUDENT]
+
     id = Column(Integer, primary_key=True)
     name = Column(String(15))
 
@@ -132,6 +137,7 @@ class Group(DictMixin, Base):
         return {
             'id': self.id,
             'name': self.name,
+            'subject': self.subject.to_dict()
         }
 
 
@@ -141,6 +147,8 @@ class MessageType(Base):
     GROUP_MESSAGE = 'GROUP_MESSAGE'
     SUBJECT_MESSAGE = 'SUBJECT_MESSAGE'
 
+    CHOICES = [DIRECT_MESSAGE, GROUP_MESSAGE, SUBJECT_MESSAGE]
+
     __tablename__ = 'message_type'
 
     name = Column(String(20), primary_key=True)
@@ -148,10 +156,12 @@ class MessageType(Base):
 
 class Message(DictMixin, Base):
 
+    MAX_LENGTH = 400
+
     __tablename__ = 'message'
 
     id = Column(Integer, primary_key=True)
-    body = Column(String(400))
+    body = Column(String(MAX_LENGTH))
     created_at = Column(DateTime)
 
     type = Column(String(20), ForeignKey('message_type.name'))
@@ -168,7 +178,7 @@ class Message(DictMixin, Base):
     def to_dict(self):
         return {
             'id': self.id,
-            'message': self.body,
+            'body': self.body,
         }
 
     __mapper_args__ = {'polymorphic_on': type}
@@ -184,11 +194,6 @@ class DirectMessage(Message):
 
     __mapper_args__ = {'polymorphic_identity': MessageType.DIRECT_MESSAGE}
 
-    def to_dict(self):
-        message = super(DirectMessage, self).to_dict()
-        message.update({'user': self.user})
-        return message
-
 
 class GroupMessage(Message):
 
@@ -199,11 +204,6 @@ class GroupMessage(Message):
 
     __mapper_args__ = {'polymorphic_identity': MessageType.GROUP_MESSAGE}
 
-    def to_dict(self):
-        message = super(DirectMessage, self).to_dict()
-        message.update({'group': self.group})
-        return message
-
 
 class SubjectMessage(Message):
 
@@ -213,8 +213,3 @@ class SubjectMessage(Message):
         backref=backref('received_subject_messages', uselist=True, cascade='delete,all'))
 
     __mapper_args__ = {'polymorphic_identity': MessageType.SUBJECT_MESSAGE}
-
-    def to_dict(self):
-        message = super(SubjectMessage, self).to_dict()
-        message.update({'subject': self.subject})
-        return message
