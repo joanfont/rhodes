@@ -1,7 +1,7 @@
 from flask import Flask
 
 from views import SubjectsView, SubjectDetailView
-from views import GroupsViewg
+from views import GroupsView
 
 app = Flask(__name__)
 app.config['JSON_SORT_KEYS'] = False
