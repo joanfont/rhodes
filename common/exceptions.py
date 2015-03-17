@@ -77,5 +77,5 @@ class NotAuthenticatedError(APIError):
 
 class CantSerializeArrayError(APIError):
     STATUS_CODE = status.HTTP_422_UNPROCESSABLE_ENTITY
-    CODE = 'unauthorized'
-    MESSAGE = 'You are not authorized to perform this action'
+    CODE = 'unprocessable_entity'
+    MESSAGE = 'Can\'t serialize data'

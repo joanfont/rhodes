@@ -5,11 +5,13 @@ from flask import request
 from api.decorators import login_required
 from application.lib.models import DictMixin as ModelDictMixin
 from application.services.group import GetUserGroups
+from application.services.message import PutSubjectMessage
 import common.status as status
 from application.services.subject import GetUserSubjects, GetUserSubject
 from common.exceptions import BaseError, CantSerializeArrayError
 from common.helper import Helper
 
+from datetime import datetime
 
 class ResponseDictMixin(dict):
 
@@ -18,27 +20,40 @@ class ResponseDictMixin(dict):
     def to_dict(self, data):
         kwargs = self.kwargs
         many = Helper.instance_of(data, list)
+        is_native_type = Helper.array_of(data, (list, dict)) if many else Helper.instance_of(data, (list, dict))
 
-        if many:
-            can_map_fnx = Helper.array_of
+        if is_native_type:
+            # don't mind about can_map value
+            can_map = False
         else:
-            can_map_fnx = Helper.instance_of
 
-        can_map = can_map_fnx(data, ModelDictMixin)
+            if many:
+                can_map_fnx = Helper.array_of
+            else:
+                can_map_fnx = Helper.instance_of
 
-        if not can_map:
+            can_map = can_map_fnx(data, ModelDictMixin)
+
+        if not can_map and not is_native_type:
             raise CantSerializeArrayError()
 
         if many:
-            results = map(lambda x: x.to_dict(**kwargs), data)
-            total = len(results)
-            response = {
-                'total': total,
-                'results': results
-            }
+            if is_native_type:
+                response = data
+            else:
+                results = map(lambda x: x.to_dict(**kwargs), data)
+
+                total = len(results)
+                response = {
+                    'total': total,
+                    'results': results
+                }
 
         else:
-            response = data.to_dict(**kwargs)
+            if is_native_type:
+                response = data
+            else:
+                response = data.to_dict(**kwargs)
 
         return response
 
@@ -60,10 +75,24 @@ class ListAPIViewMixin(ResponseDictMixin, MethodView):
         raise NotImplementedError()
 
 
-class CreateAPIViewMixin(MethodView):
+class CreateAPIViewMixin(ResponseDictMixin, MethodView):
 
     def post(self, *args, **kwargs):
-        pass
+        try:
+            raw_data = self.post_action(*args, **kwargs)
+            response = self.to_dict(raw_data)
+            status_code = status.HTTP_201_CREATED
+        except BaseError, e:
+            response = e.error
+            status_code = e.status_code
+
+        return jsonify(response), status_code
+
+    @staticmethod
+    def post_data():
+        return dict(
+            (key, request.form.getlist(key) if len(request.form.getlist(key)) > 1 else request.form.getlist(key)[0]) for
+            key in request.form.keys())
 
     def post_action(self, *args, **kwargs):
         raise NotImplementedError()
@@ -135,7 +164,7 @@ class SubjectDetailView(ListAPIViewMixin):
             self.kwargs['with_student_group'] = True
 
         get_subject_srv = GetUserSubject()
-        subject = get_subject_srv.call({'id': subject_id, 'user_id': user.id})
+        subject = get_subject_srv.call({'subject_id': subject_id, 'user_id': user.id})
         return subject
 
 
@@ -149,35 +178,25 @@ class GroupsView(ListAPIViewMixin):
         return groups
 
 
-# class SubjectMessagesView(ModelAPIView):
-#
-#     @login_required
-#     def get_action(self, *args, **kwargs):
-#         subject_id = kwargs.get('subject_id')
-#         get_subject_messages_srv = GetSubjectMessages()
-#         messages = get_subject_messages_srv.call({'subject_id': subject_id})
-#         return messages, status.HTTP_200_OK
-#
-#     @staticmethod
-#     def get_post_args():
-#         req = request.form
-#         return {
-#             'body': req.get('body')
-#         }
-#
-#     @login_required
-#     def post_action(self, *args, **kwargs):
-#         params = self.get_post_args()
-#         user = kwargs.get('user')
-#         subject_id = kwargs.get('subject_id')
-#         params.update({
-#             'sender_id': user.id,
-#             'created_at': datetime.now(),
-#             'recipient_id': subject_id,
-#         })
-#
-#         put_subject_message_srv = PutSubjectMessage()
-#         message = put_subject_message_srv.call(params)
-#         return message, status.HTTP_201_CREATED
-#
-#
+class SubjectMessagesView(CreateAPIViewMixin):
+
+    @login_required
+    def post_action(self, *args, **kwargs):
+
+        post_data = self.post_data()
+
+        user = kwargs.get('user')
+        subject_id = kwargs.get('subject_id')
+
+        body = post_data.get('body')
+
+        put_subject_message_srv = PutSubjectMessage()
+        message = put_subject_message_srv.call({
+            'sender_id': user.id,
+            'body': body,
+            'created_at': datetime.now(),
+            'recipient_id': subject_id})
+
+        return message
+
+
