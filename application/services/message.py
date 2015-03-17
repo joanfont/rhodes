@@ -73,7 +73,7 @@ class PutMessageInputAndOutputContractMixin(BaseService):
         raise NotImplementedError()
 
 
-class PutSubjectMessage(PutMessageInputAndOutputContractMixin, BasePersistanceService):
+class PutSubjectMessage(PutMessageInputAndOutputContractMixin, BaseService):
 
     def execute(self, args):
         args.update({'type': MessageType.SUBJECT_MESSAGE})
@@ -81,7 +81,7 @@ class PutSubjectMessage(PutMessageInputAndOutputContractMixin, BasePersistanceSe
         return put_message_srv.call(args)
 
 
-class PutGroupMessage(PutMessageInputAndOutputContractMixin, BasePersistanceService):
+class PutGroupMessage(PutMessageInputAndOutputContractMixin, BaseService):
 
     def execute(self, args):
         args.update({'type': MessageType.GROUP_MESSAGE})

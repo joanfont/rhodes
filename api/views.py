@@ -47,8 +47,9 @@ class ListAPIViewMixin(ResponseDictMixin, MethodView):
 
     def get(self, *args, **kwargs):
         try:
-            raw_data, status_code, = self.get_action(*args, **kwargs)
+            raw_data = self.get_action(*args, **kwargs)
             response = self.to_dict(raw_data)
+            status_code = status.HTTP_200_OK
         except BaseError, e:
             response = e.error
             status_code = e.status_code
@@ -111,7 +112,7 @@ class SubjectsView(ListAPIViewMixin):
 
         get_user_subjects_srv = GetUserSubjects()
         subjects = get_user_subjects_srv.call({'user_id': user.id})
-        return subjects, status.HTTP_200_OK
+        return subjects
 
 
 class SubjectDetailView(ListAPIViewMixin):
@@ -135,7 +136,7 @@ class SubjectDetailView(ListAPIViewMixin):
 
         get_subject_srv = GetUserSubject()
         subject = get_subject_srv.call({'id': subject_id, 'user_id': user.id})
-        return subject, status.HTTP_200_OK
+        return subject
 
 
 class GroupsView(ListAPIViewMixin):
@@ -145,7 +146,7 @@ class GroupsView(ListAPIViewMixin):
         user = kwargs.get('user')
         get_user_groups_srv = GetUserGroups()
         groups = get_user_groups_srv.call({'user_id': user.id})
-        return groups, status.HTTP_200_OK
+        return groups
 
 
 # class SubjectMessagesView(ModelAPIView):

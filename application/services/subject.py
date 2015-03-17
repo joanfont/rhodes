@@ -1,7 +1,7 @@
 from application.services.base import BasePersistanceService, BaseService
 from application.services.user import GetUser
 from common.helper import Helper
-from common.exceptions import SubjectNotFoundError
+from common.exceptions import TeacherDoesNotTeachSubjectError, StudentIsNotEnrolledToSubjectError, SubjectNotFoundError
 from application.lib.validators import IntegerValidator, BooleanValidator
 
 from application.lib.models import Subject, Group, StudentGroup, User, TeacherSubject, UserType
@@ -13,38 +13,39 @@ def add_student_group_to_subject(group):
     return subject
 
 
-class GetSubject(BasePersistanceService):
+class GetTeacherSubject(BasePersistanceService):
 
-    def input(self):
-        return {
-            'id': IntegerValidator({'required': True})
-        }
-
-    def output(self):
-        return lambda x: Helper.instance_of(x, Subject)
-
-    def execute(self, args):
-        subject_id = args.get('id')
-        subject = self.session.query(Subject).get(subject_id)
-
-        if not subject:
-            raise SubjectNotFoundError()
-
-        return subject
-
-
-class GetTeacherSubject(GetSubject):
-
-    # teacher_id param is user to make this service behavior like GetStudentSubject
-    # but its value is never used
     def input(self):
         return {
             'id': IntegerValidator({'required': True}),
             'teacher_id': IntegerValidator({'required': True})
         }
 
+    def output(self):
+        return lambda x: Helper.instance_of(x, Subject)
 
-class GetStudentSubject(GetSubject):
+    def execute(self, args):
+
+        subject_id = args.get('id')
+        teacher_id = args.get('teacher_id')
+
+        subject_query = self.session.query(Subject).\
+            filter(Subject.id == subject_id)
+
+        if not subject_query.count():
+            raise SubjectNotFoundError()
+
+        subject_query = subject_query.join(TeacherSubject, Subject.id == TeacherSubject.subject_id).\
+            join(User, TeacherSubject.teacher_id == User.id).\
+            filter(User.id == teacher_id)
+
+        if not subject_query.count():
+            raise TeacherDoesNotTeachSubjectError()
+
+        return subject_query.one()
+
+
+class GetStudentSubject(BasePersistanceService):
 
     def input(self):
         return {
@@ -52,17 +53,28 @@ class GetStudentSubject(GetSubject):
             'student_id': IntegerValidator({'required': True})
         }
 
+    def output(self):
+        return lambda x: Helper.instance_of(x, Subject)
+
     def execute(self, args):
         subject_id = args.get('id')
         student_id = args.get('student_id')
 
-        group = self.session.query(Group).\
+        group_query = self.session.query(Group).\
             join(Subject, Group.subject_id == Subject.id).\
-            join(StudentGroup, Group.id == StudentGroup.student_id).\
-            join(User, StudentGroup.student_id == User.id).\
-            filter(User.id == student_id).\
-            filter(Subject.id == subject_id).one()
+            filter(Subject.id == subject_id)
 
+        if not group_query.count():
+            raise SubjectNotFoundError()
+
+        group_query = group_query.join(StudentGroup, Group.id == StudentGroup.student_id).\
+            join(User, StudentGroup.student_id == User.id).\
+            filter(User.id == student_id)
+
+        if not group_query.count():
+            raise StudentIsNotEnrolledToSubjectError()
+
+        group = group_query.one()
         subject = add_student_group_to_subject(group)
         return subject
 
@@ -131,8 +143,8 @@ class GetStudentSubjects(BasePersistanceService):
 
     def execute(self, args):
 
-
         student_id = args.get('student_id')
+
         groups = self.session.query(Group).\
             join(StudentGroup, Group.id == StudentGroup.group_id).\
             join(User, StudentGroup.student_id == User.id).\
@@ -171,6 +183,3 @@ class GetUserSubjects(BaseService):
         subjects = get_subjects_srv.call({arg: user.id})
 
         return subjects
-
-
-

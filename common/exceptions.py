@@ -54,6 +54,16 @@ class SubjectNotFoundError(ObjectNotFoundError):
     MESSAGE = 'Subject not found'
 
 
+class TeacherDoesNotTeachSubjectError(ObjectNotFoundError):
+
+    MESSAGE = 'Teacher does not teach the subject'
+
+
+class StudentIsNotEnrolledToSubjectError(ObjectNotFoundError):
+
+    MESSAGE = 'Student is not enrolled to the subject'
+
+
 # API errors
 class APIError(BaseError):
     pass
