@@ -3,11 +3,10 @@ from flask.views import MethodView
 from flask import request
 
 from api.decorators import login_required
+from application.lib.models import DictMixin as ModelDictMixin
 from application.services.group import GetUserGroups
-from application.services.message import PutSubjectMessage, GetSubjectMessages
-from application.lib.models import DictMixin as ModelDictMixin, UserType
 import common.status as status
-from application.services.subject import GetUserSubjects
+from application.services.subject import GetUserSubjects, GetUserSubject
 from common.exceptions import BaseError, CantSerializeArrayError
 from common.helper import Helper
 
@@ -115,18 +114,40 @@ class SubjectsView(ListAPIViewMixin):
         return subjects, status.HTTP_200_OK
 
 
-# class GroupsView(ModelAPIView):
-#     @login_required
-#     def get_action(self, *args, **kwargs):
-#         user = kwargs.get('user')
-#         get_user_groups_srv = GetUserGroups()
-#         groups = get_user_groups_srv.call({'user_id': user.id})
-#         return groups, status.HTTP_200_OK
-#
-#     def post_action(self):
-#         pass
-#
-#
+class SubjectDetailView(ListAPIViewMixin):
+
+    def __init__(self):
+        self.kwargs = {
+            'with_student_group': False,
+            'with_groups': False
+        }
+
+    @login_required
+    def get_action(self, *args, **kwargs):
+
+        user = kwargs.get('user')
+        subject_id = kwargs.get('subject_id')
+
+        if user.is_teacher():
+            self.kwargs['with_groups'] = True
+        elif user.is_student():
+            self.kwargs['with_student_group'] = True
+
+        get_subject_srv = GetUserSubject()
+        subject = get_subject_srv.call({'id': subject_id, 'user_id': user.id})
+        return subject, status.HTTP_200_OK
+
+
+class GroupsView(ListAPIViewMixin):
+
+    @login_required
+    def get_action(self, *args, **kwargs):
+        user = kwargs.get('user')
+        get_user_groups_srv = GetUserGroups()
+        groups = get_user_groups_srv.call({'user_id': user.id})
+        return groups, status.HTTP_200_OK
+
+
 # class SubjectMessagesView(ModelAPIView):
 #
 #     @login_required
