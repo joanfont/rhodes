@@ -129,20 +129,6 @@ class GetTeacherSubject(BasePersistanceService):
     def execute(self, args):
 
         subject_id = args.get('subject_id')
-        teacher_id = args.get('teacher_id')
-
-        check_subject_exists_srv = CheckSubjectExists()
-        subject_exists = check_subject_exists_srv.call({'subject_id': subject_id})
-
-        if not subject_exists:
-            raise SubjectNotFoundError()
-
-        check_teacher_teaches_subject_srv = CheckTeacherTeachesSubject()
-        user_belongs = check_teacher_teaches_subject_srv.call({'subject_id': subject_id, 'teacher_id': teacher_id})
-
-        if not user_belongs:
-            raise TeacherDoesNotTeachSubjectError()
-
         subject = self.session.query(Subject).get(subject_id)
         return subject
 
@@ -161,20 +147,6 @@ class GetStudentSubject(BasePersistanceService):
     def execute(self, args):
         subject_id = args.get('subject_id')
         student_id = args.get('student_id')
-
-        check_subject_exists_srv = CheckSubjectExists()
-        subject_exists = check_subject_exists_srv.call({'subject_id': subject_id})
-
-        if not subject_exists:
-            raise SubjectNotFoundError()
-
-        check_student_is_enrolled_to_subject_srv = CheckStudentIsEnrolledToSubject()
-        user_belongs = check_student_is_enrolled_to_subject_srv.call({
-            'subject_id': subject_id,
-            'student_id': student_id})
-
-        if not user_belongs:
-            raise StudentIsNotEnrolledToSubjectError()
 
         group_query = self.session.query(Group).\
             join(Subject, Group.subject_id == Subject.id).\
