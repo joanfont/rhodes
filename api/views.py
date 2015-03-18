@@ -2,10 +2,10 @@ from flask import jsonify
 from flask.views import MethodView
 from flask import request
 
-from api.decorators import login_required
+from api.decorators import login_required, check_subject_exists, belong_to_subject
 from application.lib.models import DictMixin as ModelDictMixin
 from application.services.group import GetUserGroups
-from application.services.message import PutSubjectMessage
+from application.services.message import PutSubjectMessage, GetSubjectMessages
 import common.status as status
 from application.services.subject import GetUserSubjects, GetUserSubject
 from common.exceptions import BaseError, CantSerializeArrayError
@@ -178,11 +178,12 @@ class GroupsView(ListAPIViewMixin):
         return groups
 
 
-class SubjectMessagesView(CreateAPIViewMixin):
+class SubjectMessagesView(ListAPIViewMixin, CreateAPIViewMixin):
 
     @login_required
+    @check_subject_exists
+    @belong_to_subject
     def post_action(self, *args, **kwargs):
-
         post_data = self.post_data()
 
         user = kwargs.get('user')
@@ -199,4 +200,13 @@ class SubjectMessagesView(CreateAPIViewMixin):
 
         return message
 
+    @login_required
+    @check_subject_exists
+    @belong_to_subject
+    def get_action(self, *args, **kwargs):
 
+        subject_id = kwargs.get('subject_id')
+        get_subject_messages_srv = GetSubjectMessages()
+        messages = get_subject_messages_srv.call({'subject_id': subject_id})
+
+        return messages

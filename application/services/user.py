@@ -9,15 +9,15 @@ class GetUser(BasePersistanceService):
 
     def input(self):
         return {
-            'id': IntegerValidator({'required': True})
+            'user_id': IntegerValidator({'required': True})
         }
 
     def output(self):
         return lambda x: Helper.instance_of(x, User)
 
     def execute(self, args):
-        _id = args.get('id')
-        user = self.session.query(User).get(_id)
+        user_id = args.get('user_id')
+        user = self.session.query(User).get(user_id)
 
         if not user:
             raise UserNotFoundError()

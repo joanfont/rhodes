@@ -47,9 +47,9 @@ class PutMessage(BasePersistanceService):
     def execute(self, args):
         message_type = args.get('type')
 
-        message_cls = PutMessage.get_message_instance(message_type)
+        message_cls = self.get_message_instance(message_type)
 
-        PutMessage.adapt_args(args)
+        self.adapt_args(args)
         message = message_cls(**args)
 
         self.session.add(message)
@@ -101,8 +101,10 @@ class GetSubjectMessages(BasePersistanceService):
 
     def execute(self, args):
         subject_id = args.get('subject_id')
+
         messages = self.session.query(SubjectMessage).\
-            filter(SubjectMessage.subject_id == subject_id).all()
+            filter(SubjectMessage.subject_id == subject_id).\
+            order_by(SubjectMessage.created_at.desc()).all()
         return messages
 
 

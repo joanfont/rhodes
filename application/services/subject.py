@@ -2,15 +2,18 @@ from application.services.base import BasePersistanceService, BaseService
 from application.services.user import GetUser
 from common.helper import Helper
 from common.exceptions import TeacherDoesNotTeachSubjectError, StudentIsNotEnrolledToSubjectError, SubjectNotFoundError
-from application.lib.validators import IntegerValidator, BooleanValidator
+from application.lib.validators import IntegerValidator
 
 from application.lib.models import Subject, Group, StudentGroup, User, TeacherSubject, UserType
 
 
-def add_student_group_to_subject(group):
-    subject = group.subject
-    setattr(subject, 'group', group)
-    return subject
+class SubjectHelper(object):
+
+    @staticmethod
+    def add_student_group_to_subject(group):
+        subject = group.subject
+        setattr(subject, 'group', group)
+        return subject
 
 
 class CheckSubjectExists(BasePersistanceService):
@@ -97,7 +100,7 @@ class CheckUserBelongsToSubject(BaseService):
         user_id = args.get('user_id')
 
         get_user_srv = GetUser()
-        user = get_user_srv.call({'id': user_id})
+        user = get_user_srv.call({'user_id': user_id})
 
         dispatcher = {
             UserType.TEACHER: (CheckTeacherTeachesSubject, 'teacher_id'),
@@ -181,7 +184,7 @@ class GetStudentSubject(BasePersistanceService):
             filter(Subject.id == subject_id)
 
         group = group_query.one()
-        subject = add_student_group_to_subject(group)
+        subject = SubjectHelper.add_student_group_to_subject(group)
         return subject
 
 
@@ -201,7 +204,7 @@ class GetUserSubject(BaseService):
         user_id = args.get('user_id')
 
         get_user_srv = GetUser()
-        user = get_user_srv.call({'id': user_id})
+        user = get_user_srv.call({'user_id': user_id})
 
         dispatcher = {
             UserType.TEACHER: (GetTeacherSubject, 'teacher_id'),
@@ -257,7 +260,7 @@ class GetStudentSubjects(BasePersistanceService):
             filter(User.id == student_id).\
             all()
 
-        subjects = map(add_student_group_to_subject, groups)
+        subjects = map(SubjectHelper.add_student_group_to_subject, groups)
 
         return subjects
 
@@ -276,7 +279,7 @@ class GetUserSubjects(BaseService):
         user_id = args.get('user_id')
 
         get_user_srv = GetUser()
-        user = get_user_srv.call({'id': user_id})
+        user = get_user_srv.call({'user_id': user_id})
 
         dispatcher = {
             UserType.TEACHER: (GetTeacherSubjects, 'teacher_id'),

@@ -79,3 +79,10 @@ class CantSerializeArrayError(APIError):
     STATUS_CODE = status.HTTP_422_UNPROCESSABLE_ENTITY
     CODE = 'unprocessable_entity'
     MESSAGE = 'Can\'t serialize data'
+
+
+class InvalidParameterError(APIError):
+
+    STATUS_CODE = status.HTTP_400_BAD_REQUEST
+    CODE = 'invalid_parameter'
+    MESSAGE = 'A required parameter was not provided'

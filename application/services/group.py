@@ -95,7 +95,7 @@ class GetUserGroups(BaseService):
     def execute(self, args):
         user_id = args.get('user_id')
         get_user_srv = GetUser()
-        user = get_user_srv.call({'id': user_id})
+        user = get_user_srv.call({'user_id': user_id})
 
         dispatcher = {
             UserType.TEACHER: (GetTeacherGroups, 'teacher_id'),
