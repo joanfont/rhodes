@@ -187,7 +187,7 @@ class Message(DictMixin, Base):
     id = Column(Integer, primary_key=True)
     created_at = Column(DateTime)
 
-    type = Column(String(20), ForeignKey('message_type.id'))
+    type = Column(Integer, ForeignKey('message_type.id'))
 
     sender_id = Column(Integer, ForeignKey('user.id'))
     sender = relationship(
@@ -199,7 +199,7 @@ class Message(DictMixin, Base):
     body = relationship(
         MessageBody,
         backref=backref('message', uselist=True, cascade='delete,all'),
-        primaryjoin=sender_id == User.id)
+        primaryjoin=body_id == MessageBody.id)
 
     def __str__(self):
         return '<Message id={id}>'.format(id=self.id)
