@@ -2,11 +2,12 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Date, DateTime, ForeignKey
+from sqlalchemy.pool import NullPool
 
 from config import rhodes as config
 from common.helper import Helper
 
-db = create_engine(config.DB_DSN)
+db = create_engine(config.DB_DSN, poolclass=NullPool)
 
 Base = declarative_base()
 
