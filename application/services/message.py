@@ -1,7 +1,26 @@
-from application.lib.models import Message, MessageType, DirectMessage, SubjectMessage, GroupMessage
+from application.lib.models import Message, MessageType, DirectMessage, SubjectMessage, GroupMessage, MessageBody
 from application.lib.validators import StringValidator, IntegerValidator, ChoicesValidator, DateValidator
 from application.services.base import BasePersistanceService, BaseService
 from common.helper import Helper
+
+
+class PutMessageBody(BasePersistanceService):
+
+    def input(self):
+        return {
+            'body': StringValidator({'required': True, 'max_length': MessageBody.MAX_LENGTH}),
+        }
+
+    def output(self):
+        return lambda x: Helper.instance_of(x, MessageBody)
+
+    def execute(self, args):
+
+        body = args.get('body')
+        message_body = MessageBody(body=body)
+
+        self.session.add(message_body)
+        return message_body
 
 
 class PutMessage(BasePersistanceService):
@@ -9,7 +28,7 @@ class PutMessage(BasePersistanceService):
     def input(self):
         return {
             'sender_id': IntegerValidator({'required': True}),
-            'body': StringValidator({'required': True, 'max_length': Message.MAX_LENGTH}),
+            'body': StringValidator({'required': True, 'max_length': MessageBody.MAX_LENGTH}),
             'type': ChoicesValidator({'required': True, 'choices': MessageType.CHOICES}),
             'created_at': DateValidator({'required': True}),
             'recipient_id': IntegerValidator({'required': True})
@@ -45,11 +64,17 @@ class PutMessage(BasePersistanceService):
         args.pop('recipient_id')
 
     def execute(self, args):
+
         message_type = args.get('type')
+        body = args.pop('body')
+
+        put_message_body_srv = PutMessageBody()
+        message_body = put_message_body_srv.call({'body': body})
 
         message_cls = self.get_message_instance(message_type)
-
         self.adapt_args(args)
+
+        args['body_id'] = message_body.id
         message = message_cls(**args)
 
         self.session.add(message)

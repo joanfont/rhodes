@@ -158,33 +158,47 @@ class Group(DictMixin, Base):
 
 class MessageType(Base):
 
-    DIRECT_MESSAGE = 'DIRECT_MESSAGE'
-    GROUP_MESSAGE = 'GROUP_MESSAGE'
-    SUBJECT_MESSAGE = 'SUBJECT_MESSAGE'
+    DIRECT_MESSAGE = 1
+    GROUP_MESSAGE = 2
+    SUBJECT_MESSAGE = 3
 
     CHOICES = [DIRECT_MESSAGE, GROUP_MESSAGE, SUBJECT_MESSAGE]
 
     __tablename__ = 'message_type'
 
-    name = Column(String(20), primary_key=True)
+    id = Column(Integer, primary_key=True)
+    name = Column(String(20))
+
+
+class MessageBody(Base):
+
+    MAX_LENGTH = 400
+
+    __tablename__ = 'message_body'
+
+    id = Column(Integer, primary_key=True)
+    content = Column(String(MAX_LENGTH))
 
 
 class Message(DictMixin, Base):
 
-    MAX_LENGTH = 400
-
     __tablename__ = 'message'
 
     id = Column(Integer, primary_key=True)
-    body = Column(String(MAX_LENGTH))
     created_at = Column(DateTime)
 
-    type = Column(String(20), ForeignKey('message_type.name'))
+    type = Column(String(20), ForeignKey('message_type.id'))
 
     sender_id = Column(Integer, ForeignKey('user.id'))
     sender = relationship(
         User,
         backref=backref('sent_messages', uselist=True, cascade='delete,all'),
+        primaryjoin=sender_id == User.id)
+
+    body_id = Column(Integer, ForeignKey('message_body.id'))
+    body = relationship(
+        MessageBody,
+        backref=backref('message', uselist=True, cascade='delete,all'),
         primaryjoin=sender_id == User.id)
 
     def __str__(self):

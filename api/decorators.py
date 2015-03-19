@@ -11,7 +11,7 @@ from application.services.subject import CheckUserBelongsToSubject, CheckSubject
 def login_required(fnx):
 
     def wrapped_fnx(*args, **kwargs):
-        user_id = request.headers.get('X-UIB-User')
+        user_id = request.headers.get('Authorization')
 
         if not user_id:
             raise NotAuthenticatedError()
