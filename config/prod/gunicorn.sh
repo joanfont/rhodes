@@ -10,7 +10,7 @@ LOGERRFILE=$FLASKDIR/log/gunicorn_err.log
 
 LOGDIR=$(dirname $LOGFILE)
 
-NUM_WORKERS=50
+NUM_WORKERS=10
 
 cd $FLASKDIR
 source $VIRTUAL_ENV/bin/activate
