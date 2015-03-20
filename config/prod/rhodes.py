@@ -1,7 +1,7 @@
 DB_DRIVER = 'mysql'
 DB_HOST = 'localhost'
 DB_USER = 'root'
-DB_PASS = 'gretsch'
+DB_PASS = 'rhodes'
 DB_NAME = 'rhodes'
 
 DB_DSN = '{driver}://{user}:{passw}@{host}/{name}?charset=utf8'.format(driver=DB_DRIVER,
