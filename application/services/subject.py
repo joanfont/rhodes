@@ -1,7 +1,6 @@
 from application.services.base import BasePersistanceService, BaseService
 from application.services.user import GetUser
 from common.helper import Helper
-from common.exceptions import TeacherDoesNotTeachSubjectError, StudentIsNotEnrolledToSubjectError, SubjectNotFoundError
 from application.lib.validators import IntegerValidator
 
 from application.lib.models import Subject, Group, StudentGroup, User, TeacherSubject, UserType

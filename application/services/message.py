@@ -17,7 +17,7 @@ class PutMessageBody(BasePersistanceService):
     def execute(self, args):
 
         body = args.get('body')
-        message_body = MessageBody(body=body)
+        message_body = MessageBody(content=body)
 
         self.session.add(message_body)
         return message_body
@@ -86,7 +86,7 @@ class PutMessageInputAndOutputContractMixin(BaseService):
     def input(self):
         return {
             'sender_id': IntegerValidator({'required': True}),
-            'body': StringValidator({'required': True, 'max_length': Message.MAX_LENGTH}),
+            'body': StringValidator({'required': True, 'max_length': MessageBody.MAX_LENGTH}),
             'created_at': DateValidator({'required': True}),
             'recipient_id': IntegerValidator({'required': True})
         }

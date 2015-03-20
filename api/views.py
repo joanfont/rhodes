@@ -1,6 +1,5 @@
 from api.decorators import login_required, check_subject_exists, belong_to_subject
 from api.mixins import ListAPIViewMixin, CreateAPIViewMixin
-from application.services.group import GetUserGroups
 from application.services.message import PutSubjectMessage, GetSubjectMessages
 from application.services.subject import GetUserSubjects, GetUserSubject
 
@@ -9,20 +8,17 @@ from datetime import datetime
 
 class SubjectsView(ListAPIViewMixin):
 
-    def __init__(self):
-        self.kwargs = {
-            'with_student_group': False,
-            'with_groups': False
-        }
+    def __init__(self, *args, **kwargs):
+        super(SubjectsView, self).__init__(*args, **kwargs)
 
     @login_required
     def get_action(self, *args, **kwargs):
         user = kwargs.get('user')
 
         if user.is_teacher():
-            self.kwargs['with_groups'] = True
+            self.response_args['with_groups'] = True
         elif user.is_student():
-            self.kwargs['with_student_group'] = True
+            self.response_args['with_group'] = True
 
         get_user_subjects_srv = GetUserSubjects()
         subjects = get_user_subjects_srv.call({'user_id': user.id})
@@ -53,16 +49,6 @@ class SubjectDetailView(ListAPIViewMixin):
         get_subject_srv = GetUserSubject()
         subject = get_subject_srv.call({'subject_id': subject_id, 'user_id': user.id})
         return subject
-
-
-class GroupsView(ListAPIViewMixin):
-
-    @login_required
-    def get_action(self, *args, **kwargs):
-        user = kwargs.get('user')
-        get_user_groups_srv = GetUserGroups()
-        groups = get_user_groups_srv.call({'user_id': user.id})
-        return groups
 
 
 class SubjectMessagesView(ListAPIViewMixin, CreateAPIViewMixin):

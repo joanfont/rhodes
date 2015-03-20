@@ -8,7 +8,7 @@ from application.lib.models import DictMixin
 
 class ResponseDict(dict):
 
-    def __init__(self, data, options):
+    def __init__(self, data, **options):
         many = Helper.instance_of(data, list)
 
         if many:
@@ -36,12 +36,19 @@ class ResponseDict(dict):
         super(ResponseDict, self).__init__(response)
 
 
-class ListAPIViewMixin(MethodView):
+class APIView(MethodView):
+
+    def __init__(self, *args, **kwargs):
+        super(APIView, self).__init__(*args, **kwargs)
+        self.response_args = {}
+
+
+class ListAPIViewMixin(APIView):
 
     def get(self, *args, **kwargs):
         try:
             raw_data = self.get_action(*args, **kwargs)
-            response = ResponseDict(raw_data, kwargs)
+            response = ResponseDict(raw_data, **self.response_args)
             status_code = status.HTTP_200_OK
         except BaseError, e:
             response = e.error
@@ -53,7 +60,7 @@ class ListAPIViewMixin(MethodView):
         raise NotImplementedError()
 
 
-class CreateAPIViewMixin(MethodView):
+class CreateAPIViewMixin(APIView):
 
     def post(self, *args, **kwargs):
         try:

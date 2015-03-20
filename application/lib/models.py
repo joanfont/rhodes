@@ -6,14 +6,18 @@ from sqlalchemy import Column, Integer, String, Date, DateTime, ForeignKey
 from config import rhodes as config
 from common.helper import Helper
 
-db = create_engine(config.DB_DSN)
+engine = create_engine(config.DB_DSN)
 
 Base = declarative_base()
 
-session = sessionmaker(bind=db)()
+Session = sessionmaker()
+Session.configure(bind=engine)
+
+session = Session()
 
 
-class SessionWrapper(object):
+class SessionWrapper:
+
     def __init__(self):
         self.session = session
 
@@ -128,7 +132,7 @@ class Subject(DictMixin, Base):
             'name': self.name,
         }
 
-        if kwargs.get('with_student_group'):
+        if kwargs.get('with_group'):
             base.update({'group': self.group.to_dict(**kwargs)})
 
         if kwargs.get('with_groups'):
@@ -209,7 +213,7 @@ class Message(DictMixin, Base):
     def to_dict(self, **kwargs):
         return {
             'id': self.id,
-            'body': self.body,
+            'body': self.body.content,
             'created_at': Helper.datetime_format(self.created_at),
         }
 
