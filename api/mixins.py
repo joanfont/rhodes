@@ -65,7 +65,7 @@ class CreateAPIViewMixin(APIView):
     def post(self, *args, **kwargs):
         try:
             raw_data = self.post_action(*args, **kwargs)
-            response = ResponseDict(raw_data, kwargs)
+            response = ResponseDict(raw_data, **self.response_args)
             status_code = status.HTTP_201_CREATED
         except BaseError, e:
             response = e.error
