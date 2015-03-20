@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 set -e
-FLASKDIR=/home/ubuntu/rhodes
-VIRTUAL_ENV=/home/ubuntu/.virtualenvs/rhodes
+FLASKDIR=/root/rhodes
+VIRTUAL_ENV=/root/.virtualenvs/rhodes
 USER=ubuntu
 GROUP=ubuntu
 LOGFILE=$FLASKDIR/log/gunicorn.log
