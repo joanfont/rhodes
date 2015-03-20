@@ -3,8 +3,8 @@
 set -e
 FLASKDIR=/root/rhodes
 VIRTUAL_ENV=/root/.virtualenvs/rhodes
-USER=ubuntu
-GROUP=ubuntu
+USER=root
+GROUP=root
 LOGFILE=$FLASKDIR/log/gunicorn.log
 LOGERRFILE=$FLASKDIR/log/gunicorn_err.log
 
