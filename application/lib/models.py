@@ -11,10 +11,12 @@ db = create_engine(config.DB_DSN, poolclass=NullPool)
 
 Base = declarative_base()
 
+session = sessionmaker(bind=db)()
+
 
 class SessionWrapper(object):
     def __init__(self):
-        self.session = sessionmaker(bind=db)()
+        self.session = session
 
     def add(self, obj):
         self.session.add(obj)
