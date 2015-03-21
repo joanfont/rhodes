@@ -104,8 +104,78 @@ class GetUserGroups(BaseService):
 
         get_groups_cls, arg = dispatcher.get(user.type.id)
         get_groups_srv = get_groups_cls()
-        subjects = get_groups_srv.call({arg: user.id})
-        return subjects
+        groups = get_groups_srv.call({arg: user.id})
+        return groups
 
 
+class GetSubjectTeacherGroups(BaseService):
 
+    def input(self):
+        return {
+            'subject_id': IntegerValidator({'required': True}),
+            'teacher_id': IntegerValidator({'required': True})
+        }
+
+    def output(self):
+        return lambda x: Helper.array_of(x, Group) or x is []
+
+    def execute(self, args):
+
+        # subject_id arg is not used because a teacher teaches all the groups of a subject
+        teacher_id = args.get('teacher_id')
+        get_teacher_groups_srv = GetTeacherGroups()
+        groups = get_teacher_groups_srv.call({'teacher_id': teacher_id})
+        return groups
+
+
+class GetSubjectStudentGroups(BasePersistanceService):
+
+    def input(self):
+        return {
+            'subject_id': IntegerValidator({'required': True}),
+            'student_id': IntegerValidator({'required': True}),
+        }
+
+    def output(self):
+        return lambda x: Helper.array_of(x, Group) or x is []
+
+    def execute(self, args):
+
+        subject_id = args.get('subject_id')
+        student_id = args.get('student_id')
+
+        groups = self.session.query(Group).\
+            join(StudentGroup, Group.id == StudentGroup.group_id).\
+            join(User, StudentGroup.student_id == User.id).\
+            filter(Group.subject_id == subject_id).\
+            filter(User.id == student_id).all()
+
+        return groups
+
+
+class GetSubjectUserGroups(BaseService):
+
+    def input(self):
+        return {
+            'subject_id': IntegerValidator({'required': True}),
+            'user_id': IntegerValidator({'required': True})
+        }
+
+    def output(self):
+        return lambda x: Helper.array_of(x, Group) or x is []
+
+    def execute(self, args):
+        subject_id = args.get('subject_id')
+        user_id = args.get('user_id')
+        get_user_srv = GetUser()
+        user = get_user_srv.call({'user_id': user_id})
+
+        dispatcher = {
+            UserType.TEACHER: (GetSubjectTeacherGroups, 'teacher_id'),
+            UserType.STUDENT: (GetSubjectStudentGroups, 'student_id')
+        }
+
+        get_groups_cls, arg = dispatcher.get(user.type.id)
+        get_groups_srv = get_groups_cls()
+        groups = get_groups_srv.call({'subject_id': subject_id, arg: user.id})
+        return groups

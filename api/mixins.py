@@ -38,8 +38,8 @@ class ResponseDict(dict):
 
 class APIView(MethodView):
 
-    def __init__(self, *args, **kwargs):
-        super(APIView, self).__init__(*args, **kwargs)
+    def __init__(self, **kwargs):
+        super(APIView, self).__init__(**kwargs)
         self.response_args = {}
 
 

@@ -11,7 +11,7 @@ class SubjectHelper(object):
     @staticmethod
     def add_student_group_to_subject(group):
         subject = group.subject
-        setattr(subject, 'group', group)
+        setattr(subject, 'groups', [group])
         return subject
 
 

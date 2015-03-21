@@ -24,7 +24,7 @@ def login_required(fnx):
     return wrapped_fnx
 
 
-def check_subject_exists(fnx):
+def subject_exists(fnx):
 
     # we will assume a subject_id is in kwargs['subject_id']
 
@@ -46,7 +46,7 @@ def check_subject_exists(fnx):
     return wrapped_fnx
 
 
-def belong_to_subject(fnx):
+def user_belongs_to_subject(fnx):
 
     # we will assume an user instance is in kwargs['user']
     # if not we can't check if a user belongs to subject
