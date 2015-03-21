@@ -1,7 +1,8 @@
-from api.decorators import login_required, subject_exists, user_belongs_to_subject
+from api.decorators import login_required, subject_exists, user_belongs_to_subject, user_belongs_to_group, group_exists, \
+    group_belongs_to_subject
 from api.mixins import ListAPIViewMixin, CreateAPIViewMixin
-from application.services.group import GetSubjectUserGroups
-from application.services.message import PutSubjectMessage, GetSubjectMessages
+from application.services.group import GetSubjectUserGroups, GetGroup
+from application.services.message import PutSubjectMessage, GetSubjectMessages, GetGroupMessages, PutGroupMessage
 from application.services.subject import GetUserSubjects, GetUserSubject
 
 from datetime import datetime
@@ -86,10 +87,61 @@ class SubjectGroupsView(ListAPIViewMixin):
         return groups
 
 
+class GroupDetailView(ListAPIViewMixin):
+
+    @login_required
+    @subject_exists
+    @user_belongs_to_subject
+    @group_exists
+    @user_belongs_to_group
+    @group_belongs_to_subject
+    def get_action(self, *args, **kwargs):
+
+        group_id = kwargs.get('group_id')
+
+        get_group_srv = GetGroup()
+        group = get_group_srv.call({'group_id': group_id})
+
+        return group
+
+
 class GroupMessagesView(ListAPIViewMixin, CreateAPIViewMixin):
 
-    def post_action(self, *args, **kwargs):
-        pass
-
+    @login_required
+    @subject_exists
+    @user_belongs_to_subject
+    @group_exists
+    @user_belongs_to_group
+    @group_belongs_to_subject
     def get_action(self, *args, **kwargs):
-        pass
+
+        group_id = kwargs.get('group_id')
+
+        get_group_messages_srv = GetGroupMessages()
+        messages = get_group_messages_srv.call({'group_id': group_id})
+
+        return messages
+
+    @login_required
+    @subject_exists
+    @user_belongs_to_subject
+    @group_exists
+    @user_belongs_to_group
+    @group_belongs_to_subject
+    def post_action(self, *args, **kwargs):
+
+        post_data = self.post_data()
+
+        user = kwargs.get('user')
+        group_id = kwargs.get('group_id')
+
+        body = post_data.get('body')
+
+        put_group_message_srv = PutGroupMessage()
+        message = put_group_message_srv.call({
+            'sender_id': user.id,
+            'body': body,
+            'created_at': datetime.now(),
+            'recipient_id': group_id})
+
+        return message

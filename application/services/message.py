@@ -146,5 +146,6 @@ class GetGroupMessages(BasePersistanceService):
     def execute(self, args):
         group_id = args.get('group_id')
         messages = self.session.query(GroupMessage).\
-            filter(GroupMessage.group_id == group_id).all()
+            filter(GroupMessage.group_id == group_id).\
+            order_by(GroupMessage.created_at.desc()).all()
         return messages

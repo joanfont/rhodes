@@ -64,6 +64,21 @@ class StudentIsNotEnrolledToSubjectError(ObjectNotFoundError):
     MESSAGE = 'Student is not enrolled to the subject'
 
 
+class TeacherDoesNotTeachGroupError(ObjectNotFoundError):
+
+    MESSAGE = 'Teacher does not teach the group'
+
+
+class StudentIsNotEnrolledToGroupError(ObjectNotFoundError):
+
+    MESSAGE = 'Student is not enrolled to the group'
+
+
+class GroupDoesNotBelongToSubjectError(ObjectNotFoundError):
+
+    MESSAGE = 'Group does not belong to the subject'
+
+
 # API errors
 class APIError(BaseError):
     pass

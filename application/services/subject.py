@@ -1,5 +1,6 @@
 from application.services.base import BasePersistanceService, BaseService
 from application.services.user import GetUser
+from common.exceptions import SubjectNotFoundError
 from common.helper import Helper
 from application.lib.validators import IntegerValidator
 
@@ -128,7 +129,11 @@ class GetTeacherSubject(BasePersistanceService):
     def execute(self, args):
 
         subject_id = args.get('subject_id')
-        subject = self.session.query(Subject).get(subject_id)
+        subject_query = self.session.query(Subject)
+        if not subject_query.count():
+            raise SubjectNotFoundError()
+
+        subject = subject_query.get(subject_id)
         return subject
 
 
@@ -153,6 +158,9 @@ class GetStudentSubject(BasePersistanceService):
             join(User, StudentGroup.student_id == User.id).\
             filter(User.id == student_id).\
             filter(Subject.id == subject_id)
+
+        if not group_query.count():
+            raise SubjectNotFoundError()
 
         group = group_query.one()
         subject = SubjectHelper.add_student_group_to_subject(group)

@@ -11,20 +11,146 @@ class GetGroup(BasePersistanceService):
 
     def input(self):
         return {
-            'id': IntegerValidator({'required': True})
+            'group_id': IntegerValidator({'required': True})
         }
 
     def output(self):
         return lambda x: Helper.instance_of(x, Group)
 
     def execute(self, args):
-        _id = args.get('id')
-        group = self.session.query(Group).get(_id)
+        group_id = args.get('group_id')
+        group_query = self.session.query(Group)
 
-        if not group:
+        if not group_query.count():
             raise GroupNotFoundError()
 
+        group = group_query.get(group_id)
         return group
+
+
+class CheckGroupExists(BasePersistanceService):
+
+        def input(self):
+            return {
+                'group_id': IntegerValidator({'required': True})
+            }
+
+        def output(self):
+            return lambda x: Helper.instance_of(x, bool)
+
+        def execute(self, args):
+            group_id = args.get('group_id')
+            group_query = self.session.query(Group).\
+                filter(Group.id == group_id)
+
+            return group_query.count() == 1
+
+
+class CheckTeacherTeachesGroup(BasePersistanceService):
+
+    def input(self):
+        return {
+            'group_id': IntegerValidator({'required': True}),
+            'teacher_id': IntegerValidator({'required': True})
+        }
+
+    def output(self):
+        return lambda x: Helper.instance_of(x, bool)
+
+    def execute(self, args):
+
+        group_id = args.get('group_id')
+        teacher_id = args.get('teacher_id')
+
+        group_count = self.sesion.query(Group).\
+            join(Subject, Group.subject_id == Subject.id).\
+            join(TeacherSubject, Subject.id == TeacherSubject.subject_id).\
+            join(User, TeacherSubject.teacher_id == User.id).\
+            filter(Group.id == group_id).\
+            filter(User.id == teacher_id).\
+            count()
+
+        return group_count > 0
+
+
+class CheckStudentIsEnrolledToGroup(BasePersistanceService):
+
+    def input(self):
+        return {
+            'group_id': IntegerValidator({'required': True}),
+            'student_id': IntegerValidator({'required': True})
+        }
+
+    def output(self):
+        return lambda x: Helper.instance_of(x, bool)
+
+    def execute(self, args):
+
+        group_id = args.get('group_id')
+        student_id = args.get('student_id')
+
+        group_count = self.session.query(Group).\
+            join(StudentGroup, Group.id == StudentGroup.group_id).\
+            join(User, StudentGroup.student_id == User.id).\
+            filter(Group.id == group_id).\
+            filter(User.id == student_id).\
+            count()
+
+        return group_count > 0
+
+
+class CheckUserBelongsToGroup(BaseService):
+
+    def input(self):
+        return {
+            'group_id': IntegerValidator({'required': True}),
+            'user_id': IntegerValidator({'required': True})
+        }
+
+    def output(self):
+        return lambda x: Helper.instance_of(x, bool)
+
+    def execute(self, args):
+
+        group_id = args.get('group_id')
+        user_id = args.get('user_id')
+
+        get_user_srv = GetUser()
+        user = get_user_srv.call({'user_id': user_id})
+
+        dispatcher = {
+            UserType.TEACHER: (CheckTeacherTeachesGroup, 'teacher_id'),
+            UserType.STUDENT: (CheckStudentIsEnrolledToGroup, 'student_id')
+        }
+
+        check_belongs_cls, arg = dispatcher.get(user.type.id)
+        check_belongs_srv = check_belongs_cls()
+        check = check_belongs_srv.call({'group_id': group_id, arg: user.id})
+        return check
+
+
+class GroupBelongsToSubject(BasePersistanceService):
+
+    def input(self):
+        return {
+            'group_id': IntegerValidator({'required': True}),
+            'subject_id': IntegerValidator({'required': True})
+        }
+
+    def output(self):
+        return lambda x: Helper.instance_of(x, bool)
+
+    def execute(self, args):
+
+        group_id = args.get('group_id')
+        subject_id = args.get('subject_id')
+
+        group_query = self.session.query(Group).\
+            join(Subject, Group.subject_id == Subject.id).\
+            filter(Group.id == group_id).\
+            filter(Subject.id == subject_id)
+
+        return group_query.count() > 0
 
 
 class GetSubjectGroups(BasePersistanceService):
