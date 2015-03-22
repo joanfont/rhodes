@@ -49,7 +49,7 @@ class SubjectMessagesView(ListAPIViewMixin, CreateAPIViewMixin):
         user = kwargs.get('user')
         subject_id = kwargs.get('subject_id')
 
-        body = post_data.get('body')
+        body = unicode(post_data.get('body'))
 
         put_subject_message_srv = PutSubjectMessage()
         message = put_subject_message_srv.call({
@@ -135,7 +135,7 @@ class GroupMessagesView(ListAPIViewMixin, CreateAPIViewMixin):
         user = kwargs.get('user')
         group_id = kwargs.get('group_id')
 
-        body = post_data.get('body')
+        body = unicode(post_data.get('body'))
 
         put_group_message_srv = PutGroupMessage()
         message = put_group_message_srv.call({
