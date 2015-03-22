@@ -43,6 +43,8 @@ class DictMixin(object):
 class StudentGroup(Base):
 
     __tablename__ = 'student_group'
+    __table_args__ = {'mysql_charset': 'utf8'}
+
 
     student_id = Column(Integer, ForeignKey('user.id'), primary_key=True)
     group_id = Column(Integer, ForeignKey('group.id'), primary_key=True)
@@ -51,6 +53,7 @@ class StudentGroup(Base):
 class TeacherSubject(Base):
 
     __tablename__ = 'teacher_subject'
+    __table_args__ = {'mysql_charset': 'utf8'}
 
     teacher_id = Column(Integer, ForeignKey('user.id'), primary_key=True)
     subject_id = Column(Integer, ForeignKey('subject.id'), primary_key=True)
@@ -59,6 +62,7 @@ class TeacherSubject(Base):
 class UserType(Base):
 
     __tablename__ = 'user_type'
+    __table_args__ = {'mysql_charset': 'utf8'}
 
     TEACHER = 1
     STUDENT = 2
@@ -72,6 +76,7 @@ class UserType(Base):
 class User(DictMixin, Base):
 
     __tablename__ = 'user'
+    __table_args__ = {'mysql_charset': 'utf8'}
 
     id = Column(Integer, primary_key=True)
     first_name = Column(String(60))
@@ -102,6 +107,7 @@ class User(DictMixin, Base):
 class Course(DictMixin, Base):
 
     __tablename__ = 'course'
+    __table_args__ = {'mysql_charset': 'utf8'}
 
     id = Column(Integer, primary_key=True)
     starts_at = Column(Date)
@@ -118,6 +124,7 @@ class Course(DictMixin, Base):
 class Subject(DictMixin, Base):
 
     __tablename__ = 'subject'
+    __table_args__ = {'mysql_charset': 'utf8'}
 
     # Id field could be replaced by code field
     id = Column(Integer, primary_key=True)
@@ -145,6 +152,7 @@ class Subject(DictMixin, Base):
 class Group(DictMixin, Base):
 
     __tablename__ = 'group'
+    __table_args__ = {'mysql_charset': 'utf8'}
 
     id = Column(Integer, primary_key=True)
     name = Column(String(60))
@@ -171,6 +179,7 @@ class MessageType(Base):
     CHOICES = [DIRECT_MESSAGE, GROUP_MESSAGE, SUBJECT_MESSAGE]
 
     __tablename__ = 'message_type'
+    __table_args__ = {'mysql_charset': 'utf8'}
 
     id = Column(Integer, primary_key=True)
     name = Column(String(20))
@@ -189,6 +198,7 @@ class MessageBody(Base):
 class Message(DictMixin, Base):
 
     __tablename__ = 'message'
+    __table_args__ = {'mysql_charset': 'utf8'}
 
     id = Column(Integer, primary_key=True)
     created_at = Column(DateTime)
