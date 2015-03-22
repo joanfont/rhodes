@@ -137,6 +137,8 @@ class GroupMessagesView(ListAPIViewMixin, CreateAPIViewMixin):
 
         body = unicode(post_data.get('body'))
 
+        print body
+
         put_group_message_srv = PutGroupMessage()
         message = put_group_message_srv.call({
             'sender_id': user.id,
