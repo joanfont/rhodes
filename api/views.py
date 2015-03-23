@@ -1,11 +1,21 @@
 from api.decorators import login_required, subject_exists, user_belongs_to_subject, user_belongs_to_group, group_exists, \
-    group_belongs_to_subject
+    group_belongs_to_subject, is_teacher
 from api.mixins import ListAPIViewMixin, CreateAPIViewMixin
 from application.services.group import GetSubjectUserGroups, GetGroup
 from application.services.message import PutSubjectMessage, GetSubjectMessages, GetGroupMessages, PutGroupMessage
 from application.services.subject import GetUserSubjects, GetUserSubject
 
 from datetime import datetime
+from application.services.user import GetSubjectTeachers, GetSubjectStudents
+
+
+class ProfileView(ListAPIViewMixin):
+
+    @login_required
+    def get_action(self, *args, **kwargs):
+
+        user = kwargs.get('user')
+        return user
 
 
 class SubjectsView(ListAPIViewMixin):
@@ -69,6 +79,35 @@ class SubjectMessagesView(ListAPIViewMixin, CreateAPIViewMixin):
         get_subject_messages_srv = GetSubjectMessages()
         messages = get_subject_messages_srv.call({'subject_id': subject_id})
         return messages
+
+
+class SubjectTeachersView(ListAPIViewMixin):
+
+    @login_required
+    @subject_exists
+    @user_belongs_to_subject
+    def get_action(self, *args, **kwargs):
+
+        subject_id = kwargs.get('subject_id')
+
+        get_subject_teachers_srv = GetSubjectTeachers()
+        teachers = get_subject_teachers_srv.call({'subject_id': subject_id})
+        return teachers
+
+
+class SubjectStudentsView(ListAPIViewMixin):
+
+    @login_required
+    @is_teacher
+    @subject_exists
+    @user_belongs_to_subject
+    def get_action(self, *args, **kwargs):
+
+        subject_id = kwargs.get('subject_id')
+
+        get_subject_students_srv = GetSubjectStudents()
+        students = get_subject_students_srv.call({'subject_id': subject_id})
+        return students
 
 
 class SubjectGroupsView(ListAPIViewMixin):

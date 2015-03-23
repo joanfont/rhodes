@@ -85,12 +85,21 @@ class APIError(BaseError):
 
 
 class NotAuthenticatedError(APIError):
+
     STATUS_CODE = status.HTTP_401_UNAUTHORIZED
     CODE = 'unauthorized'
     MESSAGE = 'You are not authorized to perform this action'
 
 
+class NotEnoughPermissionError(APIError):
+
+    STATUS_CODE = status.HTTP_403_FORBIDDEN
+    CODE = 'forbidden'
+    MESSAGE = 'You don\'t have enough permissions to perform this action'
+
+
 class CantSerializeArrayError(APIError):
+
     STATUS_CODE = status.HTTP_422_UNPROCESSABLE_ENTITY
     CODE = 'unprocessable_entity'
     MESSAGE = 'Can\'t serialize data'

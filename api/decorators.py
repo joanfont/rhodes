@@ -4,7 +4,7 @@ from application.services.group import CheckUserBelongsToGroup, GroupBelongsToSu
 
 from common.exceptions import NotAuthenticatedError, TeacherDoesNotTeachSubjectError, StudentIsNotEnrolledToSubjectError, \
     InvalidParameterError, SubjectNotFoundError, TeacherDoesNotTeachGroupError, StudentIsNotEnrolledToGroupError, \
-    GroupDoesNotBelongToSubjectError, GroupNotFoundError
+    GroupDoesNotBelongToSubjectError, GroupNotFoundError, NotEnoughPermissionError
 
 from application.services.user import GetUser
 from application.services.subject import CheckUserBelongsToSubject, CheckSubjectExists
@@ -21,6 +21,22 @@ def login_required(fnx):
         get_user_srv = GetUser()
         user = get_user_srv.call({'user_id': user_id})
         kwargs['user'] = user
+        return fnx(*args, **kwargs)
+
+    return wrapped_fnx
+
+
+def is_teacher(fnx):
+
+    # we will assume an instance of User is in kwargs['user']
+
+    def wrapped_fnx(*args, **kwargs):
+
+        user = kwargs.get('user')
+
+        if not user.is_teacher():
+            raise NotEnoughPermissionError()
+
         return fnx(*args, **kwargs)
 
     return wrapped_fnx
