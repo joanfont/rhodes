@@ -21,5 +21,5 @@ export PYTHONPATH=$FLASKDIR:$PYTHONPATH
 test -d $LOGDIR || mkdir -p $LOGDIR
 
 exec $VIRTUAL_ENV/bin/gunicorn rhodes:app -w $NUM_WORKERS \
-  --user=$USER --group=$GROUP --timeout $TIMEOUT --log-level=warning \
+  --user=$USER --group=$GROUP --timeout $TIMEOUT --log-level=info\
   --log-file=$LOGFILE -b 127.0.0.1:8080 2>> $LOGERRFILE
