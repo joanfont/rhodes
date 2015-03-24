@@ -78,6 +78,7 @@ class PutMessage(BasePersistanceService):
         message = message_cls(**args)
 
         self.session.add(message)
+        self.session.commit()
         return message
 
 

@@ -76,10 +76,3 @@ class BasePersistanceService(BaseService):
     def __init__(self):
         super(BasePersistanceService, self).__init__()
         self.session = SessionWrapper()
-
-    def post_execute(self, valid):
-        if valid:
-            self.session.commit()
-        else:
-            super(BasePersistanceService, self).post_execute(valid)
-
