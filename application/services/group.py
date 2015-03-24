@@ -169,71 +169,6 @@ class GetSubjectGroups(BasePersistanceService):
         return groups
 
 
-class GetTeacherGroups(BasePersistanceService):
-
-    def input(self):
-        return {
-            'teacher_id': IntegerValidator({'required': True})
-        }
-
-    def output(self):
-        return lambda x: Helper.array_of(x, Group) or x is []
-
-    def execute(self, args):
-        teacher_id = args.get('teacher_id')
-        groups = self.session.query(Group).\
-            join(Subject, Group.subject_id == Subject.id).\
-            join(TeacherSubject, Subject.id == TeacherSubject.subject_id).\
-            join(User, TeacherSubject.teacher_id == User.id).\
-            filter(User.id == teacher_id).all()
-        return groups
-
-
-class GetStudentGroups(BasePersistanceService):
-
-    def input(self):
-        return {
-            'student_id': IntegerValidator({'required': True})
-        }
-
-    def output(self):
-        return lambda x: Helper.array_of(x, Group) or x is []
-
-    def execute(self, args):
-        student_id = args.get('student_id')
-        groups = self.session.query(Group).\
-            join(StudentGroup, Group.id == StudentGroup.group_id).\
-            join(User, StudentGroup.student_id == User.id).\
-            filter(User.id == student_id).all()
-        return groups
-
-
-class GetUserGroups(BaseService):
-
-    def input(self):
-        return {
-            'user_id': IntegerValidator({'required': True})
-        }
-
-    def output(self):
-        return lambda x: Helper.array_of(x, Group) or x is []
-
-    def execute(self, args):
-        user_id = args.get('user_id')
-        get_user_srv = GetUser()
-        user = get_user_srv.call({'user_id': user_id})
-
-        dispatcher = {
-            UserType.TEACHER: (GetTeacherGroups, 'teacher_id'),
-            UserType.STUDENT: (GetStudentGroups, 'student_id')
-        }
-
-        get_groups_cls, arg = dispatcher.get(user.type.id)
-        get_groups_srv = get_groups_cls()
-        groups = get_groups_srv.call({arg: user.id})
-        return groups
-
-
 class GetSubjectTeacherGroups(BaseService):
 
     def input(self):
@@ -247,10 +182,10 @@ class GetSubjectTeacherGroups(BaseService):
 
     def execute(self, args):
 
-        # subject_id arg is not used because a teacher teaches all the groups of a subject
-        teacher_id = args.get('teacher_id')
-        get_teacher_groups_srv = GetTeacherGroups()
-        groups = get_teacher_groups_srv.call({'teacher_id': teacher_id})
+        # teacher_id arg is not used because a teacher teaches all the groups of a subject
+        subject_id = args.get('subject_id')
+        get_subject_groups = GetSubjectGroups()
+        groups = get_subject_groups.call({'subject_id': subject_id})
         return groups
 
 
