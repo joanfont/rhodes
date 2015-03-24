@@ -62,7 +62,7 @@ class CheckTeacherTeachesGroup(BasePersistanceService):
         group_id = args.get('group_id')
         teacher_id = args.get('teacher_id')
 
-        group_count = self.sesion.query(Group).\
+        group_count = self.session.query(Group).\
             join(Subject, Group.subject_id == Subject.id).\
             join(TeacherSubject, Subject.id == TeacherSubject.subject_id).\
             join(User, TeacherSubject.teacher_id == User.id).\
