@@ -36,7 +36,8 @@ class Dispatcher(object):
 
         return app_instance(environ, start_response)
 
-app = api
+app = Flask(__name__)
+app.wsgi_app = Dispatcher(api, web)
 
 if __name__ == '__main__':
     app.run(debug=True, port=8080)
