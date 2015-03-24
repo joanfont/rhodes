@@ -79,6 +79,7 @@ class GroupDoesNotBelongToSubjectError(ObjectNotFoundError):
     MESSAGE = 'Group does not belong to the subject'
 
 
+
 # API errors
 class APIError(BaseError):
     pass

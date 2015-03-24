@@ -50,7 +50,7 @@ class CheckTeacherTeachesSubject(BasePersistanceService):
         teacher_id = args.get('teacher_id')
 
         subject_query = self.session.query(Subject).\
-            join(TeacherSubject, Subject.id == TeacherSubject.teacher_id).\
+            join(TeacherSubject, Subject.id == TeacherSubject.subject_id).\
             join(User, TeacherSubject.teacher_id == User.id).\
             filter(Subject.id == subject_id).\
             filter(User.id == teacher_id)
@@ -214,7 +214,6 @@ class GetTeacherSubjects(BasePersistanceService):
             join(TeacherSubject, Subject.id == TeacherSubject.subject_id).\
             join(User, TeacherSubject.teacher_id == User.id).\
             filter(User.id == teacher_id).all()
-
         return subjects
 
 
