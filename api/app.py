@@ -6,6 +6,7 @@ from views import SubjectsView, SubjectDetailView, SubjectMessagesView, SubjectG
 app = Flask(__name__)
 app.config['JSON_SORT_KEYS'] = False
 
+
 app.add_url_rule('/user/', view_func=ProfileView.as_view('profile'))
 
 app.add_url_rule('/user/subjects/', view_func=SubjectsView.as_view('subjects'))
