@@ -10,7 +10,7 @@ engine = create_engine(config.DB_DSN)
 
 Base = declarative_base()
 
-Session = sessionmaker()
+Session = sessionmaker(autocommit=True, autoflush=True)
 Session.configure(bind=engine)
 
 session = Session()
