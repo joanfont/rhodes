@@ -20,6 +20,7 @@ class PutMessageBody(BasePersistanceService):
         message_body = MessageBody(content=body)
 
         self.session.add(message_body)
+        self.session.commit()
         return message_body
 
 
@@ -78,6 +79,7 @@ class PutMessage(BasePersistanceService):
         message = message_cls(**args)
 
         self.session.add(message)
+        self.session.commit()
         return message
 
 
