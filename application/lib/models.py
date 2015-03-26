@@ -3,7 +3,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Date, DateTime, ForeignKey
 
 from common.helper import Helper
-from common.session import SessionManager
+from common.session import manager
 
 
 Base = declarative_base()
@@ -12,7 +12,8 @@ Base = declarative_base()
 class SessionWrapper:
 
     def __init__(self):
-        self.session = SessionManager.get_flask()
+        print manager
+        self.session = manager.get('flask')
 
     def add(self, obj):
         self.session.add(obj)

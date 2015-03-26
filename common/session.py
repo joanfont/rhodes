@@ -7,11 +7,24 @@ from api import db
 
 class SessionManager(object):
 
-    @staticmethod
-    def get_flask():
-        return db.session()
+    def __init__(self):
+        self.sessions = {
+            'flask': self.flask,
+            'standalone': self.standalone
+        }
+
+    def get(self, item):
+        session = self.sessions.get(item)
+        return session()
 
     @staticmethod
-    def get_standalone():
+    def flask():
+        return db.session
+
+    @staticmethod
+    def standalone():
         engine = create_engine(config.DB_DSN)
-        return sessionmaker(bind=engine)()
+        return sessionmaker(bind=engine)
+
+
+manager = SessionManager()
