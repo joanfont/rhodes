@@ -1,25 +1,18 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, relationship, backref
+from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Date, DateTime, ForeignKey
 
-from config import rhodes as config
 from common.helper import Helper
+from common.session import SessionManager
 
-engine = create_engine(config.DB_DSN)
 
 Base = declarative_base()
-
-Session = sessionmaker(expire_on_commit=True)
-Session.configure(bind=engine)
-
-session = Session()
 
 
 class SessionWrapper:
 
     def __init__(self):
-        self.session = session
+        self.session = SessionManager.get_flask()
 
     def add(self, obj):
         self.session.add(obj)

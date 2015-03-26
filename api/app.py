@@ -1,12 +1,9 @@
-from flask import Flask
+from api import app
 
 from views import subject as subject_views
 from views import group as group_views
 from views import message as message_views
 from views import user as user_views
-
-app = Flask(__name__)
-app.config['JSON_SORT_KEYS'] = False
 
 app.add_url_rule('/user/', view_func=user_views.ProfileView.as_view('profile'))
 
