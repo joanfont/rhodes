@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from api.decorators import login_required, user_belongs_to_subject, group_exists, user_belongs_to_group, \
-    group_belongs_to_subject
+    group_belongs_to_subject, auth_token_required
 from api.decorators import subject_exists
 from api.mixins import ListAPIViewMixin, CreateAPIViewMixin
 from application.services.message import GetGroupMessages, PutGroupMessage, PutSubjectMessage, GetSubjectMessages
@@ -9,7 +9,7 @@ from application.services.message import GetGroupMessages, PutGroupMessage, PutS
 
 class SubjectMessagesView(ListAPIViewMixin, CreateAPIViewMixin):
 
-    @login_required
+    @auth_token_required
     @subject_exists
     @user_belongs_to_subject
     def post_action(self, *args, **kwargs):
@@ -29,7 +29,7 @@ class SubjectMessagesView(ListAPIViewMixin, CreateAPIViewMixin):
 
         return message
 
-    @login_required
+    @auth_token_required
     @subject_exists
     @user_belongs_to_subject
     def get_action(self, *args, **kwargs):
@@ -42,7 +42,7 @@ class SubjectMessagesView(ListAPIViewMixin, CreateAPIViewMixin):
 
 class GroupMessagesView(ListAPIViewMixin, CreateAPIViewMixin):
 
-    @login_required
+    @auth_token_required
     @subject_exists
     @user_belongs_to_subject
     @group_exists
@@ -57,7 +57,7 @@ class GroupMessagesView(ListAPIViewMixin, CreateAPIViewMixin):
 
         return messages
 
-    @login_required
+    @auth_token_required
     @subject_exists
     @user_belongs_to_subject
     @group_exists

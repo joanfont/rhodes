@@ -6,10 +6,15 @@ from common.helper import Helper
 from application.lib.models import DictMixin
 
 
+class APIDict(dict):
+    pass
+
+
 class ResponseDict(dict):
 
     def __init__(self, data, **options):
         many = Helper.instance_of(data, list)
+        is_api_dict = False
 
         if many:
             can_map_fnx = Helper.array_of
@@ -18,22 +23,34 @@ class ResponseDict(dict):
 
         can_map = can_map_fnx(data, DictMixin)
 
+        # workaround
+        if not can_map and not many:
+            can_map = Helper.instance_of(data, APIDict)
+            is_api_dict = can_map
+
         if not can_map:
             raise CantSerializeArrayError()
+        if not is_api_dict:
+            if many:
+                results = map(lambda x: x.to_dict(**options), data)
 
-        if many:
-            results = map(lambda x: x.to_dict(**options), data)
+                total = len(results)
+                response = {
+                    'total': total,
+                    'results': results
+                }
 
-            total = len(results)
-            response = {
-                'total': total,
-                'results': results
-            }
-
+            else:
+                response = data.to_dict(**options)
         else:
-            response = data.to_dict(**options)
+            response = data
 
         super(ResponseDict, self).__init__(response)
+
+
+
+
+
 
 
 class APIView(MethodView):
@@ -55,6 +72,10 @@ class ListAPIViewMixin(APIView):
             status_code = e.status_code
 
         return jsonify(response), status_code
+
+    @staticmethod
+    def get_data():
+        return request.args
 
     def get_action(self, *args, **kwargs):
         raise NotImplementedError()

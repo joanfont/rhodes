@@ -5,6 +5,8 @@ from views import group as group_views
 from views import message as message_views
 from views import user as user_views
 
+app.add_url_rule('/login/', view_func=user_views.LoginView.as_view('login'))
+
 app.add_url_rule('/user/', view_func=user_views.ProfileView.as_view('profile'))
 
 app.add_url_rule('/user/subjects/', view_func=subject_views.SubjectsView.as_view('subjects'))

@@ -4,7 +4,9 @@ from sqlalchemy import Column, Integer, String, Date, DateTime, ForeignKey
 
 from common.helper import Helper
 from common.session import manager
+from common.auth import generate_auth_token
 
+from config import config
 
 Base = declarative_base()
 
@@ -12,7 +14,6 @@ Base = declarative_base()
 class SessionWrapper:
 
     def __init__(self):
-        print manager
         self.session = manager.get('flask')
 
     def add(self, obj):
@@ -77,6 +78,8 @@ class User(DictMixin, Base):
     last_name = Column(String(120))
 
     user = Column(String(6), unique=True)
+    password = Column(String(256))
+    auth_token = Column(String(64))
     type_id = Column(Integer, ForeignKey('user_type.id'))
     type = relationship(
         UserType,
@@ -96,6 +99,11 @@ class User(DictMixin, Base):
 
     def is_student(self):
         return self.type.id == UserType.STUDENT
+
+    def generate_auth_token(self):
+        secret = config.PRIVATE_KEY
+        message = "{id}{user}{type_id}".format(id=self.id, user=self.user, type_id=self.type_id)
+        return generate_auth_token(message, secret)
 
 
 class Course(DictMixin, Base):

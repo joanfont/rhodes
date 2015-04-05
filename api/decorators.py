@@ -1,26 +1,52 @@
 from flask import request
 from application.lib.models import UserType
 from application.services.group import CheckUserBelongsToGroup, GroupBelongsToSubject, CheckGroupExists
+from common.auth import encode_password
 
 from common.exceptions import NotAuthenticatedError, TeacherDoesNotTeachSubjectError, StudentIsNotEnrolledToSubjectError, \
     InvalidParameterError, SubjectNotFoundError, TeacherDoesNotTeachGroupError, StudentIsNotEnrolledToGroupError, \
     GroupDoesNotBelongToSubjectError, GroupNotFoundError, NotEnoughPermissionError
 
-from application.services.user import GetUser
+from application.services.user import CheckUserExistsByUserAndPassword, GetUserByAuthToken
 from application.services.subject import CheckUserBelongsToSubject, CheckSubjectExists
 
 
 def login_required(fnx):
 
     def wrapped_fnx(*args, **kwargs):
-        user_id = request.headers.get('Authorization')
+        user = request.args.get('user')
+        password = request.args.get('password')
+        password_encoded = encode_password(password)
 
-        if not user_id:
+        if not user and not password:
             raise NotAuthenticatedError()
 
-        get_user_srv = GetUser()
-        user = get_user_srv.call({'user_id': user_id})
+        get_user_srv = CheckUserExistsByUserAndPassword()
+        exists = get_user_srv.call({
+            'user': user,
+            'password': password_encoded
+        })
+
+        if not exists:
+            raise NotAuthenticatedError()
+
+        return fnx(*args, **kwargs)
+
+    return wrapped_fnx
+
+
+def auth_token_required(fnx):
+
+    def wrapped_fnx(*args, **kwargs):
+
+        token = request.headers.get('Authorization')
+        get_user_by_token = GetUserByAuthToken()
+        user = get_user_by_token.call({
+            'auth_token': token
+        })
+
         kwargs['user'] = user
+
         return fnx(*args, **kwargs)
 
     return wrapped_fnx
