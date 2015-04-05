@@ -9,7 +9,7 @@ from logging.config import fileConfig
 
 sys.path.append(os.path.abspath('../../'))
 from application.lib.models import Base
-from config.rhodes import DB_DSN
+from config.config import DB_DSN
 
 config = context.config
 fileConfig(config.config_file_name)

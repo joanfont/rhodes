@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-import config.rhodes as config
+from config import config
 
 from api import db
 

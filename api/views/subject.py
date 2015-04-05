@@ -1,4 +1,4 @@
-from api.decorators import login_required, user_belongs_to_subject, subject_exists
+from api.decorators import login_required, user_belongs_to_subject, subject_exists, auth_token_required
 from api.mixins import ListAPIViewMixin
 from application.services.subject import GetUserSubject, GetUserSubjects
 
@@ -6,7 +6,7 @@ from application.services.subject import GetUserSubject, GetUserSubjects
 class SubjectsView(ListAPIViewMixin):
 
 
-    @login_required
+    @auth_token_required
     def get_action(self, *args, **kwargs):
         self.response_args['with_groups'] = True
 
@@ -19,7 +19,7 @@ class SubjectsView(ListAPIViewMixin):
 
 class SubjectDetailView(ListAPIViewMixin):
 
-    @login_required
+    @auth_token_required
     @subject_exists
     @user_belongs_to_subject
     def get_action(self, *args, **kwargs):

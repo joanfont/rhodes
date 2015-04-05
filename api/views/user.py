@@ -1,11 +1,31 @@
-from api.decorators import login_required, user_belongs_to_subject, subject_exists, is_teacher
-from api.mixins import ListAPIViewMixin
-from application.services.user import GetSubjectTeachers, GetSubjectStudents
+from api.decorators import login_required, user_belongs_to_subject, subject_exists, is_teacher, auth_token_required
+from api.mixins import ListAPIViewMixin, APIDict
+from application.services.user import GetSubjectTeachers, GetSubjectStudents, GetUserAuthTokenByUserAndPassword
+from common.auth import encode_password, encode_auth_token
+
+
+class LoginView(ListAPIViewMixin):
+
+    @login_required
+    def get_action(self, *args, **kwargs):
+        qs = self.get_data()
+        user = qs.get('user')
+        password = qs.get('password')
+        password_encoded = encode_password(password)
+
+        get_auth_token_srv = GetUserAuthTokenByUserAndPassword()
+
+        token = get_auth_token_srv.call({
+            'user': user,
+            'password': password_encoded
+        })
+
+        return APIDict(token=token)
 
 
 class SubjectTeachersView(ListAPIViewMixin):
 
-    @login_required
+    @auth_token_required
     @subject_exists
     @user_belongs_to_subject
     def get_action(self, *args, **kwargs):
@@ -19,7 +39,7 @@ class SubjectTeachersView(ListAPIViewMixin):
 
 class SubjectStudentsView(ListAPIViewMixin):
 
-    @login_required
+    @auth_token_required
     @is_teacher
     @subject_exists
     @user_belongs_to_subject
@@ -34,7 +54,7 @@ class SubjectStudentsView(ListAPIViewMixin):
 
 class ProfileView(ListAPIViewMixin):
 
-    @login_required
+    @auth_token_required
     def get_action(self, *args, **kwargs):
 
         user = kwargs.get('user')
