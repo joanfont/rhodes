@@ -83,7 +83,7 @@ class GetUserAuthTokenByUserAndPassword(BasePersistanceService):
         }
 
     def output(self):
-        return lambda x: Helper.instance_of(x, str)
+        return lambda x: Helper.instance_of(x, unicode)
 
     def execute(self, args):
 
