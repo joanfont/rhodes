@@ -5,14 +5,40 @@ from fabric.state import env
 
 from config.prod import rhodes as prod_config
 
+import os
 
 env.hosts = ['rhodes.joan-font.com']
 env.user = 'root'
+
+
+@task
+def virtualenv():
+    run('workon rhodes')
+
 
 @task
 def restart():
     sudo('supervisorctl restart rhodes')
     sudo('service nginx restart')
+
+
+@task
+def branch(name):
+    switch_branch_command = 'git checkout {branch}'.format(branch=name)
+    with cd(prod_config.PROJECT_DIR):
+        run('git reset --hard')
+        run(switch_branch_command)
+        run('git pull')
+
+
+@task
+def migrate(message=''):
+    lib_dir = os.path.join(prod_config.PROJECT_DIR, 'application/lib')
+    migrate_command = 'alembic revision --autogenerate -m "{message}"'.format(message=message)
+    virtualenv()
+    with cd(lib_dir):
+        run(migrate_command)
+        run('alembic upgrade head')
 
 
 @task
@@ -22,11 +48,6 @@ def setup():
 
 @task
 def deploy():
-
-    with cd(prod_config.PROJECT_DIR):
-        run('git reset --hard')
-        run('git co master')
-        run('git pull')
-
+    branch('master')
     restart()
 
