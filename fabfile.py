@@ -32,12 +32,12 @@ def branch(name):
 
 
 @task
-def migrate(message=''):
+def migrate():
+
     lib_dir = os.path.join(prod_config.PROJECT_DIR, 'application/lib')
-    migrate_command = 'alembic revision --autogenerate -m "{message}"'.format(message=message)
     virtualenv()
     with cd(lib_dir):
-        run(migrate_command)
+        run('alembic revision --autogenerate -m ""')
         run('alembic upgrade head')
 
 
