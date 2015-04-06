@@ -1,4 +1,5 @@
-from fabric.context_managers import cd
+from contextlib import contextmanager
+from fabric.context_managers import cd, prefix
 from fabric.decorators import task
 from fabric.operations import sudo, run
 from fabric.state import env
@@ -10,10 +11,13 @@ import os
 env.hosts = ['rhodes.joan-font.com']
 env.user = 'root'
 
+VENV_DIR = '/root/.virtualenvs/rhodes'
 
-@task
+
+@contextmanager
 def virtualenv():
-    run('workon rhodes')
+    with prefix('source ' + os.path.join(VENV_DIR, 'bin/activate')):
+        yield
 
 
 @task
@@ -35,10 +39,12 @@ def branch(name):
 def migrate():
 
     lib_dir = os.path.join(prod_config.PROJECT_DIR, 'application/lib')
+    print lib_dir
     virtualenv()
     with cd(lib_dir):
-        run('alembic revision --autogenerate')
-        run('alembic upgrade head')
+        with virtualenv():
+            run('alembic revision --autogenerate')
+            run('alembic upgrade head')
 
 
 @task
