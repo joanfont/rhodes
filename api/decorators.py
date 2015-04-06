@@ -5,7 +5,7 @@ from common.auth import encode_password
 
 from common.exceptions import NotAuthenticatedError, TeacherDoesNotTeachSubjectError, StudentIsNotEnrolledToSubjectError, \
     InvalidParameterError, SubjectNotFoundError, TeacherDoesNotTeachGroupError, StudentIsNotEnrolledToGroupError, \
-    GroupDoesNotBelongToSubjectError, GroupNotFoundError, NotEnoughPermissionError
+    GroupDoesNotBelongToSubjectError, GroupNotFoundError, NotEnoughPermissionError, UserNotFoundError
 
 from application.services.user import CheckUserExistsByUserAndPassword, GetUserByAuthToken
 from application.services.subject import CheckUserBelongsToSubject, CheckSubjectExists
@@ -18,9 +18,6 @@ def login_required(fnx):
         password = request.args.get('password')
         password_encoded = encode_password(password)
 
-        if not user and not password:
-            raise NotAuthenticatedError()
-
         get_user_srv = CheckUserExistsByUserAndPassword()
         exists = get_user_srv.call({
             'user': user,
@@ -28,7 +25,7 @@ def login_required(fnx):
         })
 
         if not exists:
-            raise NotAuthenticatedError()
+            raise UserNotFoundError()
 
         return fnx(*args, **kwargs)
 
@@ -40,6 +37,10 @@ def auth_token_required(fnx):
     def wrapped_fnx(*args, **kwargs):
 
         token = request.headers.get('Authorization')
+
+        if not token:
+            raise NotAuthenticatedError()
+
         get_user_by_token = GetUserByAuthToken()
         user = get_user_by_token.call({
             'auth_token': token
