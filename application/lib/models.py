@@ -102,7 +102,7 @@ class User(DictMixin, Base):
 
     @property
     def full_name(self):
-        return '{first_name} {last_name}'.format(first_name=self.first_name, last_name=self.last_name)
+        return u'{first_name} {last_name}'.format(first_name=self.first_name, last_name=self.last_name)
 
     def generate_auth_token(self):
         secret = config.PRIVATE_KEY
