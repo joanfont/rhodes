@@ -228,8 +228,7 @@ class Message(DictMixin, Base):
             'id': self.id,
             'body': self.body.content,
             'created_at': Helper.datetime_format(self.created_at),
-            'sender_id': self.sender_id,
-            'sender_name': self.sender.full_name,
+            'sender': self.user.to_dict(**kwargs)
         }
 
     __mapper_args__ = {'polymorphic_on': type}
