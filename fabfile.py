@@ -37,7 +37,7 @@ def migrate():
     lib_dir = os.path.join(prod_config.PROJECT_DIR, 'application/lib')
     virtualenv()
     with cd(lib_dir):
-        run('alembic revision --autogenerate -m ""')
+        run('alembic revision --autogenerate')
         run('alembic upgrade head')
 
 
