@@ -223,7 +223,6 @@ class Message(DictMixin, Base):
         backref=backref('message', uselist=True, cascade='delete,all'),
         primaryjoin=body_id == MessageBody.id)
 
-
     def to_dict(self, **kwargs):
         return {
             'id': self.id,
