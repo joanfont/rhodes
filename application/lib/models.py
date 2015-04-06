@@ -100,6 +100,10 @@ class User(DictMixin, Base):
     def is_student(self):
         return self.type.id == UserType.STUDENT
 
+    @property
+    def full_name(self):
+        return '{first_name} {last_name}'.format(first_name=self.first_name, last_name=self.last_name)
+
     def generate_auth_token(self):
         secret = config.PRIVATE_KEY
         message = "{id}{user}{type_id}".format(id=self.id, user=self.user, type_id=self.type_id)
@@ -219,14 +223,14 @@ class Message(DictMixin, Base):
         backref=backref('message', uselist=True, cascade='delete,all'),
         primaryjoin=body_id == MessageBody.id)
 
-    def __str__(self):
-        return '<Message id={id}>'.format(id=self.id)
 
     def to_dict(self, **kwargs):
         return {
             'id': self.id,
             'body': self.body.content,
             'created_at': Helper.datetime_format(self.created_at),
+            'sender_id': self.sender_id,
+            'sender_name': self.sender.full_name,
         }
 
     __mapper_args__ = {'polymorphic_on': type}
