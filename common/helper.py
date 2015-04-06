@@ -1,4 +1,4 @@
-from config import rhodes as config
+from config import config
 
 
 class Helper(object):
