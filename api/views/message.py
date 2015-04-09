@@ -1,8 +1,8 @@
 from datetime import datetime
 
-from api.views.lib.decorators import user_belongs_to_subject, group_exists, user_belongs_to_group, \
+from api.lib.decorators import user_belongs_to_subject, group_exists, user_belongs_to_group, \
     group_belongs_to_subject, auth_token_required, subject_exists
-from api.views.lib.mixins import ListAPIViewMixin, CreateAPIViewMixin
+from api.lib.mixins import ListAPIViewMixin, CreateAPIViewMixin
 from application.services.message import GetGroupMessages, PutGroupMessage, PutSubjectMessage, GetSubjectMessages
 
 
