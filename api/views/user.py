@@ -1,7 +1,7 @@
-from api.decorators import login_required, user_belongs_to_subject, subject_exists, is_teacher, auth_token_required
-from api.mixins import ListAPIViewMixin, APIDict
+from api.views.lib.decorators import login_required, user_belongs_to_subject, subject_exists, is_teacher, auth_token_required
+from api.views.lib.mixins import ListAPIViewMixin, APIDict
 from application.services.user import GetSubjectTeachers, GetSubjectStudents, GetUserAuthTokenByUserAndPassword
-from common.auth import encode_password, encode_auth_token
+from common.auth import encode_password
 
 
 class LoginView(ListAPIViewMixin):
