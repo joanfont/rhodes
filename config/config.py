@@ -1,3 +1,5 @@
+import os
+
 import rhodes as cfg
 
 DB_DSN = '{driver}://{user}:{passw}@{host}/{name}?charset=utf8&use_unicode=0'.format(driver=cfg.DB_DRIVER,
@@ -7,6 +9,8 @@ DB_DSN = '{driver}://{user}:{passw}@{host}/{name}?charset=utf8&use_unicode=0'.fo
                                                                                      name=cfg.DB_NAME)
 
 DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
+
+LOG_FILE = os.path.join(cfg.PROJECT_DIR, 'log/rhodes.log')
 
 PRIVATE_KEY = 'ZMsgjYbXyzHog7AtPvfiI2OW3cDTvycuYYztbYpT9tX3xsmgJMvSrtd3HtqOl9Okf2sBaSAKvfY2Fz76T9pr9BnEh5SPxt81f7mO' \
               'nfmtWiXBKGVCP8aBZqWNEl0jGMfR9qd30CoL2mNxIQZGS5l6BZQpt5fztPD7Mi5VFv5CrsGucW6ts3rQhZZ7usZLAX1Y60ltqfwS' \
