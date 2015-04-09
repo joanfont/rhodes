@@ -1,14 +1,5 @@
 from api import app
-
-from logging.handlers import RotatingFileHandler
-import logging
-
 from config import config
-
-from views import subject as subject_views
-from views import group as group_views
-from views import message as message_views
-from views import user as user_views
 
 
 def setup_config(application):
@@ -19,6 +10,10 @@ def setup_config(application):
 
 
 def setup_logging(application):
+
+    from logging.handlers import RotatingFileHandler
+    import logging
+
     formatter = logging.Formatter('[%(asctime)s] [%(pathname)s:%(lineno)d] %(levelname)s - %(message)s')
 
     file_handler = RotatingFileHandler(config.LOG_FILE, maxBytes=10000000, backupCount=5)
@@ -31,6 +26,11 @@ def setup_logging(application):
 
 
 def setup_routing(application):
+
+    from views import subject as subject_views
+    from views import group as group_views
+    from views import message as message_views
+    from views import user as user_views
 
     application.add_url_rule('/login/', view_func=user_views.LoginView.as_view('login'))
 

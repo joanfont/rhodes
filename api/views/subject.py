@@ -1,5 +1,5 @@
-from api.views.lib.decorators import user_belongs_to_subject, subject_exists, auth_token_required
-from api.views.lib.mixins import ListAPIViewMixin
+from api.lib.decorators import user_belongs_to_subject, subject_exists, auth_token_required
+from api.lib.mixins import ListAPIViewMixin
 from application.services.subject import GetUserSubject, GetUserSubjects
 
 

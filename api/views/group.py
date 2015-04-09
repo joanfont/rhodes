@@ -1,7 +1,7 @@
-from api.views.lib.decorators import user_belongs_to_subject, group_exists, user_belongs_to_group, \
+from api.lib.decorators import user_belongs_to_subject, group_exists, user_belongs_to_group, \
     group_belongs_to_subject, auth_token_required
-from api.views.lib.decorators import subject_exists
-from api.views.lib.mixins import ListAPIViewMixin
+from api.lib.decorators import subject_exists
+from api.lib.mixins import ListAPIViewMixin
 from application.services.group import GetGroup, GetSubjectUserGroups
 
 
