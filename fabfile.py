@@ -27,6 +27,12 @@ def restart():
 
 
 @task
+def pip():
+    with cd(prod_config.PROJECT_DIR):
+        run('pip install -r requeriments')
+
+
+@task
 def branch(name):
     switch_branch_command = 'git checkout {branch}'.format(branch=name)
     with cd(prod_config.PROJECT_DIR):
@@ -55,5 +61,6 @@ def setup():
 @task
 def deploy():
     branch('master')
+    pip()
     restart()
 
