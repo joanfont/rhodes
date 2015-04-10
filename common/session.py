@@ -24,7 +24,7 @@ class SessionManager(object):
     @staticmethod
     def standalone():
         engine = create_engine(config.DB_DSN)
-        return sessionmaker(bind=engine)
+        return sessionmaker(bind=engine)()
 
 
 manager = SessionManager()
