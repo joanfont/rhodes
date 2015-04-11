@@ -1,4 +1,5 @@
 from datetime import datetime
+from application.exceptions import MyValueError
 
 
 class BaseValidator(object):
@@ -10,30 +11,47 @@ class BaseValidator(object):
                 raise KeyError(error)
 
         self.options = options
+        self.errors = []
+
+    def add_error(self, error):
+        self.errors.append(error)
+
+    def has_errors(self):
+        return bool(self.errors)
 
     def defaults(self):
         return {'required': False, 'default': None}
 
     def validate(self, value):
         if self.options.get('required') and not value:
-            raise ValueError('The value is required for this validator')
+            self.add_error('The value is required')
 
         val = value if value is not None else self.options.get('default')
-        return self.check_value(val)
+        self.check_value(val)
+
+        if not self.has_errors():
+            val = self.clean_value(val)
+
+        return val
 
     def check_value(self, value):
+        raise NotImplementedError()
+
+    def clean_value(self, value):
         raise NotImplementedError()
 
 
 class IntegerValidator(BaseValidator):
 
     def check_value(self, value):
-        try:
-            value = int(value)
-        except ValueError:
-            raise ValueError('The value is not an integer')
 
-        return value
+        try:
+            int(value)
+        except ValueError:
+            self.add_error('The value is not an integer')
+
+    def clean_value(self, value):
+        return int(value)
 
 
 class StringValidator(BaseValidator):
@@ -44,16 +62,21 @@ class StringValidator(BaseValidator):
         return _defaults
 
     def check_value(self, value):
-        if not isinstance(value, (basestring, unicode)):
-            raise ValueError('The value is not an string')
 
-        if self.options.get('min_length') and len(value) < self.options.get('min_length'):
-            raise ValueError('The value\'s length is lower than the min_length provided')
+        min_length = self.options.get('min_length')
+        max_length = self.options.get('max_length')
 
-        if self.options.get('max_length') and len(value) > self.options.get('max_length'):
-            raise ValueError('The value\'s length is greater than the min_length provided')
+        if not isinstance(value, (basestring, unicode, str)):
+            self.add_error('The value is not an string')
 
-        return value
+        if min_length and len(value) < min_length:
+            self.add_error('The value\'s length is lower than {min_length}'.format(min_length=min_length))
+
+        if max_length and len(value) > max_length:
+            self.add_error('The value\'s length is greater than {max_length}'.format(max_length=max_length))
+
+    def clean_value(self, value):
+        return unicode(value)
 
 
 class ChoicesValidator(BaseValidator):
@@ -68,11 +91,12 @@ class ChoicesValidator(BaseValidator):
         choices = self.options.get('choices')
 
         if not isinstance(choices, (list, tuple)):
-            raise ValueError('Choices option must be a list or a tuple')
+            self.add_eror('Choices option must be a list or a tuple')
 
         if value not in choices:
-            raise ValueError('The value is not in choices')
+            self.add_error('The value is not in choices')
 
+    def clean_value(self, value):
         return value
 
 
@@ -87,33 +111,35 @@ class DateValidator(BaseValidator):
         })
         return _defaults
 
+    @staticmethod
+    def get_instance(value, frmat):
+        return value if isinstance(value, datetime) else datetime.strptime(value, frmat)
+
     def check_value(self, value):
 
-        def _get_instance(v, f):
-            return v if isinstance(v, datetime) else datetime.strptime(v, f)
+        frmat = self.options.get('format')
 
-        fmt = self.options.get('format')
-
-        dfrom = _get_instance(self.options.get('from'), fmt) if self.options.get('from') else None
-        dto = _get_instance(self.options.get('to'), fmt) if self.options.get('to') else None
-        date = _get_instance(value, fmt)
+        dfrom = self.get_instance(self.options.get('from'), frmat) if self.options.get('from') else None
+        dto = self.get_instance(self.options.get('to'), frmat) if self.options.get('to') else None
+        date = self.get_instance(value, frmat)
 
         if dfrom and date > dfrom:
-            raise ValueError('Date must be more than \'from\' value provided')
+            self.add_error('Date must be more than \'from\' value provided')
 
         if dto and date < dto:
-            raise ValueError('Date must be less than \'to\' value provided')
+            self.add_error('Date must be less than \'to\' value provided')
 
-        return date
+    def clean_value(self, value):
+        frmat = self.options.get('format')
+        return self.get_instance(value, frmat)
 
 
 class BooleanValidator(BaseValidator):
 
     def check_value(self, value):
 
-        try:
-            val = bool(value)
-        except:
-            raise ValueError('Value must be boolean')
+        if not isinstance(value, bool):
+            self.add_error('Value is not boolean')
 
-        return val
+    def clean_value(self, value):
+        return bool(value)

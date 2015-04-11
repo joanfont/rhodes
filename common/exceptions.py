@@ -5,6 +5,7 @@ class BaseError(Exception):
     payload = {}
 
     def __init__(self, message=None, code=None, payload=None):
+
         if message:
             self.message = message
 
@@ -13,4 +14,9 @@ class BaseError(Exception):
 
         if payload:
             self.payload = payload
+
+    def to_dict(self):
+        data = self.payload
+        data.update({'code': self.code, 'message': self.message})
+        return data
 

@@ -1,4 +1,5 @@
 from api import app
+from application.exceptions import ValidationError
 from config import config
 
 
@@ -60,7 +61,10 @@ def setup_routing(application):
 
 def setup_error_handlers(application):
 
-    return application
+    @application.errorhandler(ValidationError)
+    def validation_error(error):
+
+
 
 
 def configure(application):

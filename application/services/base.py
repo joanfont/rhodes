@@ -1,6 +1,6 @@
 from application.lib.validators import BaseValidator
 from application.lib.models import SessionWrapper
-from application.exceptions import ValidationError
+from application.exceptions import ValidationError, MyValueError
 
 
 class BaseService(object):
@@ -28,18 +28,21 @@ class BaseService(object):
 
     def clean_args(self, args):
         cleaned_args = {}
-        arg_errors = []
+        validation_errors = []
+
         for (k, v) in self.input_contract.items():
             value = args.get(k)
-            try:
-                clean_value = v.validate(value)
-                cleaned_args[k] = clean_value
-            except ValueError, e:
-                arg_errors.append({'field': k, 'code': ValidationError.CODE, 'message': e.message})
 
-        if arg_errors:
-            e = ValidationError()
-            e.append_errors(arg_errors)
+            try:
+                cleaned_args[k] = v.validate(value)
+            except MyValueError, e:
+                validation_error = e.to_dict()
+                validation_error.update({'field': k})
+                validation_errors.append(validation_error)
+
+        if validation_errors:
+            payload = {'errors': validation_errors}
+            e = ValidationError(payload=payload)
             raise e
         return cleaned_args
 
