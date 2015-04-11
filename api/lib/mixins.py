@@ -58,14 +58,9 @@ class APIView(MethodView):
 class ListAPIViewMixin(APIView):
 
     def get(self, *args, **kwargs):
-        try:
-            raw_data = self.get_action(*args, **kwargs)
-            response = ResponseDict(raw_data, **self.response_args)
-            status_code = status.HTTP_200_OK
-        except BaseError, e:
-            response = e.error
-            status_code = e.status_code
-
+        raw_data = self.get_action(*args, **kwargs)
+        response = ResponseDict(raw_data, **self.response_args)
+        status_code = status.HTTP_200_OK
         return jsonify(response), status_code
 
     @staticmethod
