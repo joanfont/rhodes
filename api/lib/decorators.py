@@ -1,10 +1,9 @@
 from flask import request
 from api.exceptions.auth import NotAuthenticatedError, NotEnoughPermissionError
-from api.exceptions.validation import InvalidParameterError
-from application.exceptions.group import GroupNotFoundError, GroupDoesNotBelongToSubjectError
-from application.exceptions.subject import SubjectNotFoundError
-from application.exceptions.user import UserNotFoundError, StudentIsNotEnrolledToSubjectError, \
-    TeacherDoesNotTeachSubjectError, TeacherDoesNotTeachGroupError, StudentIsNotEnrolledToGroupError
+from api.exceptions.group import GroupNotFoundError, GroupDoesNotBelongToSubjectError
+from api.exceptions.subject import SubjectNotFoundError
+from api.exceptions.user import UserNotFoundError, TeacherDoesNotTeachSubjectError, StudentIsNotEnrolledToSubjectError, \
+    TeacherDoesNotTeachGroupError, StudentIsNotEnrolledToGroupError
 from application.lib.models import UserType
 from application.services.group import CheckUserBelongsToGroup, GroupBelongsToSubject, CheckGroupExists
 from common.auth import encode_password
@@ -78,9 +77,6 @@ def subject_exists(fnx):
     def wrapped_fnx(*args, **kwargs):
 
         subject_id = kwargs.get('subject_id')
-
-        if not subject_id:
-            raise InvalidParameterError()
 
         check_subject_exists_srv = CheckSubjectExists()
         exists = check_subject_exists_srv.call({'subject_id': subject_id})

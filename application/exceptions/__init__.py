@@ -8,10 +8,3 @@ class ServiceError(BaseError):
 
 class ValidationError(BaseError):
     pass
-
-
-class ObjectNotFoundError(ServiceError):
-
-    STATUS_CODE = status.HTTP_404_NOT_FOUND
-    CODE = 'not_found'
-    MESSAGE = 'Object not found'

@@ -4,8 +4,8 @@ from common import status
 
 class CantSerializeArrayError(APIError):
 
-    STATUS_CODE = status.HTTP_422_UNPROCESSABLE_ENTITY
-    CODE = 'unprocessable_entity'
-    MESSAGE = 'Can\'t serialize data'
+    message = 'Can\'t serialize data'
+    code = 'unprocessable_entity'
+    status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
 
 
