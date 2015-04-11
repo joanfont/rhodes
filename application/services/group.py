@@ -4,7 +4,6 @@ from application.lib.models import Group, StudentGroup, User, TeacherSubject, Su
 from application.services.user import GetUser
 
 from common.helper import Helper
-from common.exceptions import GroupNotFoundError
 
 
 class GetGroup(BasePersistanceService):
@@ -15,16 +14,17 @@ class GetGroup(BasePersistanceService):
         }
 
     def output(self):
-        return lambda x: Helper.instance_of(x, Group)
+        return lambda x: Helper.instance_of(x, Group) or x is None
 
     def execute(self, args):
         group_id = args.get('group_id')
         group_query = self.session.query(Group)
 
-        if not group_query.count():
-            raise GroupNotFoundError()
+        if group_query.filter(Group.id == group_id).count():
+            group = group_query.get(group_id)
+        else:
+            group = None
 
-        group = group_query.get(group_id)
         return group
 
 

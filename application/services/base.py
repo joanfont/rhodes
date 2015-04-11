@@ -1,6 +1,6 @@
 from application.lib.validators import BaseValidator
 from application.lib.models import SessionWrapper
-from common.exceptions import ValidationError
+from application.exceptions import ValidationError
 
 
 class BaseService(object):
@@ -53,7 +53,8 @@ class BaseService(object):
 
         return cleaned_args, output_fnx
 
-    def post_execute(self, valid):
+    @staticmethod
+    def post_execute(valid):
         if not valid:
             raise ValueError('The service\'s result does not satisfy the output contract given')
 
