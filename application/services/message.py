@@ -4,6 +4,29 @@ from application.services.base import BasePersistanceService, BaseService
 from common.helper import Helper
 
 
+class GetMessage(BasePersistanceService):
+
+    def input(self):
+        return {
+            'id': IntegerValidator({'required': True})
+        }
+
+    def output(self):
+        return lambda x: Helper.instance_of(x, Message) or x is None
+
+    def execute(self, args):
+        message_id = args.get('id')
+
+        message_query = self.session.query(Message)
+
+        if message_query.filter(Message.id == message_id).count():
+            message = message_query.get(message_id)
+        else:
+            message = None
+
+        return message
+
+
 class PutMessageBody(BasePersistanceService):
 
     def input(self):
@@ -124,7 +147,7 @@ class GetSubjectMessages(BasePersistanceService):
         }
 
     def output(self):
-        return lambda x: Helper.array_of(x, SubjectMessage)
+        return lambda x: Helper.array_of(x, SubjectMessage) or x is []
 
     def execute(self, args):
         subject_id = args.get('subject_id')
@@ -143,7 +166,7 @@ class GetGroupMessages(BasePersistanceService):
         }
 
     def output(self):
-        return lambda x: Helper.array_of(x, GroupMessage)
+        return lambda x: Helper.array_of(x, GroupMessage) or x is []
 
     def execute(self, args):
         group_id = args.get('group_id')

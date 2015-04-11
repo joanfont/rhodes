@@ -1,11 +1,13 @@
 from flask import request
+from api.exceptions.auth import NotAuthenticatedError, NotEnoughPermissionError
+from api.exceptions.validation import InvalidParameterError
+from application.exceptions.group import GroupNotFoundError, GroupDoesNotBelongToSubjectError
+from application.exceptions.subject import SubjectNotFoundError
+from application.exceptions.user import UserNotFoundError, StudentIsNotEnrolledToSubjectError, \
+    TeacherDoesNotTeachSubjectError, TeacherDoesNotTeachGroupError, StudentIsNotEnrolledToGroupError
 from application.lib.models import UserType
 from application.services.group import CheckUserBelongsToGroup, GroupBelongsToSubject, CheckGroupExists
 from common.auth import encode_password
-
-from common.exceptions import NotAuthenticatedError, TeacherDoesNotTeachSubjectError, StudentIsNotEnrolledToSubjectError, \
-    InvalidParameterError, SubjectNotFoundError, TeacherDoesNotTeachGroupError, StudentIsNotEnrolledToGroupError, \
-    GroupDoesNotBelongToSubjectError, GroupNotFoundError, NotEnoughPermissionError, UserNotFoundError
 
 from application.services.user import CheckUserExistsByUserAndPassword, GetUserByAuthToken
 from application.services.subject import CheckUserBelongsToSubject, CheckSubjectExists

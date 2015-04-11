@@ -6,6 +6,10 @@ class ServiceError(BaseError):
     pass
 
 
+class ValidationError(BaseError):
+    pass
+
+
 class ObjectNotFoundError(ServiceError):
 
     STATUS_CODE = status.HTTP_404_NOT_FOUND

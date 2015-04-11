@@ -124,16 +124,18 @@ class GetTeacherSubject(BasePersistanceService):
         }
 
     def output(self):
-        return lambda x: Helper.instance_of(x, Subject)
+        return lambda x: Helper.instance_of(x, Subject) or x is None
 
     def execute(self, args):
 
         subject_id = args.get('subject_id')
         subject_query = self.session.query(Subject)
-        if not subject_query.count():
-            raise SubjectNotFoundError()
 
-        subject = subject_query.get(subject_id)
+        if subject_query.filter(Subject.id == subject_id).count():
+            subject = subject_query.get(subject_id)
+        else:
+            subject = None
+
         return subject
 
 
@@ -146,7 +148,7 @@ class GetStudentSubject(BasePersistanceService):
         }
 
     def output(self):
-        return lambda x: Helper.instance_of(x, Subject)
+        return lambda x: Helper.instance_of(x, Subject) or x is None
 
     def execute(self, args):
         subject_id = args.get('subject_id')
@@ -159,11 +161,12 @@ class GetStudentSubject(BasePersistanceService):
             filter(User.id == student_id).\
             filter(Subject.id == subject_id)
 
-        if not group_query.count():
-            raise SubjectNotFoundError()
+        if group_query.count():
+            group = group_query.one()
+            subject = SubjectHelper.add_student_group_to_subject(group)
+        else:
+            subject = None
 
-        group = group_query.one()
-        subject = SubjectHelper.add_student_group_to_subject(group)
         return subject
 
 

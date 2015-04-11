@@ -2,7 +2,6 @@ from application.services.base import BasePersistanceService
 from application.lib.validators import IntegerValidator, StringValidator
 from common.helper import Helper
 from application.lib.models import User, StudentGroup, Group, Subject, TeacherSubject
-from common.exceptions import UserNotFoundError
 
 
 class GetUser(BasePersistanceService):
@@ -13,14 +12,16 @@ class GetUser(BasePersistanceService):
         }
 
     def output(self):
-        return lambda x: Helper.instance_of(x, User)
+        return lambda x: Helper.instance_of(x, User) or x is None
 
     def execute(self, args):
         user_id = args.get('user_id')
-        user = self.session.query(User).get(user_id)
+        user_query = self.session.query(User)
 
-        if not user:
-            raise UserNotFoundError()
+        if user_query.filter(User.id == user_id).count():
+            user = user_query.get(user_id)
+        else:
+            user = None
 
         return user
 
@@ -33,16 +34,17 @@ class GetUserByAuthToken(BasePersistanceService):
         }
 
     def output(self):
-        return lambda x: Helper.instance_of(x, User)
+        return lambda x: Helper.instance_of(x, User) or x is None
 
     def execute(self, args):
         auth_token = args.get('auth_token')
-        user = self.session.query(User).\
-            filter(User.auth_token == auth_token).\
-            one()
+        user_query = self.session.query(User).\
+            filter(User.auth_token == auth_token)
 
-        if not user:
-            raise UserNotFoundError()
+        if user_query.count():
+            user = user_query.one()
+        else:
+            user = None
 
         return user
 
@@ -63,13 +65,14 @@ class GetUserByUserAndPassword(BasePersistanceService):
         user = args.get('user')
         password = args.get('password')
 
-        user = self.session.query(User).\
+        user_query = self.session.query(User).\
             filter(User.user == user).\
-            filter(User.password == password).\
-            one()
+            filter(User.password == password)
 
-        if not user:
-            raise UserNotFoundError()
+        if user_query.count():
+            user = user_query.one()
+        else:
+            user = None
 
         return user
 
@@ -158,4 +161,3 @@ class GetSubjectStudents(BasePersistanceService):
             filter(Subject.id == subject_id).all()
 
         return students
-
