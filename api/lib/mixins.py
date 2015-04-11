@@ -1,7 +1,7 @@
 from flask import jsonify, request
 from flask.views import MethodView
+from api.exceptions.response import CantSerializeArrayError
 from common import status
-from common.exceptions import CantSerializeArrayError, BaseError
 from common.helper import Helper
 from application.lib.models import DictMixin
 

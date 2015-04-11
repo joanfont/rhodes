@@ -1,6 +1,5 @@
 from application.services.base import BasePersistanceService, BaseService
 from application.services.user import GetUser
-from common.exceptions import SubjectNotFoundError
 from common.helper import Helper
 from application.lib.validators import IntegerValidator
 
