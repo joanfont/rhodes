@@ -12,7 +12,7 @@ class BaseError(Exception):
         if code:
             self.code = code
 
-        if payload:
+        if isinstance(payload, dict):
             self.payload = payload
 
     def to_dict(self):
