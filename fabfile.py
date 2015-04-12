@@ -29,7 +29,7 @@ def restart():
 @task
 def pip():
     with cd(prod_config.PROJECT_DIR):
-        run('pip install -r requeriments')
+        run('pip install -r requeriments.txt')
 
 
 @task
