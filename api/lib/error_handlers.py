@@ -3,21 +3,19 @@ from application.exceptions import ValidationError as ApplicationValidationError
 from api.exceptions.validation import ValidationError as APIValidationError
 
 
-def api_validation_error_handler(error):
-    data = error.to_dict()
+# workaround
+def app_validation_error_handler(error):
+
+    errors = error.to_dict()
+    api_validation_error = APIValidationError(payload=errors)
+    data = api_validation_error.to_dict()
 
     response = jsonify(data)
-    response.status_code = error.status_code
+    response.status_code = api_validation_error.status_code
 
     return response
 
 
-def app_validation_error_handler(error):
-    raise APIValidationError(payload=error.payload)
-
-
 handlers = {
-    ApplicationValidationError: app_validation_error_handler,
-    APIValidationError: api_validation_error_handler
-
+    ApplicationValidationError: app_validation_error_handler
 }
