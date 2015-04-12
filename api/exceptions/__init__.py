@@ -15,8 +15,22 @@ class APIError(BaseError):
             self.status_code = status_code
 
 
-class ObjectNotFoundError(BaseError):
+class ObjectNotFoundError(APIError):
 
     message = 'Object not found'
     code = 'not_found'
     status_code = status.HTTP_404_NOT_FOUND
+
+
+class ForbiddenActionError(APIError):
+
+    message = 'Forbidden'
+    code = 'forbidden'
+    status_code = status.HTTP_403_FORBIDDEN
+
+
+class ConflictError(APIError):
+
+    message = 'Conflict'
+    code = 'conflict'
+    status_code = status.HTTP_409_CONFLICT
