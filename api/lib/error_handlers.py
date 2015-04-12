@@ -31,13 +31,13 @@ def api_error_handler(error):
 
 handlers = {
     # generic errors
-    [ObjectNotFoundError, ForbiddenActionError, ConflictError]: api_error_handler,
+    (ObjectNotFoundError, ForbiddenActionError, ConflictError): api_error_handler,
 
     # auth errors
-    [NotAuthenticatedError]: api_error_handler,
-    [CantSerializeArrayError]: api_error_handler,
+    NotAuthenticatedError: api_error_handler,
+    CantSerializeArrayError: api_error_handler,
 
     # special case for validation errors
-    [ApplicationValidationError]: app_validation_error_handler
+    ApplicationValidationError: app_validation_error_handler
 
 }
