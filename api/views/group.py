@@ -27,8 +27,8 @@ class GroupDetailView(ListAPIViewMixin):
     @subject_exists
     @user_belongs_to_subject
     @group_exists
-    @user_belongs_to_group
     @group_belongs_to_subject
+    @user_belongs_to_group
     def get_action(self, *args, **kwargs):
 
         group_id = kwargs.get('group_id')

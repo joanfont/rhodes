@@ -173,4 +173,5 @@ class GetGroupMessages(BasePersistanceService):
         messages = self.session.query(GroupMessage).\
             filter(GroupMessage.group_id == group_id).\
             order_by(GroupMessage.created_at.desc()).all()
+
         return messages
