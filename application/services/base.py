@@ -36,8 +36,10 @@ class BaseService(object):
             try:
                 cleaned_args[k] = v.validate(value)
             except MyValueError, e:
-                validation_error = e.to_dict()
-                validation_error.update({'field': k})
+                validation_error = {
+                    'field': k,
+                    'errors': e.get_errors()}
+
                 validation_errors.append(validation_error)
 
         if validation_errors:

@@ -33,8 +33,9 @@ class BaseValidator(object):
         self.check_value(val)
 
         if self.has_errors():
-            errors = {'errors': self.get_errors()}
-            raise MyValueError(payload=errors)
+            errors = self.get_errors()
+            payload = {'errors': errors}
+            raise MyValueError(payload=payload, errors=errors)
 
         return self.clean_value(val)
 
