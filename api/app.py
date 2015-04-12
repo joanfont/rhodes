@@ -33,6 +33,7 @@ def setup_routing(application):
     from views import group as group_views
     from views import message as message_views
     from views import user as user_views
+    from views import misc as misc_views
 
     application.add_url_rule('/login/', view_func=user_views.LoginView.as_view('login'))
 
@@ -57,13 +58,17 @@ def setup_routing(application):
                              view_func=message_views.GroupMessagesView.as_view('subject_group_messages'),
                              methods=['GET', 'POST'])
 
+    application.add_url_rule('/config/', view_func=misc_views.ConfigView.as_view('config'))
+
     return application
 
 
-def configure_error_handlerrs(application):
+def setup_error_handlers(application):
 
     for (exception, handler) in handlers.iteritems():
         application.register_error_handler(exception, handler)
+
+    return application
 
 
 def configure(application):
@@ -71,6 +76,7 @@ def configure(application):
     application = setup_config(application)
     application = setup_logging(application)
     application = setup_routing(application)
+    application = setup_error_handlers(application)
 
     return application
 
