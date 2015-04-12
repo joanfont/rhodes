@@ -11,6 +11,7 @@ DB_DSN = '{driver}://{user}:{passw}@{host}/{name}?charset=utf8&use_unicode=0'.fo
 DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 
 MESSAGE_MAX_LENGTH = 400
+ITEMS_PER_PAGE = 15
 
 LOG_FILE = os.path.join(cfg.PROJECT_DIR, 'log/rhodes.log')
 
