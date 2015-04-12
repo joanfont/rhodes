@@ -19,6 +19,9 @@ class BaseValidator(object):
     def get_errors(self):
         return self.errors
 
+    def has_errors(self):
+        return bool(self.errors)
+
     def defaults(self):
         return {'required': False, 'default': None}
 

@@ -8,7 +8,7 @@ class APIError(BaseError):
     code = 'internal_server_error'
     status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
 
-    def __init__(self, message, code=None, status_code=None, payload=None):
+    def __init__(self, message=None, code=None, status_code=None, payload=None):
         super(APIError, self).__init__(message, code, payload)
 
         if status_code:
