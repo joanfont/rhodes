@@ -16,8 +16,8 @@ class BaseValidator(object):
     def add_error(self, error):
         self.errors.append(error)
 
-    def has_errors(self):
-        return bool(self.errors)
+    def get_errors(self):
+        return self.errors
 
     def defaults(self):
         return {'required': False, 'default': None}
@@ -29,10 +29,11 @@ class BaseValidator(object):
         val = value if value is not None else self.options.get('default')
         self.check_value(val)
 
-        if not self.has_errors():
-            val = self.clean_value(val)
+        if self.has_errors():
+            errors = {'errors': self.get_errors()}
+            raise MyValueError(payload=errors)
 
-        return val
+        return self.clean_value(val)
 
     def check_value(self, value):
         raise NotImplementedError()

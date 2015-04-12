@@ -80,3 +80,13 @@ class BasePersistanceService(BaseService):
     def __init__(self):
         super(BasePersistanceService, self).__init__()
         self.session = SessionWrapper()
+
+    def input(self):
+        raise NotImplementedError()
+
+    def output(self):
+        raise NotImplementedError()
+
+    def execute(self, args):
+        raise NotImplementedError()
+
