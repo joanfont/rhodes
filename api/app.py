@@ -1,5 +1,8 @@
+from flask import jsonify
+
 from api import app
-from application.exceptions import ValidationError
+from application.exceptions import ValidationError as ApplicationValidationError
+from api.exceptions.validation import ValidationError as APIValidationError
 from config import config
 
 
@@ -61,10 +64,19 @@ def setup_routing(application):
 
 def setup_error_handlers(application):
 
-    @application.errorhandler(ValidationError)
-    def validation_error(error):
+    # re-raise ApplicationValidationError to turn into APIValidationError (with status_code)
+    @application.errorhandler(ApplicationValidationError)
+    def application_validation_error(error):
+        raise APIValidationError(payload=error.payload)
 
+    @application.errorhandler(APIValidationError)
+    def api_validation_error(error):
+        data = error.to_dict()
 
+        response = jsonify(data)
+        response.status_code = error.status_code
+
+        return response
 
 
 def configure(application):
