@@ -29,7 +29,8 @@ def restart():
 @task
 def pip():
     with cd(prod_config.PROJECT_DIR):
-        run('pip install -r requeriments.txt')
+        with virtualenv():
+            run('pip install -r requirements.txt')
 
 
 @task
