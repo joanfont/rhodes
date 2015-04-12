@@ -54,6 +54,16 @@ class APIView(MethodView):
         super(APIView, self).__init__(**kwargs)
         self.response_args = {}
 
+    @staticmethod
+    def get_data():
+        return request.args
+
+    @staticmethod
+    def post_data():
+        return dict(
+            (key, request.form.getlist(key) if len(request.form.getlist(key)) > 1 else request.form.getlist(key)[0]) for
+            key in request.form.keys())
+
 
 class ListAPIViewMixin(APIView):
 
@@ -63,10 +73,6 @@ class ListAPIViewMixin(APIView):
         status_code = status.HTTP_200_OK
         return jsonify(response), status_code
 
-    @staticmethod
-    def get_data():
-        return request.args
-
     def get_action(self, *args, **kwargs):
         raise NotImplementedError()
 
@@ -74,21 +80,10 @@ class ListAPIViewMixin(APIView):
 class CreateAPIViewMixin(APIView):
 
     def post(self, *args, **kwargs):
-        try:
-            raw_data = self.post_action(*args, **kwargs)
-            response = ResponseDict(raw_data, **self.response_args)
-            status_code = status.HTTP_201_CREATED
-        except BaseError, e:
-            response = e.error
-            status_code = e.status_code
-
+        raw_data = self.post_action(*args, **kwargs)
+        response = ResponseDict(raw_data, **self.response_args)
+        status_code = status.HTTP_201_CREATED
         return jsonify(response), status_code
-
-    @staticmethod
-    def post_data():
-        return dict(
-            (key, request.form.getlist(key) if len(request.form.getlist(key)) > 1 else request.form.getlist(key)[0]) for
-            key in request.form.keys())
 
     def post_action(self, *args, **kwargs):
         raise NotImplementedError()
