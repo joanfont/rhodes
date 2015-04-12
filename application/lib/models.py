@@ -193,7 +193,7 @@ class MessageType(Base):
 
 class MessageBody(Base):
 
-    MAX_LENGTH = 400
+    MAX_LENGTH = config.MESSAGE_MAX_LENGTH
 
     __tablename__ = 'message_body'
 
