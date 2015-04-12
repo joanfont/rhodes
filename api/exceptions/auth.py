@@ -1,4 +1,4 @@
-from api.exceptions import APIError
+from api.exceptions import APIError, ForbiddenActionError
 from common import status
 
 
@@ -9,8 +9,6 @@ class NotAuthenticatedError(APIError):
     status_code = status.HTTP_401_UNAUTHORIZED
 
 
-class NotEnoughPermissionError(APIError):
+class NotEnoughPermissionError(ForbiddenActionError):
 
     message = 'You don\'t have enough permissions to perform this action'
-    code = 'forbidden'
-    status_code = status.HTTP_403_FORBIDDEN

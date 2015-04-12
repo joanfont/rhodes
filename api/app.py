@@ -65,8 +65,9 @@ def setup_routing(application):
 
 def setup_error_handlers(application):
 
-    for (exception, handler) in handlers.iteritems():
-        application.register_error_handler(exception, handler)
+    for (exceptions, handler) in handlers.iteritems():
+        for exception in exceptions:
+            application.register_error_handler(exception, handler)
 
     return application
 

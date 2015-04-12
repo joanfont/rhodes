@@ -1,4 +1,4 @@
-from api.exceptions import ObjectNotFoundError
+from api.exceptions import ObjectNotFoundError, ConflictError
 
 
 class GroupNotFoundError(ObjectNotFoundError):
@@ -7,6 +7,6 @@ class GroupNotFoundError(ObjectNotFoundError):
 
 
 # TODO: fix
-class GroupDoesNotBelongToSubjectError(ObjectNotFoundError):
+class GroupDoesNotBelongToSubjectError(ConflictError):
 
     message = 'Group does not belong to the subject'
