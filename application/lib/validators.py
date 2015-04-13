@@ -26,18 +26,21 @@ class BaseValidator(object):
         return {'required': False, 'default': None}
 
     def validate(self, value):
-        if self.options.get('required') and not value:
-            self.add_error('The value is required')
-
         val = value if value is not None else self.options.get('default')
-        self.check_value(val)
+
+        if not val and self.options.get('required'):
+            self.add_error('The value is required')
+        else:
+            if val:
+                self.check_value(val)
+                val = self.clean_value(val)
 
         if self.has_errors():
             errors = self.get_errors()
             payload = {'errors': errors}
             raise MyValueError(payload=payload, errors=errors)
 
-        return self.clean_value(val)
+        return val
 
     def check_value(self, value):
         raise NotImplementedError()

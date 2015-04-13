@@ -8,6 +8,8 @@ from common.auth import generate_auth_token
 
 from config import config
 
+from itertools import imap, chain
+
 Base = declarative_base()
 
 
@@ -108,6 +110,48 @@ class User(DictMixin, Base):
         secret = config.PRIVATE_KEY
         message = "{id}{user}{type_id}".format(id=self.id, user=self.user, type_id=self.type_id)
         return generate_auth_token(message, secret)
+
+    def get_subject_ids(self):
+
+        def _get_teacher_subejct_ids():
+            return map(lambda x: int(x.id), self.subjects)
+
+        def _get_student_subjects_ids():
+            return map(lambda x: int(x.subject.id), self.groups)
+
+        dispatcher = {
+            UserType.TEACHER: _get_teacher_subejct_ids,
+            UserType.STUDENT: _get_student_subjects_ids,
+        }
+
+        get_subjects_ids_fnx = dispatcher.get(self.type_id)
+
+        subjects = get_subjects_ids_fnx()
+        return subjects
+
+    def get_groups_ids(self):
+
+        def _get_teacher_groups_ids():
+
+            def _get_subject_groups(subject):
+                return imap(lambda x: int(x.id), subject.groups)
+
+            subject_goups = map(_get_subject_groups, self.subjects)
+
+            return list(chain(*subject_goups))
+
+        def _get_student_groups_ids():
+            return map(lambda x: int(x.id), self.groups)
+
+        dispatcher = {
+            UserType.TEACHER: _get_teacher_groups_ids,
+            UserType.STUDENT: _get_student_groups_ids,
+        }
+
+        get_groups_ids_fnx = dispatcher.get(self.type_id)
+
+        groups = get_groups_ids_fnx()
+        return groups
 
 
 class Course(DictMixin, Base):

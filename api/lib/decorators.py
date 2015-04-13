@@ -96,22 +96,25 @@ def user_belongs_to_subject(fnx):
     # So this decorator must be called after @login_required
     def wrapped_fnx(*args, **kwargs):
 
-        dispatcher = {
+        user = kwargs.get('user')
+
+        exception_dispatcher = {
             UserType.TEACHER: TeacherDoesNotTeachSubjectError,
             UserType.STUDENT: StudentIsNotEnrolledToSubjectError,
         }
 
-        subject_jd = kwargs.get('subject_id')
-        user = kwargs.get('user')
+        subject_id = int(kwargs.get('subject_id'))
+        user_subjects = user.get_subject_ids()
+        user_belongs = subject_id in user_subjects
 
-        check_user_belongs_to_subject_srv = CheckUserBelongsToSubject()
-        user_belongs = check_user_belongs_to_subject_srv.call({
-            'subject_id': subject_jd,
-            'user_id': user.id
-        })
+        # check_user_belongs_to_subject_srv = CheckUserBelongsToSubject()
+        # user_belongs = check_user_belongs_to_subject_srv.call({
+        #     'subject_id': subject_jd,
+        #     'user_id': user.id
+        # })
 
         if not user_belongs:
-            exception_cls = dispatcher.get(user.type_id)
+            exception_cls = exception_dispatcher.get(user.type_id)
             raise exception_cls()
 
         return fnx(*args, **kwargs)
@@ -146,13 +149,16 @@ def user_belongs_to_group(fnx):
         }
 
         user = kwargs.get('user')
-        group_id = kwargs.get('group_id')
+        group_id = int(kwargs.get('group_id'))
 
-        check_user_belongs_to_group_srv = CheckUserBelongsToGroup()
-        user_belongs = check_user_belongs_to_group_srv.call({
-            'group_id': group_id,
-            'user_id': user.id
-        })
+        user_groups = user.get_groups_ids()
+        user_belongs = group_id in user_groups
+
+        # check_user_belongs_to_group_srv = CheckUserBelongsToGroup()
+        # user_belongs = check_user_belongs_to_group_srv.call({
+        #     'group_id': group_id,
+        #     'user_id': user.id
+        # })
 
         if not user_belongs:
             exception_cls = dispatcher.get(user.type.id)
