@@ -30,6 +30,7 @@ class ResponseDict(dict):
 
         if not can_map:
             raise CantSerializeArrayError()
+
         if not is_api_dict:
             if many:
                 results = map(lambda x: x.to_dict(**options), data)
@@ -46,6 +47,15 @@ class ResponseDict(dict):
             response = data
 
         super(ResponseDict, self).__init__(response)
+
+
+class PaginatedAPIDict(ResponseDict):
+
+    def __init__(self, data, **options):
+
+        results = data.objects
+        data = ResponseDict(results, **options)
+        super(PaginatedAPIDict, self).__init__(data)
 
 
 class APIView(MethodView):

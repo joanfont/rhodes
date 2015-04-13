@@ -2,6 +2,7 @@ from api import app
 from config import config
 
 from api.lib.error_handlers import handlers
+from api.routing import routing
 
 
 def setup_config(application):
@@ -29,36 +30,13 @@ def setup_logging(application):
 
 def setup_routing(application):
 
-    from views import subject as subject_views
-    from views import group as group_views
-    from views import message as message_views
-    from views import user as user_views
-    from views import misc as misc_views
+    for (pattern, options) in routing.iteritems():
+        view_class = options.get('class')
+        view_name = options.get('name')
+        view_methods = options.get('methods')
+        view_func = view_class.as_view(view_name)
 
-    application.add_url_rule('/login/', view_func=user_views.LoginView.as_view('login'))
-
-    application.add_url_rule('/user/', view_func=user_views.ProfileView.as_view('profile'))
-
-    application.add_url_rule('/user/subjects/', view_func=subject_views.SubjectsView.as_view('subjects'))
-    application.add_url_rule('/user/subjects/<subject_id>/', view_func=subject_views.SubjectDetailView.as_view('subject'))
-    application.add_url_rule('/user/subjects/<subject_id>/messages/',
-                             view_func=message_views.SubjectMessagesView.as_view('subject_messages'),
-                             methods=['GET', 'POST'])
-
-    application.add_url_rule('/user/subjects/<subject_id>/teachers/',
-                             view_func=user_views.SubjectTeachersView.as_view('subject_teachers'))
-    application.add_url_rule('/user/subjects/<subject_id>/students/',
-                             view_func=user_views.SubjectStudentsView.as_view('subject_students'))
-
-    application.add_url_rule('/user/subjects/<subject_id>/groups/',
-                             view_func=group_views.SubjectGroupsView.as_view('subject_groups'))
-    application.add_url_rule('/user/subjects/<subject_id>/groups/<group_id>/',
-                             view_func=group_views.GroupDetailView.as_view('subject_group'))
-    application.add_url_rule('/user/subjects/<subject_id>/groups/<group_id>/messages/',
-                             view_func=message_views.GroupMessagesView.as_view('subject_group_messages'),
-                             methods=['GET', 'POST'])
-
-    application.add_url_rule('/config/', view_func=misc_views.ConfigView.as_view('config'))
+        application.add_url_rule(pattern, view_func=view_func, methods=view_methods)
 
     return application
 

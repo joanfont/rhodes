@@ -1,31 +1,61 @@
 
-class BaseEntity(dict):
-    pass
+class PaginatedEntity(object):
+
+    objects = []
+    total = 0
+    count = 0
+
+    def __init__(self, objects=[], total=0, count=0):
+        if objects:
+            self.objects = objects
+
+        if total:
+            self.total = total
+
+        if count:
+            self.count = count
+
+    def to_dict(self):
+        return {
+            'total': self.total,
+            'count': self.count,
+            'objects': self.objects
+        }
 
 
-class SQLAlchemyEntity(BaseEntity):
+class PaginatedMessagesEntity(PaginatedEntity):
 
-    def __init__(self, model):
-        props = (prop for prop in dir(model)
-                 if not prop.startswith('_')
-                 and not callable(getattr(model, prop)))
+    last_id = 0
+    order = None
 
-        kwargs = dict((prop, getattr(model, prop)) for prop in props if hasattr(self, prop))
-        super(SQLAlchemyEntity, self).__init__(self, **kwargs)
+    def __init__(self, objects=[], total=0, count=0, last_id=0, order=None):
+        super(PaginatedMessagesEntity, self).__init__(objects, total, count)
+
+        if last_id:
+            self.last_id = last_id
+
+        if order:
+            self.order = order
+
+    def to_dict(self):
+        super_dict = super(PaginatedMessagesEntity, self).to_dict()
+        messages = super_dict.pop('objects', [])
+        super_dict.update({
+            'last_id': self.last_id,
+            'order': self.order,
+            'messages': messages
+        })
+
+        return super_dict
 
 
-class Subject(SQLAlchemyEntity):
-
-    id = None
-    code = None
-    teachers = None
-    groups = None
 
 
-class Group(SQLAlchemyEntity):
 
-    id = None
-    name = None
-    subject = None
-    students = None
+
+
+
+
+
+
 

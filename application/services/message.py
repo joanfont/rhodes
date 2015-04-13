@@ -1,21 +1,46 @@
 from application.lib.models import Message, MessageType, DirectMessage, SubjectMessage, GroupMessage, MessageBody
 from application.lib.validators import StringValidator, IntegerValidator, ChoicesValidator, DateValidator
 from application.services.base import BasePersistanceService, BaseService
+from application.lib.entities import PaginatedEntity
 from common.helper import Helper
+from common import constants
+from config import config
+
+ORDER_CHOICES = ['asc', 'desc']
+
+
+class PaginatedMessages(BasePersistanceService):
+    def input(self):
+        return {
+            'items': IntegerValidator({'required': False, 'default': config.ITEMS_PER_PAGE}),
+            'last_message_id': IntegerValidator({'required': False}),
+            'order': ChoicesValidator({
+                'required': False,
+                'choices': constants.MESSAGES_PAGINATION_CHOICES,
+                'default': constants.MESSAGES_PAGINATION_NEXT})
+        }
+
+    def output(self):
+        def _output(x):
+            return Helper.array_of(x, Message)
+
+        return _output
+
+    def execute(self, args):
+        raise NotImplementedError
 
 
 class GetMessage(BasePersistanceService):
-
     def input(self):
         return {
-            'id': IntegerValidator({'required': True})
+            'message_id': IntegerValidator({'required': True})
         }
 
     def output(self):
         return lambda x: Helper.instance_of(x, Message) or x is None
 
     def execute(self, args):
-        message_id = args.get('id')
+        message_id = args.get('message_id')
 
         message_query = self.session.query(Message)
 
@@ -28,7 +53,6 @@ class GetMessage(BasePersistanceService):
 
 
 class PutMessageBody(BasePersistanceService):
-
     def input(self):
         return {
             'body': StringValidator({'required': True, 'max_length': MessageBody.MAX_LENGTH}),
@@ -38,7 +62,6 @@ class PutMessageBody(BasePersistanceService):
         return lambda x: Helper.instance_of(x, MessageBody)
 
     def execute(self, args):
-
         body = args.get('body')
         message_body = MessageBody(content=body)
 
@@ -48,7 +71,6 @@ class PutMessageBody(BasePersistanceService):
 
 
 class PutMessage(BasePersistanceService):
-
     def input(self):
         return {
             'sender_id': IntegerValidator({'required': True}),
@@ -63,7 +85,6 @@ class PutMessage(BasePersistanceService):
 
     @staticmethod
     def get_message_instance(message_type):
-
         dispatcher = {
             MessageType.DIRECT_MESSAGE: DirectMessage,
             MessageType.GROUP_MESSAGE: GroupMessage,
@@ -88,7 +109,6 @@ class PutMessage(BasePersistanceService):
         args.pop('recipient_id')
 
     def execute(self, args):
-
         message_type = args.get('type')
         body = args.pop('body')
 
@@ -107,7 +127,6 @@ class PutMessage(BasePersistanceService):
 
 
 class PutMessageInputAndOutputContractMixin(BaseService):
-
     def input(self):
         return {
             'sender_id': IntegerValidator({'required': True}),
@@ -124,7 +143,6 @@ class PutMessageInputAndOutputContractMixin(BaseService):
 
 
 class PutSubjectMessage(PutMessageInputAndOutputContractMixin, BaseService):
-
     def execute(self, args):
         args.update({'type': MessageType.SUBJECT_MESSAGE})
         put_message_srv = PutMessage()
@@ -132,46 +150,80 @@ class PutSubjectMessage(PutMessageInputAndOutputContractMixin, BaseService):
 
 
 class PutGroupMessage(PutMessageInputAndOutputContractMixin, BaseService):
-
     def execute(self, args):
         args.update({'type': MessageType.GROUP_MESSAGE})
         put_message_srv = PutMessage()
         return put_message_srv.call(args)
 
 
-class GetSubjectMessages(BasePersistanceService):
+class GetSubjectMessages(PaginatedMessages):
 
     def input(self):
-        return {
-            'subject_id': IntegerValidator({'required': True})
-        }
-
-    def output(self):
-        return lambda x: Helper.array_of(x, SubjectMessage) or x is []
+        _input = super(GetSubjectMessages, self).input()
+        _input.update({'subject_id': IntegerValidator({'required': True})})
+        return _input
 
     def execute(self, args):
+
         subject_id = args.get('subject_id')
 
-        messages = self.session.query(SubjectMessage).\
-            filter(SubjectMessage.subject_id == subject_id).\
-            order_by(SubjectMessage.created_at.desc()).all()
+        items = args.get('items')
+        last_message_id = args.get('last_message_id')
+        order = args.get('order')
+
+        messages_query = self.session.query(SubjectMessage). \
+            filter(SubjectMessage.subject_id == subject_id)
+
+        if last_message_id:
+
+            if order == constants.MESSAGES_PAGINATION_NEXT:
+                messages_query = messages_query.filter(SubjectMessage.id > last_message_id)
+            elif order == constants.MESSAGES_PAGINATION_PREVIOUS:
+                messages_query = messages_query.filter(SubjectMessage.id < last_message_id)
+
+        messages_query = messages_query.order_by(SubjectMessage.created_at.desc()). \
+            limit(items)
+
+        messages = messages_query.all()
+
+        # n_messages = messages_query.count()
+        # paginated_messages = PaginatedEntity(messages, n_messages, last_message_id, order)
         return messages
 
 
-class GetGroupMessages(BasePersistanceService):
+class GetGroupMessages(PaginatedMessages):
 
     def input(self):
-        return {
-            'group_id': IntegerValidator({'required': True})
-        }
-
-    def output(self):
-        return lambda x: Helper.array_of(x, GroupMessage) or x is []
+        _input = super(GetGroupMessages, self).input()
+        _input.update({'group_id': IntegerValidator({'required': True})})
+        return _input
 
     def execute(self, args):
         group_id = args.get('group_id')
-        messages = self.session.query(GroupMessage).\
-            filter(GroupMessage.group_id == group_id).\
-            order_by(GroupMessage.created_at.desc()).all()
 
+        items = args.get('items')
+        last_message_id = args.get('last_message_id')
+        order = args.get('order')
+
+        print args
+
+        messages_query = self.session.query(GroupMessage). \
+            filter(GroupMessage.group_id == group_id)
+
+        if last_message_id:
+
+            if order == constants.MESSAGES_PAGINATION_NEXT:
+                messages_query = messages_query.filter(GroupMessage.id > last_message_id)
+            elif order == constants.MESSAGES_PAGINATION_PREVIOUS:
+                messages_query = messages_query.filter(GroupMessage.id < last_message_id)
+
+        messages_query = messages_query.order_by(GroupMessage.created_at.desc()). \
+            limit(items)
+
+        messages = messages_query.all()
+
+        # n_messages = messages_query.count()
+        # paginated_messages = PaginatedEntity(messages, n_messages, last_message_id, order)
         return messages
+
+

@@ -29,10 +29,8 @@ class BaseService(object):
     def clean_args(self, args):
         cleaned_args = {}
         validation_errors = []
-
         for (k, v) in self.input_contract.items():
             value = args.get(k)
-
             try:
                 cleaned_args[k] = v.validate(value)
             except MyValueError, e:
@@ -41,7 +39,6 @@ class BaseService(object):
                     'errors': e.get_errors()}
 
                 validation_errors.append(validation_error)
-
         if validation_errors:
             payload = {'errors': validation_errors}
             e = ValidationError(payload=payload)
@@ -51,7 +48,6 @@ class BaseService(object):
     def pre_execute(self, args):
         self.check_input()
         cleaned_args = self.clean_args(args)
-
         output_fnx = self.output()
         if not callable(output_fnx):
             raise RuntimeError('You must provide a callable output contract')
@@ -65,8 +61,7 @@ class BaseService(object):
 
     def call(self, args):
         cleaned_args, output_fnx = self.pre_execute(args)
-
-        result = self.execute(args)
+        result = self.execute(cleaned_args)
         output_valid = output_fnx(result)
 
         self.post_execute(output_valid)

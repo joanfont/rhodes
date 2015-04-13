@@ -1,1 +1,6 @@
-__author__ = 'joanfont'
+from api.exceptions import ObjectNotFoundError
+
+
+class MessageNotFoundErorr(ObjectNotFoundError):
+
+    message = 'Message not found'
