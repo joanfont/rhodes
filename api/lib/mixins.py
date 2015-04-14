@@ -30,7 +30,7 @@ class ModelResponse(JSONResponse):
 
 class BaseResponseMixin(object):
 
-    response_class = None
+    response_class = JSONResponse
     response_args = {}
 
 
