@@ -1,10 +1,10 @@
 from api.lib.decorators import login_required, user_belongs_to_subject, subject_exists, is_teacher, auth_token_required
-from api.lib.mixins import ListAPIViewMixin, APIDict
+from api.lib.mixins import ListAPIViewMixin, ModelResponseMixin
 from application.services.user import GetSubjectTeachers, GetSubjectStudents, GetUserAuthTokenByUserAndPassword
 from common.auth import encode_password
 
 
-class LoginView(ListAPIViewMixin):
+class LoginView(ListAPIViewMixin, ModelResponseMixin):
 
     @login_required
     def get_action(self, *args, **kwargs):
@@ -20,10 +20,10 @@ class LoginView(ListAPIViewMixin):
             'password': password_encoded
         })
 
-        return APIDict(token=token)
+        return {'token': token}
 
 
-class SubjectTeachersView(ListAPIViewMixin):
+class SubjectTeachersView(ListAPIViewMixin, ModelResponseMixin):
 
     @auth_token_required
     @subject_exists
@@ -37,7 +37,7 @@ class SubjectTeachersView(ListAPIViewMixin):
         return teachers
 
 
-class SubjectStudentsView(ListAPIViewMixin):
+class SubjectStudentsView(ListAPIViewMixin, ModelResponseMixin):
 
     @auth_token_required
     @is_teacher
@@ -52,7 +52,7 @@ class SubjectStudentsView(ListAPIViewMixin):
         return students
 
 
-class ProfileView(ListAPIViewMixin):
+class ProfileView(ListAPIViewMixin, ModelResponseMixin):
 
     @auth_token_required
     def get_action(self, *args, **kwargs):

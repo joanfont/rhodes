@@ -1,11 +1,11 @@
 from api.lib.decorators import user_belongs_to_subject, group_exists, user_belongs_to_group, \
     group_belongs_to_subject, auth_token_required
 from api.lib.decorators import subject_exists
-from api.lib.mixins import ListAPIViewMixin
+from api.lib.mixins import ListAPIViewMixin, ModelResponseMixin
 from application.services.group import GetGroup, GetSubjectUserGroups
 
 
-class SubjectGroupsView(ListAPIViewMixin):
+class SubjectGroupsView(ListAPIViewMixin, ModelResponseMixin):
 
     @auth_token_required
     @subject_exists
@@ -21,7 +21,7 @@ class SubjectGroupsView(ListAPIViewMixin):
         return groups
 
 
-class GroupDetailView(ListAPIViewMixin):
+class GroupDetailView(ListAPIViewMixin, ModelResponseMixin):
 
     @auth_token_required
     @subject_exists
