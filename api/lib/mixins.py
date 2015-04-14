@@ -1,68 +1,50 @@
-from flask import jsonify, request
+from flask import request, Response
 from flask.views import MethodView
-from api.exceptions.response import CantSerializeArrayError
 from common import status
 from common.helper import Helper
-from application.lib.models import DictMixin
+import json
 
 
-class APIDict(dict):
-    pass
+class JSONResponse(Response):
+
+    mimetype = 'application/json'
+    content_type = 'application/json'
+
+    def __init__(self, response=None, status_code=None):
+        response = json.dumps(response)
+        super(JSONResponse, self).__init__(response, status_code, mimetype=self.mimetype, content_type=self.content_type)
 
 
-class ResponseDict(dict):
+class ModelResponse(JSONResponse):
 
     def __init__(self, data, **options):
         many = Helper.instance_of(data, list)
-        is_api_dict = False
 
         if many:
-            can_map_fnx = Helper.array_of
+            response = map(lambda x: x.to_dict(**options), data)
         else:
-            can_map_fnx = Helper.instance_of
+            response = data.to_dict(**options)
 
-        can_map = can_map_fnx(data, DictMixin)
-
-        # workaround
-        if not can_map and not many:
-            can_map = Helper.instance_of(data, APIDict)
-            is_api_dict = can_map
-
-        if not can_map:
-            raise CantSerializeArrayError()
-
-        if not is_api_dict:
-            if many:
-                results = map(lambda x: x.to_dict(**options), data)
-
-                total = len(results)
-                response = {
-                    'total': total,
-                    'results': results
-                }
-
-            else:
-                response = data.to_dict(**options)
-        else:
-            response = data
-
-        super(ResponseDict, self).__init__(response)
+        super(ModelResponse, self).__init__(response=response)
 
 
-class PaginatedAPIDict(ResponseDict):
+class BaseResponseMixin(object):
 
-    def __init__(self, data, **options):
-
-        results = data.objects
-        data = ResponseDict(results, **options)
-        super(PaginatedAPIDict, self).__init__(data)
+    response_class = None
+    response_args = {}
 
 
-class APIView(MethodView):
+class ModelResponseMixin(BaseResponseMixin):
+
+    response_class = ModelResponse
+
+
+class APIView(MethodView, BaseResponseMixin):
+
+    status_code = 0
 
     def __init__(self, **kwargs):
         super(APIView, self).__init__(**kwargs)
-        self.response_args = {}
 
     @staticmethod
     def get_data():
@@ -77,11 +59,13 @@ class APIView(MethodView):
 
 class ListAPIViewMixin(APIView):
 
+    status_code = status.HTTP_200_OK
+
     def get(self, *args, **kwargs):
-        raw_data = self.get_action(*args, **kwargs)
-        response = ResponseDict(raw_data, **self.response_args)
-        status_code = status.HTTP_200_OK
-        return jsonify(response), status_code
+        response_data = self.get_action(*args, **kwargs)
+        response = self.response_class(response_data, **self.response_args)
+        response.status_code = self.status_code
+        return response
 
     def get_action(self, *args, **kwargs):
         raise NotImplementedError()
@@ -89,17 +73,19 @@ class ListAPIViewMixin(APIView):
 
 class CreateAPIViewMixin(APIView):
 
+    status_code = status.HTTP_201_CREATED
+
     def post(self, *args, **kwargs):
-        raw_data = self.post_action(*args, **kwargs)
-        response = ResponseDict(raw_data, **self.response_args)
-        status_code = status.HTTP_201_CREATED
-        return jsonify(response), status_code
+            response_data = self.post_action(*args, **kwargs)
+            response = self.response_class(response_data, **self.response_args)
+            response.status_code = self.status_code
+            return response
 
     def post_action(self, *args, **kwargs):
         raise NotImplementedError()
 
 
-class UpdateAPIView(MethodView):
+class UpdateAPIView(APIView):
 
     def put(self, *args, **kwargs):
         pass
@@ -114,7 +100,7 @@ class UpdateAPIView(MethodView):
         raise NotImplementedError()
 
 
-class DeleteAPIView(MethodView):
+class DeleteAPIView(APIView):
 
     def delete(self, *args, **kwargs):
         pass

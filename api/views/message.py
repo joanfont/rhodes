@@ -3,12 +3,12 @@ from api.exceptions.message import MessageNotFoundErorr
 
 from api.lib.decorators import user_belongs_to_subject, group_exists, user_belongs_to_group, \
     group_belongs_to_subject, auth_token_required, subject_exists
-from api.lib.mixins import ListAPIViewMixin, CreateAPIViewMixin, PaginatedAPIDict
+from api.lib.mixins import ListAPIViewMixin, CreateAPIViewMixin, ModelResponseMixin
 from application.services.message import GetGroupMessages, PutGroupMessage, PutSubjectMessage, GetSubjectMessages, \
     GetMessage
 
 
-class SubjectMessagesView(ListAPIViewMixin, CreateAPIViewMixin):
+class SubjectMessagesView(ListAPIViewMixin, CreateAPIViewMixin, ModelResponseMixin):
 
     @auth_token_required
     @subject_exists
@@ -41,7 +41,7 @@ class SubjectMessagesView(ListAPIViewMixin, CreateAPIViewMixin):
         return messages
 
 
-class GroupMessagesView(ListAPIViewMixin, CreateAPIViewMixin):
+class GroupMessagesView(ListAPIViewMixin, CreateAPIViewMixin, ModelResponseMixin):
 
     @auth_token_required
     @subject_exists
@@ -81,7 +81,7 @@ class GroupMessagesView(ListAPIViewMixin, CreateAPIViewMixin):
         return message
 
 
-class MessageDetailView(ListAPIViewMixin):
+class MessageDetailView(ListAPIViewMixin, ModelResponseMixin):
 
     def get_action(self, *args, **kwargs):
 

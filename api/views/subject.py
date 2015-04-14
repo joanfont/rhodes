@@ -1,13 +1,13 @@
 from api.lib.decorators import user_belongs_to_subject, subject_exists, auth_token_required
-from api.lib.mixins import ListAPIViewMixin
+from api.lib.mixins import ListAPIViewMixin, ModelResponseMixin
 from application.services.subject import GetUserSubject, GetUserSubjects
 
 
-class SubjectsView(ListAPIViewMixin):
-
+class SubjectsView(ListAPIViewMixin, ModelResponseMixin):
 
     @auth_token_required
     def get_action(self, *args, **kwargs):
+
         self.response_args['with_groups'] = True
 
         user = kwargs.get('user')
@@ -17,7 +17,7 @@ class SubjectsView(ListAPIViewMixin):
         return subjects
 
 
-class SubjectDetailView(ListAPIViewMixin):
+class SubjectDetailView(ListAPIViewMixin, ModelResponseMixin):
 
     @auth_token_required
     @subject_exists
