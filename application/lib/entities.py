@@ -5,9 +5,10 @@ class PaginatedEntity(object):
     total = 0
     count = 0
 
-    def __init__(self, objects=[], total=0, count=0):
+    def __init__(self, objects=[], total=0, count=0, **options):
+
         if objects:
-            self.objects = objects
+            self.objects = map(lambda x: x.to_dict(**options), objects)
 
         if total:
             self.total = total
@@ -25,24 +26,19 @@ class PaginatedEntity(object):
 
 class PaginatedMessagesEntity(PaginatedEntity):
 
-    last_id = 0
-    order = None
+    more = True
 
-    def __init__(self, objects=[], total=0, count=0, last_id=0, order=None):
-        super(PaginatedMessagesEntity, self).__init__(objects, total, count)
+    def __init__(self, objects=[], total=0, count=0, more=True, **options):
+        super(PaginatedMessagesEntity, self).__init__(objects, total, count, **options)
 
-        if last_id:
-            self.last_id = last_id
-
-        if order:
-            self.order = order
+        if more:
+            self.more = more
 
     def to_dict(self):
         super_dict = super(PaginatedMessagesEntity, self).to_dict()
         messages = super_dict.pop('objects', [])
         super_dict.update({
-            'last_id': self.last_id,
-            'order': self.order,
+            'more': self.more,
             'messages': messages
         })
 
