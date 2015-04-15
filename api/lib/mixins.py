@@ -28,6 +28,13 @@ class ModelResponse(JSONResponse):
         super(ModelResponse, self).__init__(response=response)
 
 
+class PaginatedResponse(JSONResponse):
+
+    def __init__(self, data, **options):
+        response = data.to_dict(**options)
+        super(PaginatedResponse, self).__init__(response=response)
+
+
 class BaseResponseMixin(object):
 
     response_class = JSONResponse
@@ -37,6 +44,11 @@ class BaseResponseMixin(object):
 class ModelResponseMixin(BaseResponseMixin):
 
     response_class = ModelResponse
+
+
+class PaginatedResponseMixin(BaseResponseMixin):
+
+    response_class = PaginatedResponse
 
 
 class APIView(MethodView, BaseResponseMixin):

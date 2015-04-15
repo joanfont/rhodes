@@ -30,13 +30,22 @@ def setup_logging(application):
 
 def setup_routing(application):
 
-    for (pattern, options) in routing.iteritems():
-        view_class = options.get('class')
-        view_name = options.get('name')
-        view_methods = options.get('methods')
+    def _add_routing(p, o):
+
+        view_class = o.get('class')
+        view_name = o.get('name')
+        view_methods = o.get('methods')
         view_func = view_class.as_view(view_name)
 
-        application.add_url_rule(pattern, view_func=view_func, methods=view_methods)
+        application.add_url_rule(p, view_func=view_func, methods=view_methods)
+
+    for (pattern, options) in routing.iteritems():
+
+        if isinstance(options, list):
+            for option in options:
+                _add_routing(pattern, option)
+        else:
+            _add_routing(pattern, options)
 
     return application
 

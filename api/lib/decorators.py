@@ -5,11 +5,11 @@ from api.exceptions.subject import SubjectNotFoundError
 from api.exceptions.user import UserNotFoundError, TeacherDoesNotTeachSubjectError, StudentIsNotEnrolledToSubjectError, \
     TeacherDoesNotTeachGroupError, StudentIsNotEnrolledToGroupError
 from application.lib.models import UserType
-from application.services.group import CheckUserBelongsToGroup, GroupBelongsToSubject, CheckGroupExists
+from application.services.group import GroupBelongsToSubject, CheckGroupExists
 from common.auth import encode_password
 
 from application.services.user import CheckUserExistsByUserAndPassword, GetUserByAuthToken
-from application.services.subject import CheckUserBelongsToSubject, CheckSubjectExists
+from application.services.subject import CheckSubjectExists
 
 
 def login_required(fnx):

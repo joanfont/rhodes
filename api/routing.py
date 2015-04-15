@@ -30,11 +30,18 @@ routing = {
         'name': 'user_subject',
         'methods': ['GET']
     },
-    '/user/subjects/<subject_id>/messages/': {
-        'class': message_views.SubjectMessagesView,
-        'name': 'user_subject_messages',
-        'methods': ['GET', 'POST']
-    },
+    '/user/subjects/<subject_id>/messages/': [
+        {
+            'class': message_views.ListSubjectMessagesView,
+            'name': 'user_subject_messages',
+            'methods': ['GET']
+        },
+        {
+            'class': message_views.PostSubjectMessageView,
+            'name': 'user_subject_messages_post',
+            'methods': ['POST']
+        }
+    ],
     '/user/subjects/<subject_id>/messages/<message_id>/': {
         'class': message_views.SubjectMessageDetailView,
         'name': 'user_subject_message',

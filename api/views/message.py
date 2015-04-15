@@ -3,12 +3,36 @@ from api.exceptions.message import MessageNotFoundErorr
 
 from api.lib.decorators import user_belongs_to_subject, group_exists, user_belongs_to_group, \
     group_belongs_to_subject, auth_token_required, subject_exists
-from api.lib.mixins import ListAPIViewMixin, CreateAPIViewMixin, ModelResponseMixin
+from api.lib.mixins import ListAPIViewMixin, CreateAPIViewMixin, ModelResponseMixin, PaginatedResponseMixin
 from application.services.message import GetGroupMessages, PutGroupMessage, PutSubjectMessage, GetSubjectMessages, \
     GetMessage
 
 
-class SubjectMessagesView(ListAPIViewMixin, CreateAPIViewMixin, ModelResponseMixin):
+class ListSubjectMessagesView(ListAPIViewMixin, PaginatedResponseMixin):
+
+    @auth_token_required
+    @subject_exists
+    @user_belongs_to_subject
+    def get_action(self, *args, **kwargs):
+
+        get_data = self.get_data()
+
+        subject_id = kwargs.get('subject_id')
+        message_id = get_data.get('message_id')
+        order = get_data.get('order')
+        direction = get_data.get('direction')
+
+        get_subject_messages_srv = GetSubjectMessages()
+        messages = get_subject_messages_srv.call({
+            'subject_id': subject_id,
+            'message_id': message_id,
+            'order': order,
+            'direction': direction
+        })
+        return messages
+
+
+class PostSubjectMessageView(CreateAPIViewMixin, ModelResponseMixin):
 
     @auth_token_required
     @subject_exists
@@ -30,16 +54,6 @@ class SubjectMessagesView(ListAPIViewMixin, CreateAPIViewMixin, ModelResponseMix
 
         return message
 
-    @auth_token_required
-    @subject_exists
-    @user_belongs_to_subject
-    def get_action(self, *args, **kwargs):
-
-        subject_id = kwargs.get('subject_id')
-        get_subject_messages_srv = GetSubjectMessages()
-        messages = get_subject_messages_srv.call({'subject_id': subject_id})
-        return messages
-
 
 class GroupMessagesView(ListAPIViewMixin, CreateAPIViewMixin, ModelResponseMixin):
 
@@ -52,8 +66,10 @@ class GroupMessagesView(ListAPIViewMixin, CreateAPIViewMixin, ModelResponseMixin
     def get_action(self, *args, **kwargs):
 
         group_id = kwargs.get('group_id')
+
+        service_args = {'group_id': group_id}
         get_group_messages_srv = GetGroupMessages()
-        messages = get_group_messages_srv.call({'group_id': group_id})
+        messages = get_group_messages_srv.call(service_args)
         return messages
 
     @auth_token_required
