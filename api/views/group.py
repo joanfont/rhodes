@@ -25,7 +25,6 @@ class GroupDetailView(ListAPIViewMixin, ModelResponseMixin):
 
     @auth_token_required
     @subject_exists
-    @user_belongs_to_subject
     @group_exists
     @group_belongs_to_subject
     @user_belongs_to_group

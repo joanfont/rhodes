@@ -2,7 +2,8 @@ from datetime import datetime
 from api.exceptions.message import MessageNotFoundErorr
 
 from api.lib.decorators import user_belongs_to_subject, group_exists, user_belongs_to_group, \
-    group_belongs_to_subject, auth_token_required, subject_exists
+    group_belongs_to_subject, auth_token_required, subject_exists, message_belongs_to_subject, \
+    message_belongs_to_group, message_exists
 from api.lib.mixins import ListAPIViewMixin, CreateAPIViewMixin, ModelResponseMixin, PaginatedResponseMixin
 from application.services.message import GetGroupMessages, PutGroupMessage, PutSubjectMessage, GetSubjectMessages, \
     GetMessage
@@ -13,6 +14,8 @@ class ListSubjectMessagesView(ListAPIViewMixin, PaginatedResponseMixin):
     @auth_token_required
     @subject_exists
     @user_belongs_to_subject
+    @message_exists
+    @message_belongs_to_subject
     def get_action(self, *args, **kwargs):
 
         get_data = self.get_data()
@@ -55,26 +58,39 @@ class PostSubjectMessageView(CreateAPIViewMixin, ModelResponseMixin):
         return message
 
 
-class GroupMessagesView(ListAPIViewMixin, CreateAPIViewMixin, ModelResponseMixin):
+class ListGroupMessagesView(ListAPIViewMixin, PaginatedResponseMixin):
 
     @auth_token_required
     @subject_exists
-    @user_belongs_to_subject
     @group_exists
     @group_belongs_to_subject
     @user_belongs_to_group
+    @message_exists
+    @message_belongs_to_group
     def get_action(self, *args, **kwargs):
 
-        group_id = kwargs.get('group_id')
+        get_data = self.get_data()
 
-        service_args = {'group_id': group_id}
+        group_id = kwargs.get('group_id')
+        message_id = get_data.get('message_id')
+        order = get_data.get('order')
+        direction = get_data.get('direction')
+
         get_group_messages_srv = GetGroupMessages()
-        messages = get_group_messages_srv.call(service_args)
+        messages = get_group_messages_srv.call({
+            'group_id': group_id,
+            'message_id': message_id,
+            'order': order,
+            'direction': direction
+        })
+
         return messages
+
+
+class PostGroupMessageView(CreateAPIViewMixin, ModelResponseMixin):
 
     @auth_token_required
     @subject_exists
-    @user_belongs_to_subject
     @group_exists
     @group_belongs_to_subject
     @user_belongs_to_group
@@ -118,6 +134,8 @@ class SubjectMessageDetailView(MessageDetailView):
     @auth_token_required
     @subject_exists
     @user_belongs_to_subject
+    @message_exists
+    @message_belongs_to_subject
     def get_action(self, *args, **kwargs):
         return super(SubjectMessageDetailView, self).get_action(*args, **kwargs)
 
@@ -126,10 +144,11 @@ class GroupMessageDetailView(MessageDetailView):
 
     @auth_token_required
     @subject_exists
-    @user_belongs_to_subject
     @group_exists
     @group_belongs_to_subject
     @user_belongs_to_group
+    @message_exists
+    @message_belongs_to_group
     def get_action(self, *args, **kwargs):
         return super(GroupMessageDetailView, self).get_action(*args, **kwargs)
 
