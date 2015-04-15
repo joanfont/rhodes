@@ -1,11 +1,14 @@
 from flask import request
 from api.exceptions.auth import NotAuthenticatedError, NotEnoughPermissionError
 from api.exceptions.group import GroupNotFoundError, GroupDoesNotBelongToSubjectError
+from api.exceptions.message import MessageNotFoundErorr, MessageDoesNotBelongToSubjectError, \
+    MessageKindIsNotSubjectMessageErrror, MessageDoesNotBelongToGroupError, MessageKindIsNotGroupMessageErrror
 from api.exceptions.subject import SubjectNotFoundError
 from api.exceptions.user import UserNotFoundError, TeacherDoesNotTeachSubjectError, StudentIsNotEnrolledToSubjectError, \
     TeacherDoesNotTeachGroupError, StudentIsNotEnrolledToGroupError
-from application.lib.models import UserType
+from application.lib.models import UserType, SubjectMessage, GroupMessage
 from application.services.group import GroupBelongsToSubject, CheckGroupExists
+from application.services.message import CheckMessageExists, GetMessage
 from common.auth import encode_password
 
 from application.services.user import CheckUserExistsByUserAndPassword, GetUserByAuthToken
@@ -189,3 +192,86 @@ def group_belongs_to_subject(fnx):
         return fnx(*args, **kwargs)
 
     return wrapped_fnx
+
+
+def message_exists(fnx):
+
+    def wrapped_fnx(*args, **kwargs):
+
+        # Python's black magic (accessing first parameter of the fnx, its the object)
+        self = args[0]
+        get_data = self.get_data()
+
+        message_id = get_data.get('message_id')
+
+        if message_id:
+            # check_message_exists_srv = CheckMessageExists()
+            # exists = check_message_exists_srv.call({'message_id': message_id})
+
+            check_message_exists = CheckMessageExists()
+            exists = check_message_exists.call({'message_id': message_id})
+
+            if not exists:
+                raise MessageNotFoundErorr()
+
+        return fnx(*args, **kwargs)
+
+    return wrapped_fnx
+
+
+def message_belongs_to_subject(fnx):
+
+    def wrapped_fnx(*args, **kwargs):
+
+        subject_id = int(kwargs.get('subject_id'))
+        self = args[0]
+        get_data = self.get_data()
+
+        message_id = get_data.get('message_id') or kwargs.get('message_id')
+
+        if message_id:
+            get_message_srv = GetMessage()
+            message = get_message_srv.call({'message_id': message_id})
+
+            if not message:
+                raise MessageNotFoundErorr()
+
+            if isinstance(message, SubjectMessage):
+
+                if not message.subject_id == subject_id:
+                    raise MessageDoesNotBelongToSubjectError()
+            else:
+                raise MessageKindIsNotSubjectMessageErrror()
+
+        return fnx(*args, **kwargs)
+
+    return wrapped_fnx
+
+
+def message_belongs_to_group(fnx):
+
+    def wrapped_fnx(*args, **kwargs):
+
+        group_id = kwargs.get('group_id')
+        self = args[0]
+        get_data = self.get_data()
+
+        message_id = get_data.get('message_id') or kwargs.get('message_id')
+
+        if message_id:
+            get_message_srv = GetMessage()
+            message = get_message_srv.call({'message_id': message_id})
+
+            if not message:
+                raise MessageNotFoundErorr()
+
+            if isinstance(message, GroupMessage):
+                if not message.group_id == group_id:
+                    raise MessageDoesNotBelongToGroupError()
+            else:
+                raise MessageKindIsNotGroupMessageErrror()
+
+        return fnx(*args, **kwargs)
+
+    return wrapped_fnx
+

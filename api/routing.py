@@ -67,11 +67,18 @@ routing = {
         'name': 'user_subject_group',
         'methods': ['GET'],
     },
-    '/user/subjects/<subject_id>/groups/<group_id>/messages/': {
-        'class': message_views.GroupMessagesView,
-        'name': 'user_subject_group_messages',
-        'methods': ['GET', 'POST']
-    },
+    '/user/subjects/<subject_id>/groups/<group_id>/messages/': [
+        {
+            'class': message_views.ListGroupMessagesView,
+            'name': 'user_subject_group_messages',
+            'methods': ['GET']
+        },
+        {
+            'class': message_views.PostGroupMessageView,
+            'name': 'user_group_messages_post',
+            'methods': ['POST']
+        }
+    ],
     '/user/subjects/<subject_id>/groups/<group_id>/messages/<message_id>/': {
         'class': message_views.GroupMessageDetailView,
         'name': 'user_subject_group_message',

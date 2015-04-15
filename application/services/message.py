@@ -29,6 +29,24 @@ class GetMessage(BasePersistanceService):
         return message
 
 
+class CheckMessageExists(BasePersistanceService):
+
+    def input(self):
+        return {
+            'message_id': IntegerValidator({'required': True})
+        }
+
+    def output(self):
+        return lambda x: Helper.instance_of(x, bool)
+
+    def execute(self, args):
+        message_id = args.get('message_id')
+        message_query = self.session.query(Message).\
+            filter(Message.id == message_id)
+
+        return message_query.count() == 1
+
+
 class PutMessageBody(BasePersistanceService):
     def input(self):
         return {
@@ -228,16 +246,18 @@ class GetGroupMessages(BasePersistanceService):
         return _output
 
     def execute(self, args):
+
         group_id = args.get('group_id')
         items = args.get('items')
         message_id = args.get('message_id')
         order = args.get('order')
         direction = args.get('direction')
+
         more = False
 
         orders = {
-            constants.ORDER_ASC: SubjectMessage.created_at.asc(),
-            constants.ORDER_DESC: SubjectMessage.created_at.desc()
+            constants.ORDER_ASC: GroupMessage.created_at.asc(),
+            constants.ORDER_DESC: GroupMessage.created_at.desc()
         }
 
         messages_query = self.session.query(GroupMessage). \
@@ -247,13 +267,10 @@ class GetGroupMessages(BasePersistanceService):
 
         if message_id:
 
-            direction_clause = None
-            if direction is constants.MESSAGES_PAGINATION_PREVIOUS:
-                direction_clause = messages_query.filter(GroupMessage.id < message_id)
-            elif direction is constants.MESSAGES_PAGINATION_NEXT:
-                direction_clause = messages_query.filter(GroupMessage.id > message_id)
-
-            messages_query = direction_clause
+            if direction == constants.MESSAGES_PAGINATION_PREVIOUS:
+                messages_query = messages_query.filter(GroupMessage.id < message_id)
+            elif direction == constants.MESSAGES_PAGINATION_NEXT:
+                messages_query = messages_query.filter(GroupMessage.id > message_id)
 
         order_clause = orders.get(order)
         messages_query = messages_query.order_by(order_clause)
