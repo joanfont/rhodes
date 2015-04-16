@@ -38,7 +38,10 @@ class PaginatedResponse(JSONResponse):
 class BaseResponseMixin(object):
 
     response_class = JSONResponse
-    response_args = {}
+
+    def __init__(self):
+        super(BaseResponseMixin, self).__init__()
+        self.response_args = {}
 
 
 class ModelResponseMixin(BaseResponseMixin):
@@ -51,11 +54,12 @@ class PaginatedResponseMixin(BaseResponseMixin):
     response_class = PaginatedResponse
 
 
-class APIView(MethodView, BaseResponseMixin):
+class APIView(BaseResponseMixin, MethodView):
 
     status_code = 0
 
     def __init__(self, **kwargs):
+        super(BaseResponseMixin, self).__init__()
         super(APIView, self).__init__(**kwargs)
 
     @staticmethod
