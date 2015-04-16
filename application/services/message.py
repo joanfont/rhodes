@@ -7,6 +7,81 @@ from common import constants
 from config import config
 
 
+class PaginatedMessagesService(BasePersistanceService):
+
+    message_class = None
+
+    def input(self):
+        return{
+            'items': IntegerValidator({'required': False, 'default': config.ITEMS_PER_PAGE}),
+            'message_id': IntegerValidator({'required': False}),
+            'order': ChoicesValidator({
+                'required': False,
+                'choices': constants.ORDER_CHOICES,
+                'default': constants.ORDER_DESC
+            }),
+            'direction': ChoicesValidator({
+                'required': False,
+                'choices': constants.MESSAGES_PAGINATION_CHOICES,
+                'default': constants.MESSAGES_PAGINATION_NEXT
+            })
+        }
+
+    def output(self):
+        return lambda x: Helper.instance_of(x, PaginatedMessagesEntity)
+
+    def execute(self, args):
+
+        type_condition = {
+            SubjectMessage: SubjectMessage.subject_id,
+            GroupMessage: GroupMessage.group_id
+        }
+
+        orders = {
+            constants.ORDER_ASC: SubjectMessage.created_at.asc(),
+            constants.ORDER_DESC: SubjectMessage.created_at.desc()
+        }
+
+        filter_value = args.get('filter_value')
+        items = args.get('items')
+        message_id = args.get('message_id')
+        order = args.get('order')
+        direction = args.get('direction')
+
+        more = False
+
+        message_class = self.message_class
+
+        filter_field = type_condition.get(message_class)
+
+        messages_query = self.session.query(message_class). \
+            filter(filter_field == filter_value)
+
+        total = messages_query.count()
+
+        if message_id:
+
+            if direction is constants.MESSAGES_PAGINATION_PREVIOUS:
+                direction_clause = messages_query.filter(message_class.id < message_id)
+            elif direction is constants.MESSAGES_PAGINATION_NEXT:
+                direction_clause = messages_query.filter(message_class.id > message_id)
+            else:
+                direction_clause = None
+
+            if direction_clause:
+                messages_query = direction_clause
+
+        order_clause = orders.get(order)
+        messages_query = messages_query.order_by(order_clause)
+
+        messages_query = messages_query.limit(items)
+
+        count = messages_query.count()
+        messages = messages_query.all()
+
+        return PaginatedMessagesEntity(messages, total, count, more)
+
+
 class GetMessage(BasePersistanceService):
     def input(self):
         return {
@@ -151,135 +226,31 @@ class PutGroupMessage(PutMessageInputAndOutputContractMixin, BaseService):
         return put_message_srv.call(args)
 
 
-class GetSubjectMessages(BasePersistanceService):
+class GetSubjectMessages(PaginatedMessagesService):
+
+    message_class = SubjectMessage
 
     def input(self):
-        return {
-            'subject_id': IntegerValidator({'required': True}),
-
-            'items': IntegerValidator({'required': False, 'default': config.ITEMS_PER_PAGE}),
-            'message_id': IntegerValidator({'required': False}),
-            'order': ChoicesValidator({
-                'required': False,
-                'choices': constants.ORDER_CHOICES,
-                'default': constants.ORDER_DESC
-            }),
-
-            'direction': ChoicesValidator({
-                'required': False,
-                'choices': constants.MESSAGES_PAGINATION_CHOICES,
-                'default': constants.MESSAGES_PAGINATION_NEXT
-            })
-        }
-
-    def output(self):
-        def _output(x):
-            return Helper.instance_of(x, PaginatedMessagesEntity)
-
-        return _output
+        super_input = super(GetSubjectMessages, self).input()
+        super_input.update({'subject_id': IntegerValidator({'required': True})})
+        return super_input
 
     def execute(self, args):
-
-        subject_id = args.get('subject_id')
-        items = args.get('items')
-        message_id = args.get('message_id')
-        order = args.get('order')
-        direction = args.get('direction')
-        more = False
-
-        orders = {
-            constants.ORDER_ASC: SubjectMessage.created_at.asc(),
-            constants.ORDER_DESC: SubjectMessage.created_at.desc()
-        }
-
-        messages_query = self.session.query(SubjectMessage). \
-            filter(SubjectMessage.subject_id == subject_id)
-
-        total = messages_query.count()
-
-        if message_id:
-
-            direction_clause = None
-            if direction is constants.MESSAGES_PAGINATION_PREVIOUS:
-                direction_clause = messages_query.filter(SubjectMessage.id < message_id)
-            elif direction is constants.MESSAGES_PAGINATION_NEXT:
-                direction_clause = messages_query.filter(SubjectMessage.id > message_id)
-
-            messages_query = direction_clause
-
-        order_clause = orders.get(order)
-        messages_query = messages_query.order_by(order_clause)
-
-        messages_query = messages_query.limit(items)
-
-        count = messages_query.count()
-        messages = messages_query.all()
-
-        return PaginatedMessagesEntity(messages, total, count, more)
+        subject_id = args.pop('subject_id')
+        args['filter_value'] = subject_id
+        return super(GetSubjectMessages, self).execute(args)
 
 
-class GetGroupMessages(BasePersistanceService):
+class GetGroupMessages(PaginatedMessagesService):
 
     def input(self):
-        return {
-            'group_id': IntegerValidator({'required': True}),
-
-            'items': IntegerValidator({'required': False, 'default': config.ITEMS_PER_PAGE}),
-            'message_id': IntegerValidator({'required': False}),
-            'order': ChoicesValidator({
-                'required': False,
-                'choices': constants.ORDER_CHOICES,
-                'default': constants.ORDER_DESC
-            }),
-
-            'direction': ChoicesValidator({
-                'required': False,
-                'choices': constants.MESSAGES_PAGINATION_CHOICES,
-                'default': constants.MESSAGES_PAGINATION_NEXT
-            })
-        }
-
-    def output(self):
-        def _output(x):
-            return Helper.instance_of(x, PaginatedMessagesEntity)
-
-        return _output
+        super_input = super(GetGroupMessages, self).input()
+        super_input.update({'group_id': IntegerValidator({'required': True})})
+        return super_input
 
     def execute(self, args):
-
-        group_id = args.get('group_id')
-        items = args.get('items')
-        message_id = args.get('message_id')
-        order = args.get('order')
-        direction = args.get('direction')
-
-        more = False
-
-        orders = {
-            constants.ORDER_ASC: GroupMessage.created_at.asc(),
-            constants.ORDER_DESC: GroupMessage.created_at.desc()
-        }
-
-        messages_query = self.session.query(GroupMessage). \
-            filter(GroupMessage.group_id == group_id)
-
-        total = messages_query.count()
-
-        if message_id:
-
-            if direction == constants.MESSAGES_PAGINATION_PREVIOUS:
-                messages_query = messages_query.filter(GroupMessage.id < message_id)
-            elif direction == constants.MESSAGES_PAGINATION_NEXT:
-                messages_query = messages_query.filter(GroupMessage.id > message_id)
-
-        order_clause = orders.get(order)
-        messages_query = messages_query.order_by(order_clause)
-
-        messages_query = messages_query.limit(items)
-
-        count = messages_query.count()
-        messages = messages_query.all()
-
-        return PaginatedMessagesEntity(messages, total, count, more)
+        group_id = args.pop('group_id')
+        args['filter_value'] = group_id
+        return super(GetGroupMessages, self).execute(args)
 
 
