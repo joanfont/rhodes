@@ -3,7 +3,6 @@ from application.exceptions import MyValueError
 
 
 class BaseValidator(object):
-
     def __init__(self, options):
         for (k, v) in options.items():
             if k not in self.defaults():
@@ -39,7 +38,8 @@ class BaseValidator(object):
             payload = {'errors': errors}
             raise MyValueError(payload=payload, errors=errors)
         else:
-            val = self.clean_value(val)
+            if val is not None:
+                val = self.clean_value(val)
 
         return val
 
@@ -51,7 +51,6 @@ class BaseValidator(object):
 
 
 class IntegerValidator(BaseValidator):
-
     def check_value(self, value):
 
         try:
@@ -64,7 +63,6 @@ class IntegerValidator(BaseValidator):
 
 
 class StringValidator(BaseValidator):
-
     def defaults(self):
         _defaults = super(StringValidator, self).defaults()
         _defaults.update({'min_length': 0, 'max_length': 0})
@@ -89,7 +87,6 @@ class StringValidator(BaseValidator):
 
 
 class ChoicesValidator(BaseValidator):
-
     def defaults(self):
         _defaults = super(ChoicesValidator, self).defaults()
         _defaults.update({'choices': []})
@@ -110,7 +107,6 @@ class ChoicesValidator(BaseValidator):
 
 
 class DateValidator(BaseValidator):
-
     def defaults(self):
         _defaults = super(DateValidator, self).defaults()
         _defaults.update({
@@ -144,9 +140,7 @@ class DateValidator(BaseValidator):
 
 
 class BooleanValidator(BaseValidator):
-
     def check_value(self, value):
-
         if not isinstance(value, bool):
             self.add_error('Value is not boolean')
 

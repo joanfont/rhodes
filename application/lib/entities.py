@@ -26,9 +26,9 @@ class PaginatedEntity(object):
 
 class PaginatedMessagesEntity(PaginatedEntity):
 
-    more = True
+    more = False
 
-    def __init__(self, objects=[], total=0, count=0, more=True, **options):
+    def __init__(self, objects=[], total=0, count=0, more=False, **options):
         super(PaginatedMessagesEntity, self).__init__(objects, total, count, **options)
 
         if more:
