@@ -67,15 +67,7 @@ class APIView(BaseResponseMixin, MethodView):
         super(APIView, self).__init__(**kwargs)
 
     def params(self):
-        return {}
-
-    def validate(self, args):
-
-        params = {}
-
-        for (k,v) in args.iteritems():
-            pass
-
+        raise {}
 
     @staticmethod
     def get_data():
