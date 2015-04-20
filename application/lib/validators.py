@@ -33,12 +33,13 @@ class BaseValidator(object):
         else:
             if val:
                 self.check_value(val)
-                val = self.clean_value(val)
 
         if self.has_errors():
             errors = self.get_errors()
             payload = {'errors': errors}
             raise MyValueError(payload=payload, errors=errors)
+        else:
+            val = self.clean_value(val)
 
         return val
 

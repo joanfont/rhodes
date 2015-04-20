@@ -35,9 +35,14 @@ handlers = {
 
     # auth errors
     NotAuthenticatedError: api_error_handler,
+
+    # response errors
     CantSerializeArrayError: api_error_handler,
 
-    # special case for validation errors
+    # api validation errors
+    APIValidationError: api_error_handler,
+
+    # special case for application validation errors
     ApplicationValidationError: app_validation_error_handler
 
 }
