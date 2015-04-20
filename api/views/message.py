@@ -3,14 +3,16 @@ from api.exceptions.message import MessageNotFoundErorr
 
 from api.lib.decorators import user_belongs_to_subject, group_exists, user_belongs_to_group, \
     group_belongs_to_subject, auth_token_required, subject_exists, message_belongs_to_subject, \
-    message_belongs_to_group, message_exists
+    message_belongs_to_group, message_exists, validate
 from api.lib.mixins import ListAPIViewMixin, CreateAPIViewMixin, ModelResponseMixin, PaginatedResponseMixin
+from application.lib.validators import IntegerValidator, StringValidator
 from application.services.message import GetGroupMessages, PutGroupMessage, PutSubjectMessage, GetSubjectMessages, \
     GetMessage
 
 
 class ListSubjectMessagesView(ListAPIViewMixin, PaginatedResponseMixin):
 
+    @validate
     @auth_token_required
     @subject_exists
     @user_belongs_to_subject
@@ -20,10 +22,10 @@ class ListSubjectMessagesView(ListAPIViewMixin, PaginatedResponseMixin):
 
         get_data = self.get_data()
 
-        subject_id = kwargs.get('subject_id')
-        message_id = get_data.get('message_id')
-        order = get_data.get('order')
-        direction = get_data.get('direction')
+        subject_id = kwargs.get('cleaned_args').get('subject_id')
+        message_id = kwargs.get('cleaned_args').get('message_id')
+        order = kwargs.get('cleaned_args').get('order')
+        direction = kwargs.get('cleaned_args').get('direction')
 
         get_subject_messages_srv = GetSubjectMessages()
         messages = get_subject_messages_srv.call({
@@ -60,6 +62,15 @@ class PostSubjectMessageView(CreateAPIViewMixin, ModelResponseMixin):
 
 class ListGroupMessagesView(ListAPIViewMixin, PaginatedResponseMixin):
 
+    def params(self):
+        return {
+            'group_id': [self.PARAM_URL, IntegerValidator({'required': True})],
+            'message_id': [self.PARAM_GET, IntegerValidator({'required': False})],
+            'order': [self.PARAM_GET, StringValidator({'required': False})],
+            'direction': [self.PARAM_GET, StringValidator({'required': False})]
+        }
+
+    @validate
     @auth_token_required
     @subject_exists
     @group_exists
@@ -69,12 +80,10 @@ class ListGroupMessagesView(ListAPIViewMixin, PaginatedResponseMixin):
     @message_belongs_to_group
     def get_action(self, *args, **kwargs):
 
-        get_data = self.get_data()
-
-        group_id = kwargs.get('group_id')
-        message_id = get_data.get('message_id')
-        order = get_data.get('order')
-        direction = get_data.get('direction')
+        group_id = kwargs.get('cleaned_args').get('group_id')
+        message_id = kwargs.get('cleaned_args').get('message_id')
+        order = kwargs.get('cleaned_args').get('order')
+        direction = kwargs.get('cleaned_args').get('direction')
 
         get_group_messages_srv = GetGroupMessages()
         messages = get_group_messages_srv.call({
@@ -118,7 +127,6 @@ class MessageDetailView(ListAPIViewMixin, ModelResponseMixin):
     def get_action(self, *args, **kwargs):
 
         message_id = kwargs.get('message_id')
-        print message_id
         get_message_srv = GetMessage()
 
         message = get_message_srv.call({'message_id': message_id})

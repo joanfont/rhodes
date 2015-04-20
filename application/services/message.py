@@ -51,7 +51,6 @@ class PaginatedMessagesService(BasePersistanceService):
         more = False
 
         message_class = self.message_class
-
         filter_field = type_condition.get(message_class)
 
         messages_query = self.session.query(message_class). \
@@ -61,9 +60,9 @@ class PaginatedMessagesService(BasePersistanceService):
 
         if message_id:
 
-            if direction is constants.MESSAGES_PAGINATION_PREVIOUS:
+            if direction == constants.MESSAGES_PAGINATION_PREVIOUS:
                 direction_clause = messages_query.filter(message_class.id < message_id)
-            elif direction is constants.MESSAGES_PAGINATION_NEXT:
+            elif direction == constants.MESSAGES_PAGINATION_NEXT:
                 direction_clause = messages_query.filter(message_class.id > message_id)
             else:
                 direction_clause = None
@@ -78,6 +77,8 @@ class PaginatedMessagesService(BasePersistanceService):
 
         count = messages_query.count()
         messages = messages_query.all()
+
+        print messages_query
 
         return PaginatedMessagesEntity(messages, total, count, more)
 
@@ -242,6 +243,8 @@ class GetSubjectMessages(PaginatedMessagesService):
 
 
 class GetGroupMessages(PaginatedMessagesService):
+
+    message_class = GroupMessage
 
     def input(self):
         super_input = super(GetGroupMessages, self).input()

@@ -29,7 +29,7 @@ class BaseService(object):
     def clean_args(self, args):
         cleaned_args = {}
         validation_errors = []
-        for (k, v) in self.input_contract.items():
+        for (k, v) in self.input_contract.iteritems():
             value = args.get(k)
             try:
                 cleaned_args[k] = v.validate(value)

@@ -56,11 +56,26 @@ class PaginatedResponseMixin(BaseResponseMixin):
 
 class APIView(BaseResponseMixin, MethodView):
 
+    PARAM_URL = 1
+    PARAM_GET = 2
+    PARAM_POST = 3
+
     status_code = 0
 
     def __init__(self, **kwargs):
         super(BaseResponseMixin, self).__init__()
         super(APIView, self).__init__(**kwargs)
+
+    def params(self):
+        return {}
+
+    def validate(self, args):
+
+        params = {}
+
+        for (k,v) in args.iteritems():
+            pass
+
 
     @staticmethod
     def get_data():

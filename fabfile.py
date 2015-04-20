@@ -46,7 +46,6 @@ def branch(name):
 def migrate():
 
     lib_dir = os.path.join(prod_config.PROJECT_DIR, 'application/lib')
-    print lib_dir
     virtualenv()
     with cd(lib_dir):
         with virtualenv():
