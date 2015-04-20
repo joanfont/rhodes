@@ -32,14 +32,16 @@ class PaginatedMessagesService(BasePersistanceService):
 
     def execute(self, args):
 
+        message_class = self.message_class
+
         type_condition = {
             SubjectMessage: SubjectMessage.subject_id,
             GroupMessage: GroupMessage.group_id
         }
 
         orders = {
-            constants.ORDER_ASC: SubjectMessage.created_at.asc(),
-            constants.ORDER_DESC: SubjectMessage.created_at.desc()
+            constants.ORDER_ASC: message_class.created_at.asc(),
+            constants.ORDER_DESC: message_class.created_at.desc()
         }
 
         filter_value = args.get('filter_value')
@@ -50,10 +52,12 @@ class PaginatedMessagesService(BasePersistanceService):
 
         more = False
 
-        message_class = self.message_class
         filter_field = type_condition.get(message_class)
 
         messages_query = self.session.query(message_class). \
+            filter(filter_field == filter_value)
+
+        check_more_messages_query = self.session.query(message_class). \
             filter(filter_field == filter_value)
 
         total = messages_query.count()
@@ -62,6 +66,7 @@ class PaginatedMessagesService(BasePersistanceService):
 
             if direction == constants.MESSAGES_PAGINATION_PREVIOUS:
                 direction_clause = messages_query.filter(message_class.id < message_id)
+
             elif direction == constants.MESSAGES_PAGINATION_NEXT:
                 direction_clause = messages_query.filter(message_class.id > message_id)
             else:
@@ -69,6 +74,9 @@ class PaginatedMessagesService(BasePersistanceService):
 
             if direction_clause:
                 messages_query = direction_clause
+
+        count_messages_without_order = messages_query.limit(items).count()
+        messages_without_order = messages_query.order_by(message_class.created_at.desc()).limit(items).all()
 
         order_clause = orders.get(order)
         messages_query = messages_query.order_by(order_clause)
@@ -78,7 +86,17 @@ class PaginatedMessagesService(BasePersistanceService):
         count = messages_query.count()
         messages = messages_query.all()
 
-        print messages_query
+        if messages:
+
+            if direction == constants.MESSAGES_PAGINATION_PREVIOUS:
+                last_message_id = messages_without_order[count_messages_without_order - 1].id
+                more = check_more_messages_query.filter(message_class.id < last_message_id).count() > 0
+            elif direction == constants.MESSAGES_PAGINATION_NEXT:
+                last_message_id = messages_without_order[0].id
+                more = check_more_messages_query.filter(message_class.id > last_message_id).count() > 0
+
+        else:
+            more = False
 
         return PaginatedMessagesEntity(messages, total, count, more)
 
