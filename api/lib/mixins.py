@@ -67,7 +67,7 @@ class APIView(BaseResponseMixin, MethodView):
         super(APIView, self).__init__(**kwargs)
 
     def params(self):
-        raise {}
+        return {}
 
     @staticmethod
     def get_data():
