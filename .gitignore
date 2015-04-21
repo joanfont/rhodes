@@ -4,7 +4,7 @@ __pycache__
 
 .idea
 
-application/lib/migrations/versions/*
+application/lib/migrations/versions/*.py
 
 log/*
 
