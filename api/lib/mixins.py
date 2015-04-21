@@ -1,22 +1,22 @@
 from flask import request, Response
 from flask.views import MethodView
+from api.lib.decorators import copy_params as c_params, copy_params
 from common import status
 from common.helper import Helper
 import json
 
 
 class JSONResponse(Response):
-
     mimetype = 'application/json'
     content_type = 'application/json'
 
     def __init__(self, response=None, status_code=None):
         response = json.dumps(response)
-        super(JSONResponse, self).__init__(response, status_code, mimetype=self.mimetype, content_type=self.content_type)
+        super(JSONResponse, self).__init__(response, status_code, mimetype=self.mimetype,
+                                           content_type=self.content_type)
 
 
 class ModelResponse(JSONResponse):
-
     def __init__(self, data, **options):
         many = Helper.instance_of(data, list)
 
@@ -29,14 +29,12 @@ class ModelResponse(JSONResponse):
 
 
 class PaginatedResponse(JSONResponse):
-
     def __init__(self, data, **options):
         response = data.to_dict(**options)
         super(PaginatedResponse, self).__init__(response=response)
 
 
 class BaseResponseMixin(object):
-
     response_class = JSONResponse
 
     def __init__(self):
@@ -45,17 +43,14 @@ class BaseResponseMixin(object):
 
 
 class ModelResponseMixin(BaseResponseMixin):
-
     response_class = ModelResponse
 
 
 class PaginatedResponseMixin(BaseResponseMixin):
-
     response_class = PaginatedResponse
 
 
 class APIView(BaseResponseMixin, MethodView):
-
     PARAM_URL = 1
     PARAM_GET = 2
     PARAM_POST = 3
@@ -81,9 +76,9 @@ class APIView(BaseResponseMixin, MethodView):
 
 
 class ListAPIViewMixin(APIView):
-
     status_code = status.HTTP_200_OK
 
+    @copy_params
     def get(self, *args, **kwargs):
         response_data = self.get_action(*args, **kwargs)
         response = self.response_class(response_data, **self.response_args)
@@ -95,21 +90,20 @@ class ListAPIViewMixin(APIView):
 
 
 class CreateAPIViewMixin(APIView):
-
     status_code = status.HTTP_201_CREATED
 
+    @copy_params
     def post(self, *args, **kwargs):
-            response_data = self.post_action(*args, **kwargs)
-            response = self.response_class(response_data, **self.response_args)
-            response.status_code = self.status_code
-            return response
+        response_data = self.post_action(*args, **kwargs)
+        response = self.response_class(response_data, **self.response_args)
+        response.status_code = self.status_code
+        return response
 
     def post_action(self, *args, **kwargs):
         raise NotImplementedError()
 
 
 class UpdateAPIView(APIView):
-
     def put(self, *args, **kwargs):
         pass
 
@@ -124,7 +118,6 @@ class UpdateAPIView(APIView):
 
 
 class DeleteAPIView(APIView):
-
     def delete(self, *args, **kwargs):
         pass
 
