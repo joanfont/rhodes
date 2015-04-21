@@ -12,6 +12,14 @@ from application.services.message import GetGroupMessages, PutGroupMessage, PutS
 
 class ListSubjectMessagesView(ListAPIViewMixin, PaginatedResponseMixin):
 
+    def params(self):
+        return {
+            'subject_id': [self.PARAM_URL, IntegerValidator({'required': True})],
+            'message_id': [self.PARAM_GET, IntegerValidator({'required': False})],
+            'order': [self.PARAM_GET, StringValidator({'required': False})],
+            'direction': [self.PARAM_GET, StringValidator({'required': False})]
+        }
+
     @validate
     @auth_token_required
     @subject_exists
@@ -20,12 +28,10 @@ class ListSubjectMessagesView(ListAPIViewMixin, PaginatedResponseMixin):
     @message_belongs_to_subject
     def get_action(self, *args, **kwargs):
 
-        get_data = self.get_data()
-
-        subject_id = kwargs.get('cleaned_args').get('subject_id')
-        message_id = kwargs.get('cleaned_args').get('message_id')
-        order = kwargs.get('cleaned_args').get('order')
-        direction = kwargs.get('cleaned_args').get('direction')
+        subject_id = kwargs.get('url').get('subject_id')
+        message_id = kwargs.get('get').get('message_id')
+        order = kwargs.get('get').get('order')
+        direction = kwargs.get('get').get('direction')
 
         get_subject_messages_srv = GetSubjectMessages()
         messages = get_subject_messages_srv.call({
@@ -46,7 +52,7 @@ class PostSubjectMessageView(CreateAPIViewMixin, ModelResponseMixin):
         post_data = self.post_data()
 
         user = kwargs.get('user')
-        subject_id = kwargs.get('subject_id')
+        subject_id = kwargs.get('url').get('subject_id')
 
         body = post_data.get('body')
 
@@ -80,10 +86,10 @@ class ListGroupMessagesView(ListAPIViewMixin, PaginatedResponseMixin):
     @message_belongs_to_group
     def get_action(self, *args, **kwargs):
 
-        group_id = kwargs.get('cleaned_args').get('group_id')
-        message_id = kwargs.get('cleaned_args').get('message_id')
-        order = kwargs.get('cleaned_args').get('order')
-        direction = kwargs.get('cleaned_args').get('direction')
+        group_id = kwargs.get('url').get('group_id')
+        message_id = kwargs.get('get').get('message_id')
+        order = kwargs.get('get').get('order')
+        direction = kwargs.get('get').get('direction')
 
         get_group_messages_srv = GetGroupMessages()
         messages = get_group_messages_srv.call({
@@ -126,7 +132,7 @@ class MessageDetailView(ListAPIViewMixin, ModelResponseMixin):
 
     def get_action(self, *args, **kwargs):
 
-        message_id = kwargs.get('message_id')
+        message_id = kwargs.get('url').get('message_id')
         get_message_srv = GetMessage()
 
         message = get_message_srv.call({'message_id': message_id})

@@ -155,7 +155,7 @@ class GetStudentSubject(BasePersistanceService):
 
         group_query = self.session.query(Group).\
             join(Subject, Group.subject_id == Subject.id).\
-            join(StudentGroup, Group.id == StudentGroup.student_id).\
+            join(StudentGroup, Group.id == StudentGroup.group_id).\
             join(User, StudentGroup.student_id == User.id).\
             filter(User.id == student_id).\
             filter(Subject.id == subject_id)

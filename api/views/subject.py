@@ -1,5 +1,6 @@
-from api.lib.decorators import user_belongs_to_subject, subject_exists, auth_token_required
+from api.lib.decorators import user_belongs_to_subject, subject_exists, auth_token_required, validate
 from api.lib.mixins import ListAPIViewMixin, ModelResponseMixin
+from application.lib.validators import IntegerValidator
 from application.services.subject import GetUserSubject, GetUserSubjects
 
 
@@ -19,6 +20,12 @@ class SubjectsView(ListAPIViewMixin, ModelResponseMixin):
 
 class SubjectDetailView(ListAPIViewMixin, ModelResponseMixin):
 
+    def params(self):
+        return {
+            'subject_id': [self.PARAM_URL, IntegerValidator({'required': True})]
+        }
+
+    @validate
     @auth_token_required
     @subject_exists
     @user_belongs_to_subject
@@ -26,7 +33,7 @@ class SubjectDetailView(ListAPIViewMixin, ModelResponseMixin):
         self.response_args['with_groups'] = True
 
         user = kwargs.get('user')
-        subject_id = kwargs.get('subject_id')
+        subject_id = kwargs.get('url').get('subject_id')
 
         get_subject_srv = GetUserSubject()
         subject = get_subject_srv.call({'subject_id': subject_id, 'user_id': user.id})
