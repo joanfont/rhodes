@@ -1,13 +1,20 @@
 from api.lib.decorators import login_required, user_belongs_to_subject, subject_exists, is_teacher, auth_token_required, \
     validate
 from api.lib.mixins import ListAPIViewMixin, ModelResponseMixin
-from application.lib.validators import IntegerValidator
+from application.lib.validators import IntegerValidator, StringValidator
 from application.services.user import GetSubjectTeachers, GetSubjectStudents, GetUserAuthTokenByUserAndPassword
 from common.auth import encode_password
 
 
-class LoginView(ListAPIViewMixin, ModelResponseMixin):
+class LoginView(ListAPIViewMixin):
 
+    def params(self):
+        return {
+            'user': [self.PARAM_GET, StringValidator({'required': True})],
+            'password': [self.PARAM_GET, StringValidator({'required': True})]
+        }
+
+    @validate
     @login_required
     def get_action(self, *args, **kwargs):
         user = kwargs.get('get').get('user')
