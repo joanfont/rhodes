@@ -1,6 +1,6 @@
 from datetime import datetime
 from application.exceptions import MyValueError
-
+from config import config
 
 class BaseValidator(object):
     def __init__(self, options):
@@ -112,7 +112,7 @@ class DateValidator(BaseValidator):
         _defaults.update({
             'from': None,
             'to': None,
-            'format': 'Y-m-d H:i:s'
+            'format': config.DATETIME_FORMAT
         })
         return _defaults
 
