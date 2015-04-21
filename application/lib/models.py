@@ -1,6 +1,6 @@
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, Date, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, Date, DateTime, ForeignKey, BigInteger
 
 from common.helper import Helper
 from common.session import manager
@@ -52,8 +52,8 @@ class TeacherSubject(Base):
     __tablename__ = 'teacher_subject'
     __table_args__ = {'mysql_charset': 'utf8'}
 
-    teacher_id = Column(Integer, ForeignKey('user.id'), primary_key=True)
-    subject_id = Column(Integer, ForeignKey('subject.id'), primary_key=True)
+    teacher_id = Column(BigInteger, ForeignKey('user.id'), primary_key=True)
+    subject_id = Column(BigInteger, ForeignKey('subject.id'), primary_key=True)
 
 
 class UserType(Base):
@@ -75,7 +75,7 @@ class User(DictMixin, Base):
     __tablename__ = 'user'
     __table_args__ = {'mysql_charset': 'utf8'}
 
-    id = Column(Integer, primary_key=True)
+    id = Column(BigInteger, primary_key=True)
     first_name = Column(String(60))
     last_name = Column(String(120))
 
@@ -154,30 +154,13 @@ class User(DictMixin, Base):
         return groups
 
 
-class Course(DictMixin, Base):
-
-    __tablename__ = 'course'
-    __table_args__ = {'mysql_charset': 'utf8'}
-
-    id = Column(Integer, primary_key=True)
-    starts_at = Column(Date)
-    ends_at = Column(Date)
-
-    def to_dict(self, **kwargs):
-        return {
-            'id': self.id,
-            'starts_at': self.starts_at,
-            'ends_at': self.ends_at,
-        }
-
-
 class Subject(DictMixin, Base):
 
     __tablename__ = 'subject'
     __table_args__ = {'mysql_charset': 'utf8'}
 
     # Id field could be replaced by code field
-    id = Column(Integer, primary_key=True)
+    id = Column(BigInteger, primary_key=True)
     code = Column(Integer, unique=True)
     name = Column(String(60))
     teachers = relationship('User', backref='subjects', secondary=TeacherSubject.__table__)
@@ -204,9 +187,9 @@ class Group(DictMixin, Base):
     __tablename__ = 'group'
     __table_args__ = {'mysql_charset': 'utf8'}
 
-    id = Column(Integer, primary_key=True)
+    id = Column(BigInteger, primary_key=True)
     name = Column(String(60))
-    subject_id = Column(Integer, ForeignKey('subject.id'))
+    subject_id = Column(BigInteger, ForeignKey('subject.id'))
     subject = relationship(
         Subject,
         backref=backref('groups', uselist=True, cascade='delete,all'))
@@ -241,7 +224,7 @@ class MessageBody(Base):
 
     __tablename__ = 'message_body'
 
-    id = Column(Integer, primary_key=True)
+    id = Column(BigInteger, primary_key=True)
     content = Column(String(MAX_LENGTH))
 
 
@@ -250,18 +233,18 @@ class Message(DictMixin, Base):
     __tablename__ = 'message'
     __table_args__ = {'mysql_charset': 'utf8'}
 
-    id = Column(Integer, primary_key=True)
+    id = Column(BigInteger, primary_key=True)
     created_at = Column(DateTime)
 
     type = Column(Integer, ForeignKey('message_type.id'))
 
-    sender_id = Column(Integer, ForeignKey('user.id'))
+    sender_id = Column(BigInteger, ForeignKey('user.id'))
     sender = relationship(
         User,
         backref=backref('sent_messages', uselist=True, cascade='delete,all'),
         primaryjoin=sender_id == User.id)
 
-    body_id = Column(Integer, ForeignKey('message_body.id'))
+    body_id = Column(BigInteger, ForeignKey('message_body.id'))
     body = relationship(
         MessageBody,
         backref=backref('message', uselist=True, cascade='delete,all'),
@@ -280,7 +263,7 @@ class Message(DictMixin, Base):
 
 class DirectMessage(Message):
 
-    user_id = Column(Integer, ForeignKey('user.id'))
+    user_id = Column(BigInteger, ForeignKey('user.id'))
     user = relationship(
         User,
         backref=backref('received_direct_messages', uselist=True, cascade='delete,all'),
@@ -291,7 +274,7 @@ class DirectMessage(Message):
 
 class GroupMessage(Message):
 
-    group_id = Column(Integer, ForeignKey('group.id'))
+    group_id = Column(BigInteger, ForeignKey('group.id'))
     group = relationship(
         Group,
         backref=backref('received_group_messages', uselist=True, cascade='delete,all'))
@@ -301,7 +284,7 @@ class GroupMessage(Message):
 
 class SubjectMessage(Message):
 
-    subject_id = Column(Integer, ForeignKey('subject.id'))
+    subject_id = Column(BigInteger, ForeignKey('subject.id'))
     subject = relationship(
         Subject,
         backref=backref('received_subject_messages', uselist=True, cascade='delete,all'))
