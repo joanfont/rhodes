@@ -1,3 +1,6 @@
+import json
+
+
 class BaseError(Exception):
 
     message = 'Generic error'
@@ -19,4 +22,12 @@ class BaseError(Exception):
         data = self.payload
         data.update({'code': self.code, 'message': self.message})
         return data
+
+    def to_string(self):
+        args = {
+            'code': self.code,
+            'message': self.message,
+            'payload': json.dumps(self.payload)
+        }
+        return '\nCODE: {code}\nMESSAGE: {message}\nPAYLOAD: {payload}'.format(**args)
 
