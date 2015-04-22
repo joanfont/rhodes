@@ -120,6 +120,9 @@ def auth_token_required(fnx):
             'auth_token': token
         })
 
+        if not user:
+            raise NotAuthenticatedError()
+
         kwargs['user'] = user
 
         return fnx(*args, **kwargs)
