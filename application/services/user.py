@@ -1,7 +1,8 @@
-from application.services.base import BasePersistanceService
+from application.services.base import BasePersistanceService, BaseService
 from application.lib.validators import IntegerValidator, StringValidator
 from common.helper import Helper
-from application.lib.models import User, StudentGroup, Group, Subject, TeacherSubject
+from application.lib.models import User, StudentGroup, Group, Subject, TeacherSubject, UserType
+from sqlalchemy.orm import aliased
 
 
 class GetUser(BasePersistanceService):
@@ -149,7 +150,7 @@ class GetSubjectStudents(BasePersistanceService):
         }
 
     def output(self):
-        return lambda x: Helper.array_of(x, User) or x is []
+        return lambda x: Helper.array_of(x, User) or x == []
 
     def execute(self, args):
 
@@ -161,3 +162,146 @@ class GetSubjectStudents(BasePersistanceService):
             filter(Subject.id == subject_id).all()
 
         return students
+
+
+class GetGroupStudents(BasePersistanceService):
+
+    def input(self):
+        return {
+            'group_id': IntegerValidator({'required': True})
+        }
+
+    def output(self):
+        return lambda x: Helper.array_of(x, User) or x == []
+
+    def execute(self, args):
+
+        group_id = args.get('group_id')
+        students = self.session.query(User).\
+            join(StudentGroup, User.id == StudentGroup.student_id).\
+            join(Group, StudentGroup.group_id == Group.id).\
+            filter(Group.id == group_id).all()
+
+        return students
+
+
+class GetTeacherTeacherPeers(BasePersistanceService):
+
+    def input(self):
+        return {
+            'user_id': IntegerValidator({'required': True})
+        }
+
+    def output(self):
+        return lambda x: Helper.array_of(x, User) or x == []
+
+    def execute(self, args):
+
+        user_id = args.get('user_id')
+
+        me = aliased(User, name='me')
+        others = aliased(User, name='others')
+        my_teacher_subject = aliased(TeacherSubject, name='ts1')
+        their_teacher_subject = aliased(TeacherSubject, name='ts2')
+
+        peers_query = self.session.query(others).\
+            join(their_teacher_subject, their_teacher_subject.teacher_id == others.id).\
+            join(Subject, their_teacher_subject.subject_id == Subject.id).\
+            join(my_teacher_subject, Subject.id == my_teacher_subject.subject_id).\
+            join(me, my_teacher_subject.teacher_id == me.id).\
+            filter(me.id == user_id).\
+            filter(others.id != user_id)
+
+        peers = peers_query.all()
+
+        return peers
+
+
+class GetStudentTeacherPeers(BasePersistanceService):
+
+    def input(self):
+        return {
+            'user_id': IntegerValidator({'required': True})
+        }
+
+    def output(self):
+        return lambda x: Helper.array_of(x, User) or x == []
+
+    def execute(self, args):
+
+        user_id = args.get('user_id')
+
+        teachers = aliased(User, name='teachers')
+        me = aliased(User, name='me')
+
+        peers_query = self.session.query(teachers).\
+            join(TeacherSubject, teachers.id == TeacherSubject.teacher_id).\
+            join(Subject, TeacherSubject.subject_id == Subject.id).\
+            join(Group, Subject.id == Group.subject_id).\
+            join(StudentGroup, Group.id == StudentGroup.group_id).\
+            join(me, StudentGroup.student_id == me.id).\
+            filter(me.id == user_id)
+
+        peers = peers_query.all()
+
+        return peers
+
+
+class GetUserTeacherPeers(BaseService):
+
+    def input(self):
+        return {
+            'user_id': IntegerValidator({'required': True})
+        }
+
+    def output(self):
+        return lambda x: Helper.array_of(x, User) or x == []
+
+    def execute(self, args):
+
+        user_id = args.get('user_id')
+
+        dispatcher = {
+            UserType.TEACHER: GetTeacherTeacherPeers,
+            UserType.STUDENT: GetStudentTeacherPeers
+        }
+
+        get_user_srv = GetUser()
+        user = get_user_srv.call({'user_id': user_id})
+
+        get_teacher_peers_cls = dispatcher.get(user.type_id)
+        get_teacher_peers = get_teacher_peers_cls()
+
+        peers = get_teacher_peers.call({'user_id': user_id})
+
+        return peers
+
+
+class GetTeacherStudentPeers(BasePersistanceService):
+
+    def input(self):
+        return {
+            'user_id': IntegerValidator({'required': True})
+        }
+
+    def output(self):
+        return lambda x: Helper.array_of(x, User) or x == []
+
+    def execute(self, args):
+
+        user_id = args.get('user_id')
+
+        students = aliased(User, name='students')
+        me = aliased(User, name='me')
+
+        peers_query = self.session.query(students).\
+            join(StudentGroup, students.id == StudentGroup.student_id).\
+            join(Group, StudentGroup.group_id == Group.id).\
+            join(Subject, Group.subject_id == Subject.id).\
+            join(TeacherSubject, Subject.id == TeacherSubject.subject_id).\
+            join(me, TeacherSubject.teacher_id == me.id).\
+            filter(me.id == user_id)
+
+        peers = peers_query.all()
+
+        return peers

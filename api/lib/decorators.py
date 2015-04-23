@@ -144,6 +144,20 @@ def is_teacher(fnx):
     return wrapped_fnx
 
 
+def is_student(fnx):
+    # we will assume an instance of User is in kwargs['user']
+
+    def wrapped_fnx(*args, **kwargs):
+        user = kwargs.get('user')
+
+        if not user.is_student():
+            raise NotEnoughPermissionError()
+
+        return fnx(*args, **kwargs)
+
+    return wrapped_fnx
+
+
 def subject_exists(fnx):
 
     # we will assume a subject_id is in kwargs['subject_id']
