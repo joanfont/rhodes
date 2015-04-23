@@ -1,9 +1,10 @@
 from api.lib.decorators import login_required, user_belongs_to_subject, subject_exists, is_teacher, auth_token_required, \
-    validate, group_exists, user_belongs_to_group
+    validate, group_exists, user_belongs_to_group, user_can_see_teacher, teacher_exists
 from api.lib.mixins import ListAPIViewMixin, ModelResponseMixin
 from application.lib.validators import IntegerValidator, StringValidator
 from application.services.user import GetSubjectTeachers, GetSubjectStudents, GetUserAuthTokenByUserAndPassword, \
-    GetGroupStudents, GetTeacherTeacherPeers, GetStudentTeacherPeers, GetUserTeacherPeers, GetTeacherStudentPeers
+    GetGroupStudents, GetTeacherTeacherPeers, GetStudentTeacherPeers, GetUserTeacherPeers, GetTeacherStudentPeers, \
+    GetUser
 from common.auth import encode_password
 
 
@@ -102,6 +103,26 @@ class TeacherPeersView(ListAPIViewMixin, ModelResponseMixin):
         get_teacher_peers = GetUserTeacherPeers()
         peers = get_teacher_peers.call({'user_id': user.id})
         return peers
+
+
+class TeacherPeerView(ListAPIViewMixin, ModelResponseMixin):
+
+    def params(self):
+        return {
+            'teacher_id': [self.PARAM_URL, IntegerValidator({'required': True})]
+        }
+
+    @validate
+    @auth_token_required
+    @teacher_exists
+    @user_can_see_teacher
+    def get_action(self, *args, **kwargs):
+        teacher_id = kwargs.get('url').get('teacher_id')
+
+        get_user_srv = GetUser()
+        user = get_user_srv.call({'user_id': teacher_id})
+
+        return user
 
 
 class StudentPeersView(ListAPIViewMixin, ModelResponseMixin):
