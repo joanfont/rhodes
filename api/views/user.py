@@ -1,8 +1,9 @@
 from api.lib.decorators import login_required, user_belongs_to_subject, subject_exists, is_teacher, auth_token_required, \
-    validate
+    validate, group_exists, user_belongs_to_group
 from api.lib.mixins import ListAPIViewMixin, ModelResponseMixin
 from application.lib.validators import IntegerValidator, StringValidator
-from application.services.user import GetSubjectTeachers, GetSubjectStudents, GetUserAuthTokenByUserAndPassword
+from application.services.user import GetSubjectTeachers, GetSubjectStudents, GetUserAuthTokenByUserAndPassword, \
+    GetGroupStudents, GetTeacherTeacherPeers, GetStudentTeacherPeers, GetUserTeacherPeers, GetTeacherStudentPeers
 from common.auth import encode_password
 
 
@@ -70,6 +71,49 @@ class SubjectStudentsView(ListAPIViewMixin, ModelResponseMixin):
         get_subject_students_srv = GetSubjectStudents()
         students = get_subject_students_srv.call({'subject_id': subject_id})
         return students
+
+
+class GroupStudentsView(ListAPIViewMixin, ModelResponseMixin):
+
+    def params(self):
+        return {
+            'subject_id': [self.PARAM_URL, IntegerValidator({'required': True})],
+            'group_id': [self.PARAM_URL, IntegerValidator({'required': True})]
+        }
+
+    @validate
+    @auth_token_required
+    @subject_exists
+    @group_exists
+    @user_belongs_to_group
+    def get_action(self, *args, **kwargs):
+        group_id = kwargs.get('url').get('group_id')
+
+        get_group_students_srv = GetGroupStudents()
+        students = get_group_students_srv.call({'group_id': group_id})
+        return students
+
+
+class TeacherPeersView(ListAPIViewMixin, ModelResponseMixin):
+
+    @auth_token_required
+    def get_action(self, *args, **kwargs):
+        user = kwargs.get('user')
+        get_teacher_peers = GetUserTeacherPeers()
+        peers = get_teacher_peers.call({'user_id': user.id})
+        return peers
+
+
+class StudentPeersView(ListAPIViewMixin, ModelResponseMixin):
+
+    @auth_token_required
+    @is_teacher
+    def get_action(self, *args, **kwargs):
+
+        user = kwargs.get('user')
+        get_student_peers = GetTeacherStudentPeers()
+        peers = get_student_peers.call({'user_id': user.id})
+        return peers
 
 
 class ProfileView(ListAPIViewMixin, ModelResponseMixin):

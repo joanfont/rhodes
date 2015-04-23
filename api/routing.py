@@ -84,4 +84,20 @@ routing = {
         'name': 'user_subject_group_message',
         'methods': ['GET']
     },
+    '/user/subjects/<subject_id>/groups/<group_id>/students/': {
+        'class': user_views.GroupStudentsView,
+        'name': 'user_subject_group_students',
+        'methods': ['GET']
+    },
+    '/user/peers/teachers/': {
+        'class': user_views.TeacherPeersView,
+        'name':  'user_teacher_teacher_peers',
+        'methods': ['GET']
+    },
+    '/user/peers/students/': {
+        'class': user_views.StudentPeersView,
+        'name':  'user_teacher_student_peers',
+        'methods': ['GET']
+    }
+
 }

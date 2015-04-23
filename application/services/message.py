@@ -13,6 +13,7 @@ class PaginatedMessagesService(BasePersistanceService):
 
     def input(self):
         return{
+            'sender_id': IntegerValidator({'required': False, 'default': 0}),
             'items': IntegerValidator({'required': False, 'default': config.ITEMS_PER_PAGE}),
             'message_id': IntegerValidator({'required': False}),
             'order': ChoicesValidator({
@@ -36,7 +37,8 @@ class PaginatedMessagesService(BasePersistanceService):
 
         type_condition = {
             SubjectMessage: SubjectMessage.subject_id,
-            GroupMessage: GroupMessage.group_id
+            GroupMessage: GroupMessage.group_id,
+            DirectMessage: DirectMessage.user_id
         }
 
         orders = {
@@ -49,6 +51,7 @@ class PaginatedMessagesService(BasePersistanceService):
         message_id = args.get('message_id')
         order = args.get('order')
         direction = args.get('direction')
+        sender_id = args.get('sender_id')
 
         more = False
 
@@ -59,6 +62,10 @@ class PaginatedMessagesService(BasePersistanceService):
 
         check_more_messages_query = self.session.query(message_class). \
             filter(filter_field == filter_value)
+
+        if message_class == DirectMessage:
+            messages_query = messages_query.filter(DirectMessage.sender_id == sender_id)
+            check_more_messages_query = check_more_messages_query.filter(DirectMessage.sender_id == sender_id)
 
         total = messages_query.count()
 
@@ -275,3 +282,16 @@ class GetGroupMessages(PaginatedMessagesService):
         return super(GetGroupMessages, self).execute(args)
 
 
+class GetDirectMessages(PaginatedMessagesService):
+
+    message_class = DirectMessage
+
+    def input(self):
+        super_input = super(GetDirectMessages, self).input()
+        super_input.update({'sender_id': IntegerValidator({'required': True})})
+        super_input.update({'recipient_id': IntegerValidator({'required': True})})
+
+    def execute(self, args):
+        recipient_id = args.pop('recipient_id')
+        args['filter_val'] = recipient_id
+        return super(GetDirectMessages, self).execute(args)
