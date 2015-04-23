@@ -6,6 +6,11 @@ class UserNotFoundError(ObjectNotFoundError):
     message = 'User not found'
 
 
+class TeacherNotFoundError(ObjectNotFoundError):
+
+    message = 'Teacher not found'
+
+
 class TeacherDoesNotTeachSubjectError(ForbiddenActionError):
 
     message = 'Teacher does not teach the subject'

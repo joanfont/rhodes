@@ -5,7 +5,7 @@ from api.exceptions.message import MessageNotFoundErorr, MessageDoesNotBelongToS
     MessageKindIsNotSubjectMessageErrror, MessageDoesNotBelongToGroupError, MessageKindIsNotGroupMessageErrror
 from api.exceptions.subject import SubjectNotFoundError
 from api.exceptions.user import UserNotFoundError, TeacherDoesNotTeachSubjectError, StudentIsNotEnrolledToSubjectError, \
-    TeacherDoesNotTeachGroupError, StudentIsNotEnrolledToGroupError
+    TeacherDoesNotTeachGroupError, StudentIsNotEnrolledToGroupError, TeacherNotFoundError
 from api.exceptions.validation import ValidationError
 from application.exceptions import MyValueError
 from application.lib.models import UserType, SubjectMessage, GroupMessage
@@ -13,7 +13,7 @@ from application.services.group import GroupBelongsToSubject, CheckGroupExists
 from application.services.message import CheckMessageExists, GetMessage
 from common.auth import encode_password
 
-from application.services.user import CheckUserExistsByUserAndPassword, GetUserByAuthToken
+from application.services.user import CheckUserExistsByUserAndPassword, GetUserByAuthToken, UserCanSeeTeacher, GetUser
 from application.services.subject import CheckSubjectExists
 
 
@@ -342,4 +342,60 @@ def message_belongs_to_group(fnx):
         return fnx(*args, **kwargs)
 
     return wrapped_fnx
+
+
+def teacher_exists(fnx):
+
+    def wrapped_fnx(*args, **kwargs):
+
+        teacher_id = kwargs.get('url').get('teacher_id')
+
+        get_user_srv = GetUser()
+        user = get_user_srv.call({'user_id': teacher_id})
+
+        if not user.is_teacher():
+            raise TeacherNotFoundError()
+
+        return fnx(*args, **kwargs)
+
+    return wrapped_fnx
+
+
+def student_exists(fnx):
+
+    def wrapped_fnx(*args, **kwargs):
+
+        student_id = kwargs.get('url').get('student_id')
+
+        get_user_srv = GetUser()
+        user = get_user_srv.call({'user_id': student_id})
+
+        if not user.is_student():
+            raise TeacherNotFoundError()
+
+        return fnx(*args, **kwargs)
+
+    return wrapped_fnx
+
+
+def user_can_see_teacher(fnx):
+
+    def wrapped_fnx(*args, **kwargs):
+
+        teacher_id = kwargs.get('url').get('teacher_id')
+        user = kwargs.get('user')
+
+        user_can_see_teacher_srv = UserCanSeeTeacher()
+        can_see = user_can_see_teacher_srv.call({
+            'teacher_id': teacher_id,
+            'user_id': user.id
+        })
+
+        if not can_see:
+            raise NotEnoughPermissionError()
+
+        return fnx(*args, **kwargs)
+
+    return wrapped_fnx
+
 

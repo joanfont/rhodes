@@ -305,3 +305,130 @@ class GetTeacherStudentPeers(BasePersistanceService):
         peers = peers_query.all()
 
         return peers
+
+
+class TeacherCanSeeTeacher(BasePersistanceService):
+
+    def input(self):
+        return {
+            'teacher_id': IntegerValidator({'required': True}),
+            'user_id': IntegerValidator({'required': True}),
+        }
+
+    def output(self):
+        return lambda x: Helper.instance_of(x, bool)
+
+    def execute(self, args):
+        teacher_id = args.get('teacher_id')
+        user_id = args.get('user_id')
+
+        me = aliased(User, name='me')
+        other = aliased(User, name='other')
+        my_teacher_subject = aliased(TeacherSubject, name='ts1')
+        their_teacher_subject = aliased(TeacherSubject, name='ts2')
+
+        peers_query = self.session.query(other).\
+            join(their_teacher_subject, their_teacher_subject.teacher_id == other.id).\
+            join(Subject, their_teacher_subject.subject_id == Subject.id).\
+            join(my_teacher_subject, Subject.id == my_teacher_subject.subject_id).\
+            join(me, my_teacher_subject.teacher_id == me.id).\
+            filter(me.id == user_id).\
+            filter(other.id == teacher_id)
+
+        return peers_query.count() > 0
+
+
+class StudentCanSeeTeacher(BasePersistanceService):
+
+    def input(self):
+        return {
+            'teacher_id': IntegerValidator({'required': True}),
+            'user_id': IntegerValidator({'required': True}),
+        }
+
+    def output(self):
+        return lambda x: Helper.instance_of(x, bool)
+
+    def execute(self, args):
+
+        teacher_id = args.get('teacher_id')
+        user_id = args.get('user_id')
+
+        teacher = aliased(User, name='teacher')
+        me = aliased(User, name='me')
+
+        peers_query = self.session.query(teacher).\
+            join(TeacherSubject, teacher.id == TeacherSubject.teacher_id).\
+            join(Subject, TeacherSubject.subject_id == Subject.id).\
+            join(Group, Subject.id == Group.subject_id).\
+            join(StudentGroup, Group.id == StudentGroup.group_id).\
+            join(me, StudentGroup.student_id == me.id).\
+            filter(me.id == user_id).\
+            filter(teacher.id == teacher_id)
+
+        return peers_query.count() > 0
+
+
+class UserCanSeeTeacher(BaseService):
+
+    def input(self):
+        return {
+            'teacher_id': IntegerValidator({'required': True}),
+            'user_id': IntegerValidator({'required': True}),
+        }
+
+    def output(self):
+        return lambda x: Helper.instance_of(x, bool)
+
+    def execute(self, args):
+
+        teacher_id = args.get('teacher_id')
+
+        user_id = args.get('user_id')
+
+        dispatcher = {
+            UserType.TEACHER: TeacherCanSeeTeacher,
+            UserType.STUDENT: StudentCanSeeTeacher
+        }
+
+        get_user_srv = GetUser()
+        user = get_user_srv.call({'user_id': user_id})
+
+        can_see_teacher_srv_cls = dispatcher.get(user.type_id)
+        can_see_teacher_srv = can_see_teacher_srv_cls()
+
+        peers = can_see_teacher_srv.call(args)
+
+        return peers
+
+
+class TeacherCanSeeStudent(BasePersistanceService):
+
+    def input(self):
+        return {
+            'student_id': IntegerValidator({'required': True}),
+            'user_id': IntegerValidator({'required': True}),
+        }
+
+    def output(self):
+        return lambda x: Helper.instance_of(x, bool)
+
+    def execute(self, args):
+
+        student_id = args.get('student_id')
+        user_id = args.get('user_id')
+
+        student = aliased(User, name='student')
+        me = aliased(User, name='me')
+
+        peers_query = self.session.query(student).\
+            join(StudentGroup, student.id == StudentGroup.student_id).\
+            join(Group, StudentGroup.group_id == Group.id).\
+            join(Subject, Group.subject_id == Subject.id).\
+            join(TeacherSubject, Subject.id == TeacherSubject.subject_id).\
+            join(me, TeacherSubject.teacher_id == me.id).\
+            filter(me.id == user_id).\
+            filter(student.id == student_id)
+
+        return peers_query.count() > 0
+
