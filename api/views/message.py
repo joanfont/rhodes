@@ -45,6 +45,12 @@ class ListSubjectMessagesView(ListAPIViewMixin, PaginatedResponseMixin):
 
 class PostSubjectMessageView(CreateAPIViewMixin, ModelResponseMixin):
 
+    def params(self):
+        return {
+            'subject_id': [self.PARAM_URL, IntegerValidator({'required': True})],
+            'body': [self.PARAM_POST, StringValidator({'required': True})],
+        }
+
     @auth_token_required
     @subject_exists
     @user_belongs_to_subject
@@ -103,6 +109,13 @@ class ListGroupMessagesView(ListAPIViewMixin, PaginatedResponseMixin):
 
 
 class PostGroupMessageView(CreateAPIViewMixin, ModelResponseMixin):
+
+    def params(self):
+        return {
+            'subject_id': [self.PARAM_URL, IntegerValidator({'required': True})],
+            'group_id': [self.PARAM_GET, IntegerValidator({'required': True})],
+            'body': [self.PARAM_POST, StringValidator({'required': True})],
+        }
 
     @auth_token_required
     @subject_exists
