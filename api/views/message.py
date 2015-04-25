@@ -113,7 +113,7 @@ class PostGroupMessageView(CreateAPIViewMixin, ModelResponseMixin):
     def params(self):
         return {
             'subject_id': [self.PARAM_URL, IntegerValidator({'required': True})],
-            'group_id': [self.PARAM_GET, IntegerValidator({'required': True})],
+            'group_id': [self.PARAM_URL, IntegerValidator({'required': True})],
             'body': [self.PARAM_POST, StringValidator({'required': True})],
         }
 
