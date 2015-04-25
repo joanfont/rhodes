@@ -51,6 +51,7 @@ class PostSubjectMessageView(CreateAPIViewMixin, ModelResponseMixin):
             'body': [self.PARAM_POST, StringValidator({'required': True})],
         }
 
+    @validate
     @auth_token_required
     @subject_exists
     @user_belongs_to_subject
@@ -117,6 +118,7 @@ class PostGroupMessageView(CreateAPIViewMixin, ModelResponseMixin):
             'body': [self.PARAM_POST, StringValidator({'required': True})],
         }
 
+    @validate
     @auth_token_required
     @subject_exists
     @group_exists

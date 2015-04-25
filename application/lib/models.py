@@ -136,9 +136,9 @@ class User(DictMixin, Base):
             def _get_subject_groups(subject):
                 return imap(lambda x: int(x.id), subject.groups)
 
-            subject_goups = map(_get_subject_groups, self.subjects)
+            subject_goups = imap(_get_subject_groups, self.subjects)
 
-            return list(chain(*subject_goups))
+            return list(chain(subject_goups))
 
         def _get_student_groups_ids():
             return map(lambda x: int(x.id), self.groups)
