@@ -1,7 +1,8 @@
+from sqlalchemy import or_
 from application.services.base import BasePersistanceService, BaseService
 from application.lib.validators import IntegerValidator, StringValidator
 from common.helper import Helper
-from application.lib.models import User, StudentGroup, Group, Subject, TeacherSubject, UserType
+from application.lib.models import User, StudentGroup, Group, Subject, TeacherSubject, UserType, DirectMessage
 from sqlalchemy.orm import aliased
 
 
@@ -210,7 +211,8 @@ class GetTeacherTeacherPeers(BasePersistanceService):
             join(my_teacher_subject, Subject.id == my_teacher_subject.subject_id).\
             join(me, my_teacher_subject.teacher_id == me.id).\
             filter(me.id == user_id).\
-            filter(others.id != user_id)
+            filter(others.id != user_id).\
+            order_by(others.id.asc())
 
         peers = peers_query.all()
 
@@ -240,7 +242,8 @@ class GetStudentTeacherPeers(BasePersistanceService):
             join(Group, Subject.id == Group.subject_id).\
             join(StudentGroup, Group.id == StudentGroup.group_id).\
             join(me, StudentGroup.student_id == me.id).\
-            filter(me.id == user_id)
+            filter(me.id == user_id).\
+            order_by(teachers.id.asc())
 
         peers = peers_query.all()
 
@@ -300,7 +303,8 @@ class GetTeacherStudentPeers(BasePersistanceService):
             join(Subject, Group.subject_id == Subject.id).\
             join(TeacherSubject, Subject.id == TeacherSubject.subject_id).\
             join(me, TeacherSubject.teacher_id == me.id).\
-            filter(me.id == user_id)
+            filter(me.id == user_id).\
+            order_by(students.id.asc())
 
         peers = peers_query.all()
 
@@ -382,8 +386,6 @@ class UserCanSeeTeacher(BaseService):
 
     def execute(self, args):
 
-        teacher_id = args.get('teacher_id')
-
         user_id = args.get('user_id')
 
         dispatcher = {
@@ -432,3 +434,52 @@ class TeacherCanSeeStudent(BasePersistanceService):
 
         return peers_query.count() > 0
 
+
+
+
+class GetUserConversators(BasePersistanceService):
+
+    def input(self):
+        return {
+            'user_id': IntegerValidator({'required': True})
+        }
+
+    def output(self):
+        return lambda x: Helper.array_of(x, User) or x == []
+
+    def execute(self, args):
+
+        user_id = args.get('user_id')
+
+        users_query = self.session.query(User).\
+            join(DirectMessage, or_(User.id == DirectMessage.sender_id, User.id == DirectMessage.user_id)).\
+            filter(or_(DirectMessage.sender_id == user_id, DirectMessage.user_id == user_id)).\
+            filter(User.id != user_id).\
+            order_by(User.id.asc())
+
+        users = users_query.all()
+
+        return users
+
+
+class CheckConversationExistsBetweenUsers(BasePersistanceService):
+
+    def input(self):
+        return {
+            'user_id_1': IntegerValidator({'required': True}),
+            'user_id_2': IntegerValidator({'required': True})
+        }
+
+    def output(self):
+        return lambda x: Helper.instance_of(x, bool)
+
+    def execute(self, args):
+
+        user_id_1 = args.get('user_id_1')
+        user_id_2 = args.get('user_id_2')
+
+        users_query = self.session.query(User).\
+            join(DirectMessage, or_(User.id == DirectMessage.sender_id, User.id == DirectMessage.user_id)).\
+            filter(or_(DirectMessage.sender_id == user_id_1, DirectMessage.sender_id == user_id_2))
+
+        return users_query.count() > 0

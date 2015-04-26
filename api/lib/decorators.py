@@ -2,10 +2,11 @@ from flask import request
 from api.exceptions.auth import NotAuthenticatedError, NotEnoughPermissionError
 from api.exceptions.group import GroupNotFoundError, GroupDoesNotBelongToSubjectError
 from api.exceptions.message import MessageNotFoundErorr, MessageDoesNotBelongToSubjectError, \
-    MessageKindIsNotSubjectMessageErrror, MessageDoesNotBelongToGroupError, MessageKindIsNotGroupMessageErrror
+    MessageKindIsNotSubjectMessageErrror, MessageDoesNotBelongToGroupError, MessageKindIsNotGroupMessageErrror, \
+    ConversationDoesNotExistsBetweenUsersError
 from api.exceptions.subject import SubjectNotFoundError
 from api.exceptions.user import UserNotFoundError, TeacherDoesNotTeachSubjectError, StudentIsNotEnrolledToSubjectError, \
-    TeacherDoesNotTeachGroupError, StudentIsNotEnrolledToGroupError, TeacherNotFoundError
+    TeacherDoesNotTeachGroupError, StudentIsNotEnrolledToGroupError, TeacherNotFoundError, StudentNotFoundError
 from api.exceptions.validation import ValidationError
 from application.exceptions import MyValueError
 from application.lib.models import UserType, SubjectMessage, GroupMessage
@@ -13,7 +14,8 @@ from application.services.group import GroupBelongsToSubject, CheckGroupExists
 from application.services.message import CheckMessageExists, GetMessage
 from common.auth import encode_password
 
-from application.services.user import CheckUserExistsByUserAndPassword, GetUserByAuthToken, UserCanSeeTeacher, GetUser
+from application.services.user import CheckUserExistsByUserAndPassword, GetUserByAuthToken, UserCanSeeTeacher, GetUser, \
+    TeacherCanSeeStudent, CheckConversationExistsBetweenUsers
 from application.services.subject import CheckSubjectExists
 
 
@@ -276,7 +278,7 @@ def message_exists(fnx):
 
     def wrapped_fnx(*args, **kwargs):
 
-        message_id = kwargs.get('get').get('message_id') or kwargs.get('url').get('message_id')
+        message_id = kwargs.get('url').get('from_message_id')
 
         if message_id:
             # check_message_exists_srv = CheckMessageExists()
@@ -298,7 +300,7 @@ def message_belongs_to_subject(fnx):
     def wrapped_fnx(*args, **kwargs):
 
         subject_id = kwargs.get('url').get('subject_id')
-        message_id = kwargs.get('url').get('message_id') or kwargs.get('get').get('message_id')
+        message_id = kwargs.get('get').get('from_message_id')
 
         if message_id:
             get_message_srv = GetMessage()
@@ -324,7 +326,7 @@ def message_belongs_to_group(fnx):
     def wrapped_fnx(*args, **kwargs):
 
         group_id = kwargs.get('url').get('group_id')
-        message_id = kwargs.get('url').get('message_id') or kwargs.get('get').get('message_id')
+        message_id = kwargs.get('get').get('from_message_id')
 
         if message_id:
             get_message_srv = GetMessage()
@@ -343,6 +345,15 @@ def message_belongs_to_group(fnx):
 
     return wrapped_fnx
 
+def message_belongs_to_peers(fnx):
+
+    def wrapped_fnx(*args, **kwargs):
+
+        user = kwargs.get('user')
+        peer_id = kwargs.get('url').get('teacher_id') or kwargs.get('url').get('student_id')
+
+        message_id = kwargs.get('get').get('from_message_id')
+
 
 def teacher_exists(fnx):
 
@@ -353,7 +364,7 @@ def teacher_exists(fnx):
         get_user_srv = GetUser()
         user = get_user_srv.call({'user_id': teacher_id})
 
-        if not user.is_teacher():
+        if not user or not user.is_teacher():
             raise TeacherNotFoundError()
 
         return fnx(*args, **kwargs)
@@ -370,8 +381,8 @@ def student_exists(fnx):
         get_user_srv = GetUser()
         user = get_user_srv.call({'user_id': student_id})
 
-        if not user.is_student():
-            raise TeacherNotFoundError()
+        if not user or not user.is_student():
+            raise StudentNotFoundError()
 
         return fnx(*args, **kwargs)
 
@@ -399,3 +410,43 @@ def user_can_see_teacher(fnx):
     return wrapped_fnx
 
 
+def teacher_can_see_student(fnx):
+
+    def wrapped_fnx(*args, **kwargs):
+
+        student_id = kwargs.get('url').get('student_id')
+        user = kwargs.get('user')
+
+        teacher_can_see_student_srv = TeacherCanSeeStudent()
+        can_see = teacher_can_see_student_srv.call({
+            'student_id': student_id,
+            'user_id': user.id
+        })
+
+        if not can_see:
+            raise NotEnoughPermissionError()
+
+        return fnx(*args, **kwargs)
+
+    return wrapped_fnx
+
+
+def check_conversation_exists_between_users(fnx):
+
+    def wrapped_fnx(*args, **kwargs):
+
+        user = kwargs.get('user')
+        peer_id = kwargs.get('url').get('peer_id')
+
+        check_conversation_exists_between_users_srv = CheckConversationExistsBetweenUsers()
+        exists = check_conversation_exists_between_users_srv.call({
+            'user_id_1': user.id,
+            'user_id_2': peer_id
+        })
+
+        if not exists:
+            raise ConversationDoesNotExistsBetweenUsersError()
+
+        return fnx(*args, **kwargs)
+
+    return wrapped_fnx

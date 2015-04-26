@@ -3,21 +3,19 @@ from api.exceptions.message import MessageNotFoundErorr
 
 from api.lib.decorators import user_belongs_to_subject, group_exists, user_belongs_to_group, \
     group_belongs_to_subject, auth_token_required, subject_exists, message_belongs_to_subject, \
-    message_belongs_to_group, message_exists, validate
+    message_belongs_to_group, message_exists, validate, teacher_exists, user_can_see_teacher, is_teacher, \
+    student_exists, \
+    teacher_can_see_student
 from api.lib.mixins import ListAPIViewMixin, CreateAPIViewMixin, ModelResponseMixin, PaginatedResponseMixin
 from application.lib.validators import IntegerValidator, StringValidator
 from application.services.message import GetGroupMessages, PutGroupMessage, PutSubjectMessage, GetSubjectMessages, \
-    GetMessage
+    GetMessage, GetDirectMessages
 
 
 class ListSubjectMessagesView(ListAPIViewMixin, PaginatedResponseMixin):
-
     def params(self):
         return {
-            'subject_id': [self.PARAM_URL, IntegerValidator({'required': True})],
-            'message_id': [self.PARAM_GET, IntegerValidator({'required': False})],
-            'order': [self.PARAM_GET, StringValidator({'required': False})],
-            'direction': [self.PARAM_GET, StringValidator({'required': False})]
+            'subject_id': [self.PARAM_URL, IntegerValidator({'required': True})]
         }
 
     @validate
@@ -27,11 +25,32 @@ class ListSubjectMessagesView(ListAPIViewMixin, PaginatedResponseMixin):
     @message_exists
     @message_belongs_to_subject
     def get_action(self, *args, **kwargs):
-
         subject_id = kwargs.get('url').get('subject_id')
-        message_id = kwargs.get('get').get('message_id')
+        get_subject_messages_srv = GetSubjectMessages()
+        messages = get_subject_messages_srv.call({'subject_id': subject_id})
+        return messages
+
+
+class ListPaginatedSubjectMessagesView(ListAPIViewMixin, PaginatedResponseMixin):
+    def params(self):
+        return {
+            'subject_id': [self.PARAM_URL, IntegerValidator({'required': True})],
+            'message_id': [self.PARAM_URL, IntegerValidator({'required': True})],
+            'direction': [self.PARAM_URL, StringValidator({'required': True})],
+            'order': [self.PARAM_GET, StringValidator({'required': False})],
+        }
+
+    @validate
+    @auth_token_required
+    @subject_exists
+    @user_belongs_to_subject
+    @message_exists
+    @message_belongs_to_subject
+    def get_action(self, *args, **kwargs):
+        subject_id = kwargs.get('url').get('subject_id')
+        message_id = kwargs.get('url').get('message_id')
+        direction = kwargs.get('url').get('direction')
         order = kwargs.get('get').get('order')
-        direction = kwargs.get('get').get('direction')
 
         get_subject_messages_srv = GetSubjectMessages()
         messages = get_subject_messages_srv.call({
@@ -40,11 +59,11 @@ class ListSubjectMessagesView(ListAPIViewMixin, PaginatedResponseMixin):
             'order': order,
             'direction': direction
         })
+
         return messages
 
 
 class PostSubjectMessageView(CreateAPIViewMixin, ModelResponseMixin):
-
     def params(self):
         return {
             'subject_id': [self.PARAM_URL, IntegerValidator({'required': True})],
@@ -74,13 +93,9 @@ class PostSubjectMessageView(CreateAPIViewMixin, ModelResponseMixin):
 
 
 class ListGroupMessagesView(ListAPIViewMixin, PaginatedResponseMixin):
-
     def params(self):
         return {
-            'group_id': [self.PARAM_URL, IntegerValidator({'required': True})],
-            'message_id': [self.PARAM_GET, IntegerValidator({'required': False})],
-            'order': [self.PARAM_GET, StringValidator({'required': False})],
-            'direction': [self.PARAM_GET, StringValidator({'required': False})]
+            'group_id': [self.PARAM_URL, IntegerValidator({'required': True})]
         }
 
     @validate
@@ -92,11 +107,37 @@ class ListGroupMessagesView(ListAPIViewMixin, PaginatedResponseMixin):
     @message_exists
     @message_belongs_to_group
     def get_action(self, *args, **kwargs):
-
         group_id = kwargs.get('url').get('group_id')
-        message_id = kwargs.get('get').get('message_id')
+
+        get_group_messages_srv = GetGroupMessages()
+        messages = get_group_messages_srv.call({'group_id': group_id})
+
+        return messages
+
+
+class ListPaginatedGroupMessagesView(ListAPIViewMixin, PaginatedResponseMixin):
+    def params(self):
+        return {
+            'group_id': [self.PARAM_URL, IntegerValidator({'required': True})],
+            'message_id': [self.PARAM_URL, IntegerValidator({'required': True})],
+            'direction': [self.PARAM_URL, StringValidator({'required': True})],
+            'order': [self.PARAM_GET, StringValidator({'required': False})],
+        }
+
+    @validate
+    @auth_token_required
+    @subject_exists
+    @group_exists
+    @group_belongs_to_subject
+    @user_belongs_to_group
+    @message_exists
+    @message_belongs_to_group
+    def get_action(self, *args, **kwargs):
+        group_id = kwargs.get('url').get('group_id')
+        message_id = kwargs.get('url').get('message_id')
+        direction = kwargs.get('url').get('direction')
+
         order = kwargs.get('get').get('order')
-        direction = kwargs.get('get').get('direction')
 
         get_group_messages_srv = GetGroupMessages()
         messages = get_group_messages_srv.call({
@@ -110,7 +151,6 @@ class ListGroupMessagesView(ListAPIViewMixin, PaginatedResponseMixin):
 
 
 class PostGroupMessageView(CreateAPIViewMixin, ModelResponseMixin):
-
     def params(self):
         return {
             'subject_id': [self.PARAM_URL, IntegerValidator({'required': True})],
@@ -125,7 +165,6 @@ class PostGroupMessageView(CreateAPIViewMixin, ModelResponseMixin):
     @group_belongs_to_subject
     @user_belongs_to_group
     def post_action(self, *args, **kwargs):
-
         post_data = self.post_data()
 
         user = kwargs.get('user')
@@ -143,10 +182,66 @@ class PostGroupMessageView(CreateAPIViewMixin, ModelResponseMixin):
         return message
 
 
-class MessageDetailView(ListAPIViewMixin, ModelResponseMixin):
+class ListDirectMessagesView(ListAPIViewMixin, PaginatedResponseMixin):
+    def get_action(self, *args, **kwargs):
+        user = kwargs.get('user')
+        peer_id = kwargs.get('peer_id')
+
+        message_id = kwargs.get('get').get('from_message_id')
+        order = kwargs.get('get').get('order')
+        direction = kwargs.get('get').get('direction')
+
+        get_direct_messages_srv = GetDirectMessages()
+        messages = get_direct_messages_srv.call({
+            'sender_id': user.id,
+            'recipient_id': peer_id,
+            'message_id': message_id,
+            'order': order,
+            'direction': direction
+        })
+
+        return messages
+
+
+class ListTeacherDirectMessagesView(ListDirectMessagesView):
+    def params(self):
+        return {
+            'teacher_id': [self.PARAM_URL, IntegerValidator({'required': True})],
+            'message_id': [self.PARAM_GET, IntegerValidator({'required': False})],
+            'order': [self.PARAM_GET, StringValidator({'required': False})],
+            'direction': [self.PARAM_GET, StringValidator({'required': False})]
+        }
+
+    @validate
+    @auth_token_required
+    @teacher_exists
+    @user_can_see_teacher
+    def get_action(self, *args, **kwargs):
+        kwargs['peer_id'] = kwargs.get('url').get('teacher_id')
+        return super(ListTeacherDirectMessagesView, self).get_action(*args, **kwargs)
+
+
+class ListStudentDirectMessagesView(ListDirectMessagesView):
+    @validate
+    @auth_token_required
+    @is_teacher
+    @student_exists
+    @teacher_can_see_student
+    def params(self):
+        return {
+            'student_id': [self.PARAM_URL, IntegerValidator({'requied': True})],
+            'message_id': [self.PARAM_GET, IntegerValidator({'required': False})],
+            'order': [self.PARAM_GET, StringValidator({'required': False})],
+            'direction': [self.PARAM_GET, StringValidator({'required': False})]
+        }
 
     def get_action(self, *args, **kwargs):
+        kwargs['peer_id'] = kwargs.get('url').get('student_id')
+        return super(ListStudentDirectMessagesView, self).get_action(*args, **kwargs)
 
+
+class MessageDetailView(ListAPIViewMixin, ModelResponseMixin):
+    def get_action(self, *args, **kwargs):
         message_id = kwargs.get('url').get('message_id')
         get_message_srv = GetMessage()
 
@@ -159,7 +254,13 @@ class MessageDetailView(ListAPIViewMixin, ModelResponseMixin):
 
 
 class SubjectMessageDetailView(MessageDetailView):
+    def params(self):
+        return {
+            'subject_id': [self.PARAM_URL, IntegerValidator({'required': True})],
+            'message_id': [self.PARAM_URL, IntegerValidator({'required': True})]
+        }
 
+    @validate
     @auth_token_required
     @subject_exists
     @user_belongs_to_subject
@@ -170,7 +271,14 @@ class SubjectMessageDetailView(MessageDetailView):
 
 
 class GroupMessageDetailView(MessageDetailView):
+    def params(self):
+        return {
+            'subject_id': [self.PARAM_URL, IntegerValidator({'required': True})],
+            'group_id': [self.PARAM_URL, IntegerValidator({'required': True})],
+            'message_id': [self.PARAM_URL, IntegerValidator({'required': True})],
+        }
 
+    @validate
     @auth_token_required
     @subject_exists
     @group_exists
