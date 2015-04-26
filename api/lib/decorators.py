@@ -345,15 +345,6 @@ def message_belongs_to_group(fnx):
 
     return wrapped_fnx
 
-def message_belongs_to_peers(fnx):
-
-    def wrapped_fnx(*args, **kwargs):
-
-        user = kwargs.get('user')
-        peer_id = kwargs.get('url').get('teacher_id') or kwargs.get('url').get('student_id')
-
-        message_id = kwargs.get('get').get('from_message_id')
-
 
 def teacher_exists(fnx):
 
@@ -389,41 +380,46 @@ def student_exists(fnx):
     return wrapped_fnx
 
 
-def user_can_see_teacher(fnx):
+def peer_exists(fnx):
 
     def wrapped_fnx(*args, **kwargs):
 
-        teacher_id = kwargs.get('url').get('teacher_id')
-        user = kwargs.get('user')
+        peer_id = kwargs.get('url').get('peer_id')
+        get_user_srv = GetUser()
+        user = get_user_srv.call({'peer_id': peer_id})
 
-        user_can_see_teacher_srv = UserCanSeeTeacher()
-        can_see = user_can_see_teacher_srv.call({
-            'teacher_id': teacher_id,
-            'user_id': user.id
-        })
-
-        if not can_see:
-            raise NotEnoughPermissionError()
+        if not user:
+            raise UserNotFoundError()
 
         return fnx(*args, **kwargs)
 
     return wrapped_fnx
 
 
-def teacher_can_see_student(fnx):
+def user_is_related_to_peer(fnx):
 
     def wrapped_fnx(*args, **kwargs):
 
-        student_id = kwargs.get('url').get('student_id')
         user = kwargs.get('user')
+        peer = kwargs.get('peer')
 
-        teacher_can_see_student_srv = TeacherCanSeeStudent()
-        can_see = teacher_can_see_student_srv.call({
-            'student_id': student_id,
-            'user_id': user.id
+        if peer.is_teacher():
+            srv_class = UserCanSeeTeacher
+            key = 'teacher_id'
+        elif peer.is_student():
+            if user.teacher():
+                srv_class = TeacherCanSeeStudent
+                key = 'student_id'
+            else:
+                raise NotEnoughPermissionError()
+
+        srv_instance = srv_class()
+        is_related = srv_instance.call({
+            'user_id': user.id,
+            key: peer.id
         })
 
-        if not can_see:
+        if not is_related:
             raise NotEnoughPermissionError()
 
         return fnx(*args, **kwargs)
