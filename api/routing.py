@@ -57,7 +57,7 @@ routing = {
         'name': 'user_subject_teachers',
         'methods': ['GET']
     },
-    '/user/subjects/<subject_id>/students': {
+    '/user/subjects/<subject_id>/students/': {
         'class': user_views.SubjectStudentsView,
         'name': 'user_subject_students',
         'methods': ['GET']
@@ -99,14 +99,19 @@ routing = {
         'name': 'user_subject_group_students',
         'methods': ['GET']
     },
+    '/user/peers/': {
+        'class': user_views.UserPeersSummaryView,
+        'name': 'user_peers_summary',
+        'methods': ['GET']
+    },
+    '/user/peers/<peer_id>/': {
+        'class': user_views.UserChatSummaryView,
+        'name': 'user_chats_summary_view',
+        'methods': ['GET']
+    },
     '/user/peers/teachers/': {
         'class': user_views.TeacherPeersView,
         'name':  'user_teacher_peers',
-        'methods': ['GET']
-    },
-    '/user/peers/teachers/<teacher_id>/': {
-        'class': user_views.TeacherPeerView,
-        'name':  'user_teacher_peer',
         'methods': ['GET']
     },
     '/user/peers/students/': {
@@ -124,21 +129,26 @@ routing = {
         'name': 'user_chats',
         'methods': ['GET']
     },
-    '/user/chats/<peer_id>/messages/': {
-        'class': user_views.ConversationView,
-        'name': 'user_chat',
-        'methods': ['GET']
-    },
-    '/user/chats/<peer_id>/messages/<message_id>/': {
-        'class': user_views.DirectMessageDetailView,
-        'name': 'user_chat',
-        'methods': ['GET']
-    },
-    '/user/chats/<peer_id>/messages/<message_id>/<direction>': {
-        'class': user_views.PaginatedConversationView,
-        'name': 'user_chat',
-        'methods': ['GET']
-    }
+    # '/user/chats/<peer_id>/': {
+    #     'class': user_views.UserChatSummaryView,
+    #     'name': 'user_chats_summary_view',
+    #     'methods': ['GET']
+    # }
+    # '/user/chats/<peer_id>/messages/': {
+    #     'class': user_views.ConversationView,
+    #     'name': 'user_chat',
+    #     'methods': ['GET']
+    # },
+    # '/user/chats/<peer_id>/messages/<message_id>/': {
+    #     'class': user_views.DirectMessageDetailView,
+    #     'name': 'user_chat',
+    #     'methods': ['GET']
+    # },
+    # '/user/chats/<peer_id>/messages/<message_id>/<direction>': {
+    #     'class': user_views.PaginatedConversationView,
+    #     'name': 'user_chat',
+    #     'methods': ['GET']
+    # }
 
 
 }
