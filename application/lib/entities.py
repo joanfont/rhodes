@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 
 class PaginatedEntity(object):
 
@@ -37,12 +39,15 @@ class PaginatedMessagesEntity(PaginatedEntity):
     def to_dict(self):
         super_dict = super(PaginatedMessagesEntity, self).to_dict()
         messages = super_dict.pop('objects', [])
-        super_dict.update({
-            'more': self.more,
-            'messages': messages
-        })
 
-        return super_dict
+        result = OrderedDict((
+            ('count', super_dict.get('count')),
+            ('total', super_dict.get('total')),
+            ('more', self.more),
+            ('messages', messages)
+        ))
+
+        return result
 
 
 

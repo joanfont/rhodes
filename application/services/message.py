@@ -1,3 +1,4 @@
+from sqlalchemy.orm import aliased
 from application.lib.models import Message, MessageType, DirectMessage, SubjectMessage, GroupMessage, MessageBody
 from application.lib.validators import StringValidator, IntegerValidator, ChoicesValidator, DateValidator
 from application.services.base import BasePersistanceService, BaseService
@@ -52,7 +53,6 @@ class PaginatedMessagesService(BasePersistanceService):
         order = args.get('order')
         direction = args.get('direction')
         sender_id = args.get('sender_id')
-
         more = False
 
         filter_field = type_condition.get(message_class)
@@ -65,45 +65,55 @@ class PaginatedMessagesService(BasePersistanceService):
 
         if message_class == DirectMessage:
             messages_query = messages_query.filter(DirectMessage.sender_id == sender_id)
-            check_more_messages_query = check_more_messages_query.filter(DirectMessage.sender_id == sender_id)
+            check_more_messages_query = messages_query.filter(DirectMessage.sender_id == sender_id)
 
         total = messages_query.count()
 
         if message_id:
 
             if direction == constants.MESSAGES_PAGINATION_PREVIOUS:
-                direction_clause = messages_query.filter(message_class.id < message_id)
+                messages_query = messages_query.\
+                    filter(message_class.id < message_id).\
+                    order_by(message_class.id.desc())
 
             elif direction == constants.MESSAGES_PAGINATION_NEXT:
-                direction_clause = messages_query.filter(message_class.id > message_id)
-            else:
-                direction_clause = None
-
-            if direction_clause:
-                messages_query = direction_clause
-
-        count_messages_without_order = messages_query.limit(items).count()
-        messages_without_order = messages_query.order_by(message_class.created_at.desc()).limit(items).all()
-
-        order_clause = orders.get(order)
-        messages_query = messages_query.order_by(order_clause)
-
-        messages_query = messages_query.limit(items)
-
-        count = messages_query.count()
-        messages = messages_query.all()
-
-        if messages:
-
-            if direction == constants.MESSAGES_PAGINATION_PREVIOUS:
-                last_message_id = messages_without_order[count_messages_without_order - 1].id
-                more = check_more_messages_query.filter(message_class.id < last_message_id).count() > 0
-            elif direction == constants.MESSAGES_PAGINATION_NEXT:
-                last_message_id = messages_without_order[0].id
-                more = check_more_messages_query.filter(message_class.id > last_message_id).count() > 0
+                messages_query = messages_query.\
+                    filter(message_class.id > message_id).\
+                    order_by(message_class.id.asc())
 
         else:
-            more = False
+            messages_query = messages_query.order_by(message_class.id.desc())
+
+        messages_query = messages_query.limit(items)
+        count = messages_query.count()
+
+        messages_alias = aliased(message_class, messages_query.subquery('message'))
+
+        order_clause = orders.get(order)
+        aliased_messages_query = self.session.query(messages_alias).order_by(order_clause)
+        messages = aliased_messages_query.all()
+
+        if direction == constants.MESSAGES_PAGINATION_PREVIOUS:
+            if order == constants.ORDER_ASC:
+                last_message_idx = 0
+            elif order == constants.ORDER_DESC:
+                last_message_idx = -1
+        elif direction == constants.MESSAGES_PAGINATION_NEXT:
+            if order == constants.ORDER_ASC:
+                last_message_idx = -1
+            elif order == constants.ORDER_DESC:
+                last_message_idx = 0
+
+        last_message_id = messages[last_message_idx].id
+
+        more = False
+
+        if message_id:
+            if messages:
+                if direction == constants.MESSAGES_PAGINATION_PREVIOUS:
+                    more = check_more_messages_query.filter(message_class.id < last_message_id).count() > 0
+                elif direction == constants.MESSAGES_PAGINATION_NEXT:
+                    more = check_more_messages_query.filter(message_class.id > last_message_id).count() > 0
 
         return PaginatedMessagesEntity(messages, total, count, more)
 
