@@ -11,6 +11,11 @@ class TeacherNotFoundError(ObjectNotFoundError):
     message = 'Teacher not found'
 
 
+class StudentNotFoundError(ObjectNotFoundError):
+
+    message = 'Student not found'
+
+
 class TeacherDoesNotTeachSubjectError(ForbiddenActionError):
 
     message = 'Teacher does not teach the subject'
@@ -26,6 +31,6 @@ class TeacherDoesNotTeachGroupError(ForbiddenActionError):
     message = 'Teacher does not teach the group'
 
 
-class StudentIsNotEnrolledToGroupError(ForbiddenActionError):
+class StudentIsNotEnrolledToGroupError(ObjectNotFoundError):
 
     message = 'Student is not enrolled to the group'

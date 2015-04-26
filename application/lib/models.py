@@ -134,11 +134,11 @@ class User(DictMixin, Base):
         def _get_teacher_groups_ids():
 
             def _get_subject_groups(subject):
-                return imap(lambda x: int(x.id), subject.groups)
+                return map(lambda x: int(x.id), subject.groups)
 
-            subject_goups = imap(_get_subject_groups, self.subjects)
+            subject_goups = map(_get_subject_groups, self.subjects)
 
-            return list(chain(subject_goups))
+            return list(chain(*subject_goups))
 
         def _get_student_groups_ids():
             return map(lambda x: int(x.id), self.groups)
@@ -270,6 +270,14 @@ class DirectMessage(Message):
         primaryjoin=user_id == User.id)
 
     __mapper_args__ = {'polymorphic_identity': MessageType.DIRECT_MESSAGE}
+
+    def to_dict(self, **kwargs):
+        super_dict = super(DirectMessage, self).to_dict(**kwargs)
+        super_dict.update({
+            'recipient': self.user.to_dict(**kwargs)
+        })
+
+        return super_dict
 
 
 class GroupMessage(Message):

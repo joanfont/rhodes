@@ -1,10 +1,11 @@
 from api.lib.decorators import login_required, user_belongs_to_subject, subject_exists, is_teacher, auth_token_required, \
-    validate, group_exists, user_belongs_to_group, user_can_see_teacher, teacher_exists
+    validate, group_exists, user_belongs_to_group, user_can_see_teacher, teacher_exists, teacher_can_see_student, \
+    student_exists
 from api.lib.mixins import ListAPIViewMixin, ModelResponseMixin
 from application.lib.validators import IntegerValidator, StringValidator
 from application.services.user import GetSubjectTeachers, GetSubjectStudents, GetUserAuthTokenByUserAndPassword, \
     GetGroupStudents, GetTeacherTeacherPeers, GetStudentTeacherPeers, GetUserTeacherPeers, GetTeacherStudentPeers, \
-    GetUser
+    GetUser, GetUserConversators
 from common.auth import encode_password
 
 
@@ -95,6 +96,15 @@ class GroupStudentsView(ListAPIViewMixin, ModelResponseMixin):
         return students
 
 
+class UserPeerView(ListAPIViewMixin, ModelResponseMixin):
+
+    def get_action(self, *args, **kwargs):
+        peer_id = kwargs.get('peer_id')
+        get_user_srv = GetUser()
+        chats = get_user_srv.call({'user_id': peer_id})
+        return chats
+
+
 class TeacherPeersView(ListAPIViewMixin, ModelResponseMixin):
 
     @auth_token_required
@@ -105,7 +115,7 @@ class TeacherPeersView(ListAPIViewMixin, ModelResponseMixin):
         return peers
 
 
-class TeacherPeerView(ListAPIViewMixin, ModelResponseMixin):
+class TeacherPeerView(UserPeerView):
 
     def params(self):
         return {
@@ -117,12 +127,8 @@ class TeacherPeerView(ListAPIViewMixin, ModelResponseMixin):
     @teacher_exists
     @user_can_see_teacher
     def get_action(self, *args, **kwargs):
-        teacher_id = kwargs.get('url').get('teacher_id')
-
-        get_user_srv = GetUser()
-        user = get_user_srv.call({'user_id': teacher_id})
-
-        return user
+        kwargs['peer_id'] = kwargs.get('url').get('teacher_id')
+        return super(TeacherPeerView, self).get_action(*args, **kwargs)
 
 
 class StudentPeersView(ListAPIViewMixin, ModelResponseMixin):
@@ -135,6 +141,36 @@ class StudentPeersView(ListAPIViewMixin, ModelResponseMixin):
         get_student_peers = GetTeacherStudentPeers()
         peers = get_student_peers.call({'user_id': user.id})
         return peers
+
+
+class StudentPeerView(ListAPIViewMixin, ModelResponseMixin):
+
+    def params(self):
+        return {
+            'student_id': IntegerValidator({'required': True})
+        }
+
+    @validate
+    @auth_token_required
+    @is_teacher
+    @student_exists
+    @teacher_can_see_student
+    def get_action(self, *args, **kwargs):
+        kwargs['peer_id'] = kwargs.get('url').get('student_id')
+        return super(StudentPeerView, self).get_action(*args, **kwargs)
+
+
+class UserChatsView(ListAPIViewMixin, ModelResponseMixin):
+
+    @auth_token_required
+    def get_action(self, *args, **kwargs):
+
+        user = kwargs.get('user')
+
+        get_conversators_srv = GetUserConversators()
+        chats = get_conversators_srv.call({'user_id': user.id})
+
+        return chats
 
 
 class ProfileView(ListAPIViewMixin, ModelResponseMixin):

@@ -47,6 +47,11 @@ routing = {
         'name': 'user_subject_message',
         'methods': ['GET']
     },
+    '/user/subjects/<subject_id>/messages/<message_id>/<direction>/': {
+        'class': message_views.ListPaginatedSubjectMessagesView,
+        'name': 'user_subject_messages_paginated',
+        'methods': ['GET']
+    },
     '/user/subjects/<subject_id>/teachers/': {
         'class': user_views.SubjectTeachersView,
         'name': 'user_subject_teachers',
@@ -84,6 +89,11 @@ routing = {
         'name': 'user_subject_group_message',
         'methods': ['GET']
     },
+    '/user/subjects/<subject_id>/groups/<group_id>/messages/<message_id>/<direction>/': {
+        'class': message_views.ListPaginatedGroupMessagesView,
+        'name': 'user_subject_group_messages_paginated',
+        'methods': ['GET']
+    },
     '/user/subjects/<subject_id>/groups/<group_id>/students/': {
         'class': user_views.GroupStudentsView,
         'name': 'user_subject_group_students',
@@ -103,6 +113,32 @@ routing = {
         'class': user_views.StudentPeersView,
         'name':  'user_teacher_student_peers',
         'methods': ['GET']
+    },
+    '/user/peers/students/<student_id>/': {
+        'class': user_views.StudentPeerView,
+        'name': 'user_teacher_student_peer',
+        'methods': ['GET']
+    },
+    '/user/chats/': {
+        'class': user_views.UserChatsView,
+        'name': 'user_chats',
+        'methods': ['GET']
+    },
+    '/user/chats/<peer_id>/messages/': {
+        'class': user_views.ConversationView,
+        'name': 'user_chat',
+        'methods': ['GET']
+    },
+    '/user/chats/<peer_id>/messages/<message_id>/': {
+        'class': user_views.DirectMessageDetailView,
+        'name': 'user_chat',
+        'methods': ['GET']
+    },
+    '/user/chats/<peer_id>/messages/<message_id>/<direction>': {
+        'class': user_views.PaginatedConversationView,
+        'name': 'user_chat',
+        'methods': ['GET']
     }
+
 
 }

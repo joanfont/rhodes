@@ -1,4 +1,5 @@
 from sqlalchemy.orm import aliased
+from sqlalchemy import or_, and_
 from application.lib.models import Message, MessageType, DirectMessage, SubjectMessage, GroupMessage, MessageBody
 from application.lib.validators import StringValidator, IntegerValidator, ChoicesValidator, DateValidator
 from application.services.base import BasePersistanceService, BaseService
@@ -57,15 +58,22 @@ class PaginatedMessagesService(BasePersistanceService):
 
         filter_field = type_condition.get(message_class)
 
-        messages_query = self.session.query(message_class). \
-            filter(filter_field == filter_value)
-
-        check_more_messages_query = self.session.query(message_class). \
-            filter(filter_field == filter_value)
+        messages_query = self.session.query(message_class)
+        check_more_messages_query = self.session.query(message_class)
 
         if message_class == DirectMessage:
-            messages_query = messages_query.filter(DirectMessage.sender_id == sender_id)
-            check_more_messages_query = messages_query.filter(DirectMessage.sender_id == sender_id)
+
+            messages_query = messages_query.filter(or_(
+                and_(DirectMessage.sender_id == sender_id, DirectMessage.user_id == filter_value),
+                and_(DirectMessage.sender_id == filter_value, DirectMessage.user_id == sender_id)))
+
+            check_more_messages_query = messages_query.filter(or_(
+                and_(DirectMessage.sender_id == sender_id, DirectMessage.user_id == filter_value),
+                and_(DirectMessage.sender_id == filter_value, DirectMessage.user_id == sender_id)))
+
+        else:
+            messages_query = messages_query.filter(filter_field == filter_value)
+            check_more_messages_query = check_more_messages_query.filter(filter_field == filter_value)
 
         total = messages_query.count()
 
@@ -105,8 +113,6 @@ class PaginatedMessagesService(BasePersistanceService):
                 last_message_idx = 0
 
         last_message_id = messages[last_message_idx].id
-
-        more = False
 
         if message_id:
             if messages:
