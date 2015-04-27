@@ -158,22 +158,6 @@ class StudentPeersView(ListAPIViewMixin, ModelResponseMixin):
         return peers
 
 
-
-
-
-class UserChatsView(ListAPIViewMixin, ModelResponseMixin):
-
-    @auth_token_required
-    def get_action(self, *args, **kwargs):
-
-        user = kwargs.get('user')
-
-        get_conversators_srv = GetUserConversators()
-        chats = get_conversators_srv.call({'user_id': user.id})
-
-        return chats
-
-
 class ProfileView(ListAPIViewMixin, ModelResponseMixin):
 
     @auth_token_required

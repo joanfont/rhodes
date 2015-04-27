@@ -5,7 +5,7 @@ from api.lib.decorators import user_belongs_to_subject, group_exists, user_belon
     group_belongs_to_subject, auth_token_required, subject_exists, message_belongs_to_subject, \
     message_belongs_to_group, message_exists, validate, teacher_exists, user_can_see_teacher, is_teacher, \
     student_exists, \
-    teacher_can_see_student
+    , peer_exists, users_can_conversate
 from api.lib.mixins import ListAPIViewMixin, CreateAPIViewMixin, ModelResponseMixin, PaginatedResponseMixin
 from application.lib.validators import IntegerValidator, StringValidator
 from application.services.message import GetGroupMessages, PutGroupMessage, PutSubjectMessage, GetSubjectMessages, \
@@ -183,6 +183,12 @@ class PostGroupMessageView(CreateAPIViewMixin, ModelResponseMixin):
 
 
 class ListDirectMessagesView(ListAPIViewMixin, PaginatedResponseMixin):
+
+    @validate
+    @auth_token_required
+    @peer_exists
+    @users_can_conversate
+
     def get_action(self, *args, **kwargs):
         user = kwargs.get('user')
         peer_id = kwargs.get('peer_id')
@@ -202,42 +208,6 @@ class ListDirectMessagesView(ListAPIViewMixin, PaginatedResponseMixin):
 
         return messages
 
-
-class ListTeacherDirectMessagesView(ListDirectMessagesView):
-    def params(self):
-        return {
-            'teacher_id': [self.PARAM_URL, IntegerValidator({'required': True})],
-            'message_id': [self.PARAM_GET, IntegerValidator({'required': False})],
-            'order': [self.PARAM_GET, StringValidator({'required': False})],
-            'direction': [self.PARAM_GET, StringValidator({'required': False})]
-        }
-
-    @validate
-    @auth_token_required
-    @teacher_exists
-    @user_can_see_teacher
-    def get_action(self, *args, **kwargs):
-        kwargs['peer_id'] = kwargs.get('url').get('teacher_id')
-        return super(ListTeacherDirectMessagesView, self).get_action(*args, **kwargs)
-
-
-class ListStudentDirectMessagesView(ListDirectMessagesView):
-    @validate
-    @auth_token_required
-    @is_teacher
-    @student_exists
-    @teacher_can_see_student
-    def params(self):
-        return {
-            'student_id': [self.PARAM_URL, IntegerValidator({'requied': True})],
-            'message_id': [self.PARAM_GET, IntegerValidator({'required': False})],
-            'order': [self.PARAM_GET, StringValidator({'required': False})],
-            'direction': [self.PARAM_GET, StringValidator({'required': False})]
-        }
-
-    def get_action(self, *args, **kwargs):
-        kwargs['peer_id'] = kwargs.get('url').get('student_id')
-        return super(ListStudentDirectMessagesView, self).get_action(*args, **kwargs)
 
 
 class MessageDetailView(ListAPIViewMixin, ModelResponseMixin):

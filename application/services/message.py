@@ -311,3 +311,33 @@ class GetDirectMessages(PaginatedMessagesService):
         recipient_id = args.pop('recipient_id')
         args['filter_val'] = recipient_id
         return super(GetDirectMessages, self).execute(args)
+
+
+class GetLastDirectMessageBetweenUsers(BasePersistanceService):
+
+    def input(self):
+        return {
+            'my_id': IntegerValidator({'required': True}),
+            'its_id': IntegerValidator({'required': True})
+        }
+
+    def output(self):
+        return lambda x: Helper.instance_of(x, Message) or x is None
+
+    def execute(self, args):
+
+        my_id = args.get('my_id')
+        its_id = args.get('its_id')
+
+        message_query = self.session.query(DirectMessage).\
+            filter(or_(
+                and_(DirectMessage.sender_id == my_id, DirectMessage.user_id == its_id),
+                and_(DirectMessage.sender_id == its_id, DirectMessage.user_id == my_id))).\
+            order_by(DirectMessage.created_at.desc()).limit(1)
+
+        if message_query.count():
+            message = message_query.one()
+        else:
+            message = None
+
+        return message
