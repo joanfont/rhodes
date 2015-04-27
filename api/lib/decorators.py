@@ -2,14 +2,15 @@ from flask import request
 from api.exceptions.auth import NotAuthenticatedError, NotEnoughPermissionError
 from api.exceptions.group import GroupNotFoundError, GroupDoesNotBelongToSubjectError
 from api.exceptions.message import MessageNotFoundErorr, MessageDoesNotBelongToSubjectError, \
-    MessageKindIsNotSubjectMessageErrror, MessageDoesNotBelongToGroupError, MessageKindIsNotGroupMessageErrror
+    MessageKindIsNotSubjectMessageErrror, MessageDoesNotBelongToGroupError, MessageKindIsNotGroupMessageErrror, \
+    MessageDoesNotBelongToConversationError, MessageKindIsNotDirectMessageError
 
 from api.exceptions.subject import SubjectNotFoundError
 from api.exceptions.user import UserNotFoundError, TeacherDoesNotTeachSubjectError, StudentIsNotEnrolledToSubjectError, \
     TeacherDoesNotTeachGroupError, StudentIsNotEnrolledToGroupError, TeacherNotFoundError, StudentNotFoundError
 from api.exceptions.validation import ValidationError
 from application.exceptions import MyValueError
-from application.lib.models import UserType, SubjectMessage, GroupMessage
+from application.lib.models import UserType, SubjectMessage, GroupMessage, DirectMessage
 from application.services.conversation import CheckConversationExistsBetweenUsers
 from application.services.group import GetGroup
 from application.services.message import GetMessage
@@ -338,6 +339,37 @@ def message_belongs_to_group(fnx):
                 raise MessageDoesNotBelongToGroupError()
         else:
             raise MessageKindIsNotGroupMessageErrror()
+
+        return fnx(*args, **kwargs)
+
+    return wrapped_fnx
+
+
+def message_belongs_to_peers(fnx):
+
+    def wrapped_fnx(*args, **kwargs):
+
+        user = kwargs.get('user')
+        peer = kwargs.get('peer')
+        message = kwargs.get('message')
+
+        user_id = int(user.id)
+        peer_id = int(peer.id)
+
+        sender_id = int(message.sender_id)
+        recipient_id = int(message.user_id)
+
+        print user_id, peer_id, sender_id, recipient_id
+
+        if isinstance(message, DirectMessage):
+
+            cond1 = sender_id == user_id and recipient_id == peer_id
+            cond2 = sender_id == peer_id and recipient_id == user_id
+
+            if not cond1 and not cond2:
+                raise MessageDoesNotBelongToConversationError()
+        else:
+            raise MessageKindIsNotDirectMessageError()
 
         return fnx(*args, **kwargs)
 

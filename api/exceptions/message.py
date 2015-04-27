@@ -26,6 +26,10 @@ class MessageDoesNotBelongToGroupError(ConflictError):
     message = 'Message does not belong to group'
 
 
-class ConversationDoesNotExistsBetweenUsersError(ConflictError):
+class MessageKindIsNotDirectMessageError(ConflictError):
 
-    message = 'Conversation does not exists between users'
+    message = 'Message does not belong to any conversation'
+
+class MessageDoesNotBelongToConversationError(ConflictError):
+
+    message = 'Message does not belong to conversation'
