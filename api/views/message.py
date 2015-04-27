@@ -3,9 +3,7 @@ from api.exceptions.message import MessageNotFoundErorr
 
 from api.lib.decorators import user_belongs_to_subject, group_exists, user_belongs_to_group, \
     group_belongs_to_subject, auth_token_required, subject_exists, message_belongs_to_subject, \
-    message_belongs_to_group, message_exists, validate, teacher_exists, user_can_see_teacher, is_teacher, \
-    student_exists, \
-    , peer_exists, users_can_conversate
+    message_belongs_to_group, message_exists, validate, peer_exists, users_can_conversate
 from api.lib.mixins import ListAPIViewMixin, CreateAPIViewMixin, ModelResponseMixin, PaginatedResponseMixin
 from application.lib.validators import IntegerValidator, StringValidator
 from application.services.message import GetGroupMessages, PutGroupMessage, PutSubjectMessage, GetSubjectMessages, \
@@ -22,8 +20,6 @@ class ListSubjectMessagesView(ListAPIViewMixin, PaginatedResponseMixin):
     @auth_token_required
     @subject_exists
     @user_belongs_to_subject
-    @message_exists
-    @message_belongs_to_subject
     def get_action(self, *args, **kwargs):
         subject_id = kwargs.get('url').get('subject_id')
         get_subject_messages_srv = GetSubjectMessages()
@@ -104,8 +100,6 @@ class ListGroupMessagesView(ListAPIViewMixin, PaginatedResponseMixin):
     @group_exists
     @group_belongs_to_subject
     @user_belongs_to_group
-    @message_exists
-    @message_belongs_to_group
     def get_action(self, *args, **kwargs):
         group_id = kwargs.get('url').get('group_id')
 
@@ -188,7 +182,6 @@ class ListDirectMessagesView(ListAPIViewMixin, PaginatedResponseMixin):
     @auth_token_required
     @peer_exists
     @users_can_conversate
-
     def get_action(self, *args, **kwargs):
         user = kwargs.get('user')
         peer_id = kwargs.get('peer_id')
@@ -207,7 +200,6 @@ class ListDirectMessagesView(ListAPIViewMixin, PaginatedResponseMixin):
         })
 
         return messages
-
 
 
 class MessageDetailView(ListAPIViewMixin, ModelResponseMixin):
