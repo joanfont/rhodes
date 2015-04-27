@@ -74,7 +74,7 @@ class AppValidationErrorHandler(BaseErrorHandler):
         response = jsonify(data)
         response.status_code = api_validation_error.status_code
 
-        super(AppValidationErrorHandler).__call__(error)
+        super(AppValidationErrorHandler, self).__call__(error)
 
         return response
 

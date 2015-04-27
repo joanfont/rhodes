@@ -50,8 +50,15 @@ class PaginatedMessagesEntity(PaginatedEntity):
         return result
 
 
+class Conversation(dict):
 
+    def __init__(self, user={}, last_message={}):
+        if user:
+            user = user.to_dict()
+        if last_message:
+            last_message = last_message.to_dict()
 
+        super(Conversation, self).__init__(user=user, last_message=last_message)
 
 
 

@@ -2,21 +2,22 @@ from flask import request
 from api.exceptions.auth import NotAuthenticatedError, NotEnoughPermissionError
 from api.exceptions.group import GroupNotFoundError, GroupDoesNotBelongToSubjectError
 from api.exceptions.message import MessageNotFoundErorr, MessageDoesNotBelongToSubjectError, \
-    MessageKindIsNotSubjectMessageErrror, MessageDoesNotBelongToGroupError, MessageKindIsNotGroupMessageErrror, \
-    ConversationDoesNotExistsBetweenUsersError
+    MessageKindIsNotSubjectMessageErrror, MessageDoesNotBelongToGroupError, MessageKindIsNotGroupMessageErrror
+
 from api.exceptions.subject import SubjectNotFoundError
 from api.exceptions.user import UserNotFoundError, TeacherDoesNotTeachSubjectError, StudentIsNotEnrolledToSubjectError, \
     TeacherDoesNotTeachGroupError, StudentIsNotEnrolledToGroupError, TeacherNotFoundError, StudentNotFoundError
 from api.exceptions.validation import ValidationError
 from application.exceptions import MyValueError
 from application.lib.models import UserType, SubjectMessage, GroupMessage
-from application.services.group import GroupBelongsToSubject, CheckGroupExists
-from application.services.message import CheckMessageExists, GetMessage
+from application.services.conversation import CheckConversationExistsBetweenUsers
+from application.services.group import GetGroup
+from application.services.message import GetMessage
 from common.auth import encode_password
 
 from application.services.user import CheckUserExistsByUserAndPassword, GetUserByAuthToken, UserCanSeeTeacher, GetUser, \
-    TeacherCanSeeStudent, CheckConversationExistsBetweenUsers
-from application.services.subject import CheckSubjectExists
+    TeacherCanSeeStudent
+from application.services.subject import GetUserSubject
 
 
 def copy_params(fnx):
@@ -138,24 +139,25 @@ def is_teacher(fnx):
     def wrapped_fnx(*args, **kwargs):
         user = kwargs.get('user')
 
-        if not user.is_teacher():
+        if user.is_teacher():
+            return fnx(*args, **kwargs)
+        else:
             raise NotEnoughPermissionError()
-
-        return fnx(*args, **kwargs)
 
     return wrapped_fnx
 
 
 def is_student(fnx):
+
     # we will assume an instance of User is in kwargs['user']
 
     def wrapped_fnx(*args, **kwargs):
         user = kwargs.get('user')
 
-        if not user.is_student():
+        if user.is_student():
+            return fnx(*args, **kwargs)
+        else:
             raise NotEnoughPermissionError()
-
-        return fnx(*args, **kwargs)
 
     return wrapped_fnx
 
@@ -164,13 +166,21 @@ def subject_exists(fnx):
 
     # we will assume a subject_id is in kwargs['subject_id']
     def wrapped_fnx(*args, **kwargs):
+
+        user = kwargs.get('user')
+
         subject_id = kwargs.get('url').get('subject_id')
 
-        check_subject_exists_srv = CheckSubjectExists()
-        exists = check_subject_exists_srv.call({'subject_id': subject_id})
+        get_subject_srv = GetUserSubject()
+        subject = get_subject_srv.call({
+            'subject_id': subject_id,
+            'user_id': user.id
+        })
 
-        if not exists:
+        if not subject:
             raise SubjectNotFoundError()
+        else:
+            kwargs['subject'] = subject
 
         return fnx(*args, **kwargs)
 
@@ -178,9 +188,11 @@ def subject_exists(fnx):
 
 
 def user_belongs_to_subject(fnx):
+
     # we will assume an user instance is in kwargs['user']
     # if not we can't check if a user belongs to subject
     # So this decorator must be called after @login_required
+
     def wrapped_fnx(*args, **kwargs):
         user = kwargs.get('user')
 
@@ -189,7 +201,7 @@ def user_belongs_to_subject(fnx):
             UserType.STUDENT: StudentIsNotEnrolledToSubjectError,
         }
 
-        subject_id = kwargs.get('url').get('subject_id')
+        subject_id = kwargs.get('subject').id
         user_subjects = user.get_subject_ids()
         user_belongs = subject_id in user_subjects
 
@@ -209,14 +221,18 @@ def user_belongs_to_subject(fnx):
 
 
 def group_exists(fnx):
+
     def wrapped_fnx(*args, **kwargs):
+
         group_id = kwargs.get('group_id')
 
-        check_group_exists_srv = CheckGroupExists()
-        exists = check_group_exists_srv.call({'group_id': group_id})
+        get_group_srv = GetGroup()
+        group = get_group_srv.call({'group_id': group_id})
 
-        if not exists:
+        if not group:
             raise GroupNotFoundError()
+        else:
+            kwargs['group'] = group
 
         return fnx(*args, **kwargs)
 
@@ -256,17 +272,14 @@ def user_belongs_to_group(fnx):
 def group_belongs_to_subject(fnx):
 
     def wrapped_fnx(*args, **kwargs):
-        subject_id = kwargs.get('url').get('subject_id')
-        group_id = kwargs.get('url').get('group_id')
 
-        group_belongs_to_subject_srv = GroupBelongsToSubject()
+        subject = kwargs.get('subject')
+        group = kwargs.get('group')
 
-        group_belongs = group_belongs_to_subject_srv.call({
-            'group_id': group_id,
-            'subject_id': subject_id
-        })
+        group_subject_id = int(group.subject_id)
+        subject_id = int(subject.id)
 
-        if not group_belongs:
+        if group_subject_id != subject_id:
             raise GroupDoesNotBelongToSubjectError()
 
         return fnx(*args, **kwargs)
@@ -278,17 +291,17 @@ def message_exists(fnx):
 
     def wrapped_fnx(*args, **kwargs):
 
-        message_id = kwargs.get('url').get('from_message_id')
+        message_id = kwargs.get('url').get('message_id')
 
         if message_id:
-            # check_message_exists_srv = CheckMessageExists()
-            # exists = check_message_exists_srv.call({'message_id': message_id})
 
-            check_message_exists = CheckMessageExists()
-            exists = check_message_exists.call({'message_id': message_id})
+            get_message_srv = GetMessage()
+            message = get_message_srv.call({'message_id': message_id})
 
-            if not exists:
+            if not message:
                 raise MessageNotFoundErorr()
+            else:
+                kwargs['message'] = message
 
         return fnx(*args, **kwargs)
 
@@ -299,22 +312,14 @@ def message_belongs_to_subject(fnx):
 
     def wrapped_fnx(*args, **kwargs):
 
-        subject_id = kwargs.get('url').get('subject_id')
-        message_id = kwargs.get('get').get('from_message_id')
+        subject = kwargs.get('subject')
+        message = kwargs.get('message')
 
-        if message_id:
-            get_message_srv = GetMessage()
-            message = get_message_srv.call({'message_id': message_id})
-
-            if not message:
-                raise MessageNotFoundErorr()
-
-            if isinstance(message, SubjectMessage):
-
-                if not message.subject_id == subject_id:
-                    raise MessageDoesNotBelongToSubjectError()
-            else:
-                raise MessageKindIsNotSubjectMessageErrror()
+        if isinstance(message, SubjectMessage):
+            if not message.subject_id == subject.id:
+                raise MessageDoesNotBelongToSubjectError()
+        else:
+            raise MessageKindIsNotSubjectMessageErrror()
 
         return fnx(*args, **kwargs)
 
@@ -325,21 +330,14 @@ def message_belongs_to_group(fnx):
 
     def wrapped_fnx(*args, **kwargs):
 
-        group_id = kwargs.get('url').get('group_id')
-        message_id = kwargs.get('get').get('from_message_id')
+        group = kwargs.get('group')
+        message = kwargs.get('message')
 
-        if message_id:
-            get_message_srv = GetMessage()
-            message = get_message_srv.call({'message_id': message_id})
-
-            if not message:
-                raise MessageNotFoundErorr()
-
-            if isinstance(message, GroupMessage):
-                if not message.group_id == group_id:
-                    raise MessageDoesNotBelongToGroupError()
-            else:
-                raise MessageKindIsNotGroupMessageErrror()
+        if isinstance(message, GroupMessage):
+            if not message.group_id == group.id:
+                raise MessageDoesNotBelongToGroupError()
+        else:
+            raise MessageKindIsNotGroupMessageErrror()
 
         return fnx(*args, **kwargs)
 
@@ -357,6 +355,8 @@ def teacher_exists(fnx):
 
         if not user or not user.is_teacher():
             raise TeacherNotFoundError()
+        else:
+            kwargs['teacher'] = user
 
         return fnx(*args, **kwargs)
 
@@ -374,6 +374,8 @@ def student_exists(fnx):
 
         if not user or not user.is_student():
             raise StudentNotFoundError()
+        else:
+            kwargs['student'] = user
 
         return fnx(*args, **kwargs)
 
@@ -386,10 +388,11 @@ def peer_exists(fnx):
 
         peer_id = kwargs.get('url').get('peer_id')
         get_user_srv = GetUser()
-        user = get_user_srv.call({'peer_id': peer_id})
-
+        user = get_user_srv.call({'user_id': peer_id})
         if not user:
             raise UserNotFoundError()
+        else:
+            kwargs['peer'] = user
 
         return fnx(*args, **kwargs)
 
@@ -427,21 +430,81 @@ def user_is_related_to_peer(fnx):
     return wrapped_fnx
 
 
-def check_conversation_exists_between_users(fnx):
+def users_can_conversate(fnx):
 
     def wrapped_fnx(*args, **kwargs):
 
         user = kwargs.get('user')
-        peer_id = kwargs.get('url').get('peer_id')
+        peer = kwargs.get('peer')
 
         check_conversation_exists_between_users_srv = CheckConversationExistsBetweenUsers()
         exists = check_conversation_exists_between_users_srv.call({
-            'user_id_1': user.id,
-            'user_id_2': peer_id
+            'my_id': user.id,
+            'its_id': peer.id
         })
 
         if not exists:
-            raise ConversationDoesNotExistsBetweenUsersError()
+
+            if peer.is_teacher():
+                srv_class = UserCanSeeTeacher
+                param = 'teacher_id'
+            elif peer.is_student():
+                if user.is_student():
+                    raise NotEnoughPermissionError()
+                elif user.is_teacher():
+                    srv_class = TeacherCanSeeStudent
+                    param = 'student_id'
+
+            srv_instance = srv_class()
+            can_see = srv_instance.call({
+                'user_id': user.id,
+                param: peer.id
+            })
+
+            if not can_see:
+                raise NotEnoughPermissionError()
+
+        return fnx(*args, **kwargs)
+
+    return wrapped_fnx
+
+
+def user_can_see_teacher(fnx):
+
+    def wrapped_fnx(*args, **kwargs):
+
+        teacher = kwargs.get('teacher')
+        user = kwargs.get('user')
+
+        user_can_see_teacher_srv = UserCanSeeTeacher()
+        can_see = user_can_see_teacher_srv.call({
+            'teacher_id': teacher.id,
+            'user_id': user.id
+        })
+
+        if not can_see:
+            raise NotEnoughPermissionError()
+
+        return fnx(*args, **kwargs)
+
+    return wrapped_fnx
+
+
+def teacher_can_see_student(fnx):
+
+    def wrapped_fnx(*args, **kwargs):
+
+        student = kwargs.get('student')
+        user = kwargs.get('user')
+
+        teacher_can_see_student_srv = TeacherCanSeeStudent()
+        can_see = teacher_can_see_student_srv.call({
+            'student_id': student.id,
+            'user_id': user.id
+        })
+
+        if not can_see:
+            raise NotEnoughPermissionError()
 
         return fnx(*args, **kwargs)
 

@@ -2,7 +2,9 @@ from api.views import subject as subject_views
 from api.views import group as group_views
 from api.views import message as message_views
 from api.views import user as user_views
+from api.views import conversation as conversation_views
 from api.views import misc as misc_views
+
 
 routing = {
     '/config/': {
@@ -99,36 +101,31 @@ routing = {
         'name': 'user_subject_group_students',
         'methods': ['GET']
     },
-    '/user/peers/': {
-        'class': user_views.UserPeersSummaryView,
-        'name': 'user_peers_summary',
-        'methods': ['GET']
-    },
-    '/user/peers/<peer_id>/': {
-        'class': user_views.UserChatSummaryView,
-        'name': 'user_chats_summary_view',
-        'methods': ['GET']
-    },
-    '/user/peers/teachers/': {
+    '/user/teachers/': {
         'class': user_views.TeacherPeersView,
         'name':  'user_teacher_peers',
         'methods': ['GET']
     },
-    '/user/peers/students/': {
+    '/user/students/': {
         'class': user_views.StudentPeersView,
         'name':  'user_teacher_student_peers',
         'methods': ['GET']
     },
-    '/user/peers/students/<student_id>/': {
-        'class': user_views.StudentPeerView,
-        'name': 'user_teacher_student_peer',
-        'methods': ['GET']
-    },
     '/user/chats/': {
-        'class': user_views.UserChatsView,
+        'class': conversation_views.ListConversationsView,
         'name': 'user_chats',
         'methods': ['GET']
     },
+    '/user/chats/<peer_id>/': {
+        'class': conversation_views.ConversationDetailView,
+        'name': 'user_chat',
+        'methods': ['GET']
+    },
+    # '/user/chats/<peer_id>/messages/': {
+    #     'class': user_views.ConversationView,
+    #     'name': 'user_chat',
+    #     'methods': ['GET']
+    # },
     # '/user/chats/<peer_id>/': {
     #     'class': user_views.UserChatSummaryView,
     #     'name': 'user_chats_summary_view',
