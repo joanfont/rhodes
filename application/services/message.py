@@ -93,6 +93,7 @@ class PaginatedMessagesService(BasePersistanceService):
             messages_query = messages_query.order_by(message_class.id.desc())
 
         messages_query = messages_query.limit(items)
+
         count = messages_query.count()
 
         messages_alias = aliased(message_class, messages_query.subquery('message'))
@@ -112,10 +113,9 @@ class PaginatedMessagesService(BasePersistanceService):
             elif order == constants.ORDER_DESC:
                 last_message_idx = 0
 
-        last_message_id = messages[last_message_idx].id
-
-        if message_id:
-            if messages:
+        if messages:
+            last_message_id = messages[last_message_idx].id
+            if message_id:
                 if direction == constants.MESSAGES_PAGINATION_PREVIOUS:
                     more = check_more_messages_query.filter(message_class.id < last_message_id).count() > 0
                 elif direction == constants.MESSAGES_PAGINATION_NEXT:
@@ -268,6 +268,14 @@ class PutGroupMessage(PutMessageInputAndOutputContractMixin, BaseService):
         return put_message_srv.call(args)
 
 
+class PutDirectMessage(PutMessageInputAndOutputContractMixin, BaseService):
+
+    def execute(self, args):
+        args.update({'type': MessageType.DIRECT_MESSAGE})
+        put_message_srv = PutMessage()
+        return put_message_srv.call(args)
+
+
 class GetSubjectMessages(PaginatedMessagesService):
 
     message_class = SubjectMessage
@@ -306,10 +314,11 @@ class GetDirectMessages(PaginatedMessagesService):
         super_input = super(GetDirectMessages, self).input()
         super_input.update({'sender_id': IntegerValidator({'required': True})})
         super_input.update({'recipient_id': IntegerValidator({'required': True})})
+        return super_input
 
     def execute(self, args):
         recipient_id = args.pop('recipient_id')
-        args['filter_val'] = recipient_id
+        args['filter_value'] = recipient_id
         return super(GetDirectMessages, self).execute(args)
 
 

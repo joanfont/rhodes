@@ -121,31 +121,21 @@ routing = {
         'name': 'user_chat',
         'methods': ['GET']
     },
-    # '/user/chats/<peer_id>/messages/': {
-    #     'class': user_views.ConversationView,
-    #     'name': 'user_chat',
-    #     'methods': ['GET']
-    # },
-    # '/user/chats/<peer_id>/': {
-    #     'class': user_views.UserChatSummaryView,
-    #     'name': 'user_chats_summary_view',
-    #     'methods': ['GET']
-    # }
-    # '/user/chats/<peer_id>/messages/': {
-    #     'class': user_views.ConversationView,
-    #     'name': 'user_chat',
-    #     'methods': ['GET']
-    # },
-    # '/user/chats/<peer_id>/messages/<message_id>/': {
-    #     'class': user_views.DirectMessageDetailView,
-    #     'name': 'user_chat',
-    #     'methods': ['GET']
-    # },
-    # '/user/chats/<peer_id>/messages/<message_id>/<direction>': {
-    #     'class': user_views.PaginatedConversationView,
-    #     'name': 'user_chat',
-    #     'methods': ['GET']
-    # }
-
-
+    '/user/chats/<peer_id>/messages/': [
+        {
+            'class': message_views.ListDirectMessagesView,
+            'name': 'user_chat_messages',
+            'methods': ['GET']
+        },
+        {
+            'class': message_views.PostDirectMessageView,
+            'name': 'user_chat_message_post',
+            'methods': ['POST']
+        }
+    ],
+    '/user/chats/<peer_id>/messages/<message_id>/<direction>/': {
+        'class': message_views.ListPaginatedDirectMessagesView,
+        'name': 'user_chat_paginated_messages',
+        'methods': ['GET']
+    }
 }
