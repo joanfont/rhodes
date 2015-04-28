@@ -1,8 +1,10 @@
 import unittest
 import requests
 import json
+import urllib
 
 from application.tests import config as tests_config
+
 
 class BaseTest(unittest.TestCase):
 
@@ -23,9 +25,6 @@ class BaseTest(unittest.TestCase):
 
         self.session = session
 
-    def get(self, url):
-        return self.session.get(url)
-
     def ok(self):
         print '{color}OK{off}'.format(color=self.GREEN, off=self.OFF)
 
@@ -41,13 +40,17 @@ class BaseTest(unittest.TestCase):
             return False
 
     @staticmethod
-    def build_url(endpoint):
-        return '{host}{endpoint}'.format(host=tests_config.SERVER_URL, endpoint=endpoint)
+    def build_url(endpoint, params={}):
+        base_url = '{host}{endpoint}'.format(host=tests_config.SERVER_URL, endpoint=endpoint)
+        if params:
+            query_string = BaseTest.build_querystring(params)
+            base_url = '{base_url}?{query_string}'.format(base_url=base_url, query_string=query_string)
 
+        return base_url
 
-
-
-
+    @staticmethod
+    def build_querystring(params):
+        return urllib.urlencode(params)
 
 
 
