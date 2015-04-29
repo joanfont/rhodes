@@ -1,0 +1,49 @@
+\documentclass[catalan,GINF]{TFGEPSUIB}
+\usepackage[utf8]{inputenc}
+\usepackage{listings} 
+\usepackage[printonlyused]{acronym}
+\usepackage[draft=false,colorlinks=true,backref,hyperindex,plainpages=false,breaklinks=true,bookmarksnumbered=true]{hyperref}
+\hypersetup{linkcolor=black,citecolor=black,backref=none}
+\estudis{\MakeUppercase{Enginyeria Informàtica}}
+\title{Sistema de missatgeria per a la UIB}
+\author{\MakeUppercase{Joan Font Rosillo}}
+\tutor{Ricardo Adolfo Galli Granada \and Xavier Varona Gomez}
+\date{juliol de 2015}
+
+\begin{document}
+
+\portada
+\frontmatter
+
+\cleartorecto \thispagestyle{empty}
+\begin{agraiments}
+
+\end{agraiments}
+
+\cleartorecto \tableofcontents
+\cleartorecto \listoffigures
+\cleartorecto \listoftables 
+
+\include{Acronims} 
+
+\include{Resum} 
+
+\mainmatter\pagestyle{ruled}
+
+\include{Introduccio}
+\include{Instruccions}
+\include{Proposta}
+\include{Memoria}
+\include{Presentacio}
+\include{Conclusions}
+
+\appendix 
+\include{Annexos} 
+
+\backmatter
+
+\bibliographystyle{IEEEtran}
+
+\bibliography{Bibliografia} 
+
+\end{document}
