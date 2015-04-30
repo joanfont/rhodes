@@ -1,4 +1,4 @@
-from sqlalchemy.orm import aliased
+from sqlalchemy.orm import aliased, make_transient
 from sqlalchemy import or_, and_
 from application.lib.models import Message, MessageType, DirectMessage, SubjectMessage, GroupMessage, MessageBody
 from application.lib.validators import StringValidator, IntegerValidator, ChoicesValidator, DateValidator
@@ -177,6 +177,7 @@ class PutMessageBody(BasePersistanceService):
         body = args.get('body')
         message_body = MessageBody(content=body)
 
+        self.session.expunge_all()
         self.session.add(message_body)
         self.session.commit()
         return message_body
@@ -196,7 +197,7 @@ class PutMessage(BasePersistanceService):
         return lambda x: Helper.instance_of(x, Message)
 
     @staticmethod
-    def get_message_instance(message_type):
+    def get_message_class(message_type):
         dispatcher = {
             MessageType.DIRECT_MESSAGE: DirectMessage,
             MessageType.GROUP_MESSAGE: GroupMessage,
@@ -227,12 +228,14 @@ class PutMessage(BasePersistanceService):
         put_message_body_srv = PutMessageBody()
         message_body = put_message_body_srv.call({'body': body})
 
-        message_cls = self.get_message_instance(message_type)
+        message_cls = self.get_message_class(message_type)
         self.adapt_args(args)
 
         args['body_id'] = message_body.id
         message = message_cls(**args)
 
+        self.session.expunge_all()
+        self.session.merge(message_body)
         self.session.add(message)
         self.session.commit()
         return message

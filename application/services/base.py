@@ -1,7 +1,6 @@
 from application.lib.validators import BaseValidator
-from application.lib.models import SessionWrapper
 from application.exceptions import ValidationError, MyValueError
-
+from api import db
 
 class BaseService(object):
     def __init__(self):
@@ -76,7 +75,7 @@ class BasePersistanceService(BaseService):
 
     def __init__(self):
         super(BasePersistanceService, self).__init__()
-        self.session = SessionWrapper()
+        self.session = db.session
 
     def input(self):
         raise NotImplementedError()
