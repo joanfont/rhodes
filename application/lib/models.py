@@ -8,7 +8,7 @@ from common.auth import generate_auth_token
 
 from config import config
 
-from itertools import imap, chain
+from itertools import chain
 
 Base = declarative_base()
 
@@ -41,7 +41,6 @@ class StudentGroup(Base):
 
     __tablename__ = 'student_group'
     __table_args__ = {'mysql_charset': 'utf8'}
-
 
     student_id = Column(Integer, ForeignKey('user.id'), primary_key=True)
     group_id = Column(Integer, ForeignKey('group.id'), primary_key=True)
@@ -197,10 +196,16 @@ class Group(DictMixin, Base):
     students = relationship('User', backref='groups', secondary=StudentGroup.__table__)
 
     def to_dict(self, **kwargs):
-        return {
+        data = {
             'id': self.id,
             'name': self.name,
         }
+
+        if hasattr(data, 'is_enroled'):
+            data.update({'is_enroled': self.is_enroled})
+
+        return data
+
 
 
 class MessageType(Base):
