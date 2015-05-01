@@ -469,32 +469,24 @@ def users_can_conversate(fnx):
         user = kwargs.get('user')
         peer = kwargs.get('peer')
 
-        check_conversation_exists_between_users_srv = CheckConversationExistsBetweenUsers()
-        exists = check_conversation_exists_between_users_srv.call({
-            'my_id': user.id,
-            'its_id': peer.id
+        if peer.is_teacher():
+            srv_class = UserCanSeeTeacher
+            param = 'teacher_id'
+        elif peer.is_student():
+            if user.is_student():
+                raise NotEnoughPermissionError()
+            elif user.is_teacher():
+                srv_class = TeacherCanSeeStudent
+                param = 'student_id'
+
+        srv_instance = srv_class()
+        can_see = srv_instance.call({
+            'user_id': user.id,
+            param: peer.id
         })
 
-        if not exists:
-
-            if peer.is_teacher():
-                srv_class = UserCanSeeTeacher
-                param = 'teacher_id'
-            elif peer.is_student():
-                if user.is_student():
-                    raise NotEnoughPermissionError()
-                elif user.is_teacher():
-                    srv_class = TeacherCanSeeStudent
-                    param = 'student_id'
-
-            srv_instance = srv_class()
-            can_see = srv_instance.call({
-                'user_id': user.id,
-                param: peer.id
-            })
-
-            if not can_see:
-                raise NotEnoughPermissionError()
+        if not can_see:
+            raise NotEnoughPermissionError()
 
         return fnx(*args, **kwargs)
 

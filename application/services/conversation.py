@@ -1,6 +1,6 @@
 from sqlalchemy import or_
 from application.lib.entities import Conversation
-from application.lib.models import User, DirectMessage
+from application.lib.models import User, DirectMessage, MessageType
 from application.lib.validators import IntegerValidator
 from application.services.base import BasePersistanceService
 from application.services.message import GetLastDirectMessageBetweenUsers
@@ -83,8 +83,9 @@ class CheckConversationExistsBetweenUsers(BasePersistanceService):
         my_id = args.get('my_id')
         its_id = args.get('its_id')
 
-        users_query = self.session.query(User).\
-            join(DirectMessage, or_(User.id == DirectMessage.sender_id, User.id == DirectMessage.user_id)).\
-            filter(or_(DirectMessage.sender_id == my_id, DirectMessage.sender_id == its_id))
+        users_query = self.session.query(DirectMessage).\
+            join(User, or_(DirectMessage.sender_id == User.id, DirectMessage.user_id == User.id)).\
+            filter(or_(DirectMessage.sender_id == my_id, DirectMessage.sender_id == its_id)).\
+            filter(DirectMessage.type == MessageType.DIRECT_MESSAGE)
 
         return users_query.count() > 0
