@@ -1,7 +1,16 @@
 from collections import OrderedDict
 
 
-class PaginatedEntity(object):
+class BaseEntity(object):
+
+    def __init__(self):
+        super(BaseEntity, self).__init__()
+
+    def to_dict(self):
+        raise NotImplementedError()
+
+
+class PaginatedEntity(BaseEntity):
 
     objects = []
     total = 0
@@ -61,9 +70,34 @@ class Conversation(dict):
         super(Conversation, self).__init__(user=user, last_message=last_message)
 
 
+class Subject(BaseEntity):
+
+    def __init__(self, _id, name, code, groups):
+
+        self.id = _id
+        self.name = name
+        self.code = code
+        self.groups = groups
+
+    def to_dict(self, **kwargs):
+        groups = map(lambda x: x.to_dict(**kwargs), self.groups)
+        return {
+            'id': self.id,
+            'name': self.name,
+            'code': self.code,
+            'groups': groups
+        }
 
 
+class Group(BaseEntity):
 
+    def __init__(self, _id, name):
 
+        self.id = _id
+        self.name = name
 
-
+    def to_dict(self, **kwargs):
+        return {
+            'id': self.id,
+            'name': self.name
+        }
