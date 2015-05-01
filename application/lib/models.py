@@ -42,8 +42,8 @@ class StudentGroup(Base):
     __tablename__ = 'student_group'
     __table_args__ = {'mysql_charset': 'utf8'}
 
-    student_id = Column(Integer, ForeignKey('user.id'), primary_key=True)
-    group_id = Column(Integer, ForeignKey('group.id'), primary_key=True)
+    student_id = Column(BigInteger, ForeignKey('user.id'), primary_key=True)
+    group_id = Column(BigInteger, ForeignKey('group.id'), primary_key=True)
 
 
 class TeacherSubject(Base):
