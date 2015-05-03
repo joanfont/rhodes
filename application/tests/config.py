@@ -1,7 +1,7 @@
 import os
 
 SERVER_URL = 'https://rhodes.joan-font.com'
-CERT_FILE = os.path.abspath(os.path.join('../../', 'config/prod/rhodes.pem'))
+CERT_FILE = os.path.abspath(os.path.join('../', 'rhodes/config/prod/rhodes.pem'))
 
 USERS = {
     'student': {

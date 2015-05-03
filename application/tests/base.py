@@ -1,17 +1,19 @@
-import unittest
 import requests
 import json
 import urllib
+from requests.packages import urllib3
 
 from application.tests import config as tests_config
 
 
-class BaseTest(unittest.TestCase):
+class TestUtil(object):
 
     endpoint = None
 
-    def __init__(self, method_name='runTest'):
-        super(BaseTest, self).__init__(method_name)
+    def __init__(self):
+        super(TestUtil, self).__init__()
+
+        urllib3.disable_warnings()
 
         teacher_session = requests.Session()
         teacher_session.headers.update({
@@ -39,12 +41,6 @@ class BaseTest(unittest.TestCase):
     def session(self, kind):
         return self.sessions.get(kind) or self.sessions.get('raw')
 
-    def ok(self):
-        print '{color}OK{off}'.format(color=self.GREEN, off=self.OFF)
-
-    def error(self):
-        print '{color}ERROR{off}'.format(color=self.RED, off=self.OFF)
-
     @staticmethod
     def valid_json(text):
         try:
@@ -57,7 +53,7 @@ class BaseTest(unittest.TestCase):
     def build_url(endpoint, params={}):
         base_url = '{host}{endpoint}'.format(host=tests_config.SERVER_URL, endpoint=endpoint)
         if params:
-            query_string = BaseTest.build_querystring(params)
+            query_string = TestUtil.build_querystring(params)
             base_url = '{base_url}?{query_string}'.format(base_url=base_url, query_string=query_string)
 
         return base_url
