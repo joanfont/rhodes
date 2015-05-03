@@ -262,8 +262,6 @@ class PeerDetailViewSuccess(BaseTest):
         self.assertTrue(parses_json)
 
 
-
-
 if __name__ == '__main__':
     unittest.main()
 
