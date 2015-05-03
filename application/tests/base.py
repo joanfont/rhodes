@@ -1,3 +1,10 @@
+import sys
+import os
+
+sys.path.insert(0, os.path.realpath('../../'))
+
+print sys.path
+
 import requests
 import json
 import urllib
