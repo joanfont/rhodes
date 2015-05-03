@@ -8,22 +8,28 @@ from application.tests import config as tests_config
 
 class BaseTest(unittest.TestCase):
 
-    status_code = 200
     endpoint = None
-
-    OFF = "\033[0;0m"
-    GREEN = "\033[92m"
-    RED = "\033[91m"
 
     def __init__(self, method_name='runTest'):
         super(BaseTest, self).__init__(method_name)
 
-        session = requests.Session()
-        session.headers.update({
-            'Authorization': tests_config.TOKEN
+        teacher_session = requests.Session()
+        teacher_session.headers.update({
+            'Authorization': tests_config.USERS.get('teacher').get('token')
         })
 
-        self.session = session
+        student_session = requests.Session()
+        student_session.headers.update({
+            'Authorization': tests_config.USERS.get('student').get('token')
+        })
+
+        self.sessions = {
+            'teacher': teacher_session,
+            'student': student_session
+        }
+
+    def session(self, kind):
+        return self.sessions.get(kind) or requests.Session()
 
     def ok(self):
         print '{color}OK{off}'.format(color=self.GREEN, off=self.OFF)

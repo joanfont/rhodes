@@ -47,7 +47,6 @@ class APIErrorHandler(BaseErrorHandler):
 
     def __init__(self):
         super(APIErrorHandler, self).__init__()
-        self.behaviours.append(FileLoggingBehaviour)
 
     def __call__(self, error):
         data = error.to_dict()
@@ -64,7 +63,6 @@ class AppValidationErrorHandler(BaseErrorHandler):
 
     def __init__(self):
         super(AppValidationErrorHandler, self).__init__()
-        self.behaviours.append(FileLoggingBehaviour)
 
     def __call__(self, error):
         errors = error.to_dict()

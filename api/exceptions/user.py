@@ -1,4 +1,4 @@
-from api.exceptions import ObjectNotFoundError, ForbiddenActionError
+from api.exceptions import ObjectNotFoundError, ForbiddenActionError, ConflictError
 
 
 class UserNotFoundError(ObjectNotFoundError):
@@ -34,3 +34,12 @@ class TeacherDoesNotTeachGroupError(ForbiddenActionError):
 class StudentIsNotEnrolledToGroupError(ObjectNotFoundError):
 
     message = 'Student is not enrolled to the group'
+
+
+class PeerIsNotTeacherError(ConflictError):
+
+    message = 'The requested peer is not a teacher'
+
+class PeerIsNotStudentError(ConflictError):
+
+    message = 'The requested peer is not a student'

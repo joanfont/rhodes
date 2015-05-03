@@ -7,18 +7,18 @@ from api.exceptions.message import MessageNotFoundErorr, MessageDoesNotBelongToS
 
 from api.exceptions.subject import SubjectNotFoundError
 from api.exceptions.user import UserNotFoundError, TeacherDoesNotTeachSubjectError, StudentIsNotEnrolledToSubjectError, \
-    TeacherDoesNotTeachGroupError, StudentIsNotEnrolledToGroupError, TeacherNotFoundError, StudentNotFoundError
+    TeacherDoesNotTeachGroupError, StudentIsNotEnrolledToGroupError, TeacherNotFoundError, StudentNotFoundError, \
+    PeerIsNotTeacherError, PeerIsNotStudentError
 from api.exceptions.validation import ValidationError
 from application.exceptions import MyValueError
 from application.lib.models import UserType, SubjectMessage, GroupMessage, DirectMessage
-from application.services.conversation import CheckConversationExistsBetweenUsers
 from application.services.group import GetGroup
 from application.services.message import GetMessage
 from common.auth import encode_password
 
 from application.services.user import CheckUserExistsByUserAndPassword, GetUserByAuthToken, UserCanSeeTeacher, GetUser, \
     TeacherCanSeeStudent
-from application.services.subject import GetUserSubject
+from application.services.subject import GetUserSubject, GetSubject
 
 
 def copy_params(fnx):
@@ -136,7 +136,6 @@ def auth_token_required(fnx):
 
 def is_teacher(fnx):
     # we will assume an instance of User is in kwargs['user']
-
     def wrapped_fnx(*args, **kwargs):
         user = kwargs.get('user')
 
@@ -168,14 +167,11 @@ def subject_exists(fnx):
     # we will assume a subject_id is in kwargs['subject_id']
     def wrapped_fnx(*args, **kwargs):
 
-        user = kwargs.get('user')
-
         subject_id = kwargs.get('url').get('subject_id')
 
-        get_subject_srv = GetUserSubject()
+        get_subject_srv = GetSubject()
         subject = get_subject_srv.call({
             'subject_id': subject_id,
-            'user_id': user.id
         })
 
         if not subject:
@@ -431,6 +427,30 @@ def peer_exists(fnx):
     return wrapped_fnx
 
 
+def peer_is_teacher(fnx):
+
+    def wrapped_fnx(*args, **kwargs):
+        peer = kwargs.get('peer')
+        if peer.is_teacher():
+            return fnx(*args, **kwargs)
+        else:
+            raise PeerIsNotTeacherError()
+
+    return wrapped_fnx
+
+
+def peer_is_student(fnx):
+
+    def wrapped_fnx(*args, **kwargs):
+        peer = kwargs.get('peer')
+        if peer.is_student():
+            return fnx(*args, **kwargs)
+        else:
+            raise PeerIsNotStudentError()
+
+    return wrapped_fnx
+
+
 def user_is_related_to_peer(fnx):
 
     def wrapped_fnx(*args, **kwargs):
@@ -438,11 +458,13 @@ def user_is_related_to_peer(fnx):
         user = kwargs.get('user')
         peer = kwargs.get('peer')
 
+        print user, peer
+
         if peer.is_teacher():
             srv_class = UserCanSeeTeacher
             key = 'teacher_id'
         elif peer.is_student():
-            if user.teacher():
+            if user.is_teacher():
                 srv_class = TeacherCanSeeStudent
                 key = 'student_id'
             else:

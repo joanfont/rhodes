@@ -106,9 +106,19 @@ routing = {
         'name':  'user_teacher_peers',
         'methods': ['GET']
     },
+    '/user/teachers/<peer_id>/': {
+        'class': user_views.TeacherDetailPeerView,
+        'name':  'user_teachers_peer_detail',
+        'methods': ['GET']
+    },
     '/user/students/': {
         'class': user_views.StudentPeersView,
         'name':  'user_teacher_student_peers',
+        'methods': ['GET']
+    },
+    '/user/students/<peer_id>/': {
+        'class': user_views.StudentDetailPeerView,
+        'name':  'user_students_peer_detail',
         'methods': ['GET']
     },
     '/user/chats/': {

@@ -20,6 +20,28 @@ class SubjectHelper(object):
         return new_subject
 
 
+class GetSubject(BasePersistanceService):
+
+    def input(self):
+        return {
+            'subject_id': IntegerValidator({'required': True})
+        }
+
+    def output(self):
+        return lambda x: Helper.instance_of(x, Subject) or x is None
+
+    def execute(self, args):
+        subject_id = args.get('subject_id')
+        subject_query = self.session.query(Subject).\
+            filter(Subject.id == subject_id)
+
+        if subject_query.count():
+            subject = subject_query.one()
+        else:
+            subject = None
+
+        return subject
+
 class CheckSubjectExists(BasePersistanceService):
     def input(self):
         return {
@@ -176,9 +198,10 @@ class GetUserSubject(BaseService):
         }
 
     def output(self):
-        return lambda x: Helper.instance_of(x, (Subject, SubjectEntity))
+        return lambda x: Helper.instance_of(x, (Subject, SubjectEntity)) or x is None
 
     def execute(self, args):
+
         subject_id = args.get('subject_id')
         user_id = args.get('user_id')
 
@@ -194,7 +217,6 @@ class GetUserSubject(BaseService):
         get_subject_srv = get_subject_cls()
 
         subject = get_subject_srv.call({'subject_id': subject_id, arg: user.id})
-
         return subject
 
 
