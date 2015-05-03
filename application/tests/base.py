@@ -18,10 +18,14 @@ class BaseTest(unittest.TestCase):
             'Authorization': tests_config.USERS.get('teacher').get('token')
         })
 
+        teacher_session.verify = tests_config.CERT_FILE
+
         student_session = requests.Session()
         student_session.headers.update({
             'Authorization': tests_config.USERS.get('student').get('token')
         })
+
+        student_session.verify = tests_config.CERT_FILE
 
         self.sessions = {
             'teacher': teacher_session,

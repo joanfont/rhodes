@@ -1,5 +1,7 @@
-SERVER_URL = 'http://127.0.0.1:8080'
+import os
 
+SERVER_URL = 'https://rhodes.joan-font.com'
+CERT_FILE = os.path.abspath(os.path.join('../../', 'config/prod/rhodes.pem'))
 
 USERS = {
     'student': {

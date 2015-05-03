@@ -20,3 +20,7 @@ config/nginx.conf
 *.lot
 *.lof
 docs/*.pdf
+
+*.pem
+*.key
+*.crt
