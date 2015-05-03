@@ -100,7 +100,7 @@ class TeacherDetailPeerView(ListAPIViewMixin, ModelResponseMixin):
 
     def params(self):
         return {
-            'peer_id': [self.PARAM_URL, IntegerValidator({'requiregit logd': True})]
+            'peer_id': [self.PARAM_URL, IntegerValidator({'required': True})]
         }
 
     @validate
