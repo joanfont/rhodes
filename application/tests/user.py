@@ -1,25 +1,26 @@
 import unittest
-from application.tests.base import BaseTest
+from application.tests.base import TestUtil
 from application.tests import config as tests_config
 from common import status
 
+test_util = TestUtil()
 
-class ProfileViewTest(BaseTest):
 
-    status_code = 200
+class ProfileViewTest(unittest.TestCase):
+
     endpoint = '/user/'
 
     def test(self):
-        url = self.build_url(self.endpoint)
-        response = self.session('student').get(url)
+        url = TestUtil.build_url(self.endpoint)
+        response = test_util.session('student').get(url)
 
-        parses_json = self.valid_json(response.text)
+        parses_json = TestUtil.valid_json(response.text)
 
         self.assertEqual(status.HTTP_200_OK, response.status_code)
         self.assertTrue(parses_json)
 
 
-class LoginViewTest(BaseTest):
+class LoginViewTest(unittest.TestCase):
 
     endpoint = '/login/'
 
@@ -28,9 +29,9 @@ class LoginViewTest(BaseTest):
             'user': tests_config.USERS.get('student').get('user'),
             'password': tests_config.USERS.get('student').get('password')}
 
-        url = self.build_url(self.endpoint, params)
-        response = self.session(None).get(url)
-        parses_json = self.valid_json(response.text)
+        url = TestUtil.build_url(self.endpoint, params)
+        response = test_util.session(None).get(url)
+        parses_json = TestUtil.valid_json(response.text)
         self.assertEqual(status.HTTP_200_OK, response.status_code)
         self.assertTrue(parses_json)
 
@@ -41,22 +42,22 @@ class LoginViewTest(BaseTest):
 
     def test_failure(self):
         params = {'user': 'JFR143', 'password': 'asdfg'}
-        url = self.build_url(self.endpoint, params)
-        response = self.session(None).get(url)
-        parses_json = self.valid_json(response.text)
+        url = TestUtil.build_url(self.endpoint, params)
+        response = test_util.session(None).get(url)
+        parses_json = TestUtil.valid_json(response.text)
         self.assertEqual(status.HTTP_404_NOT_FOUND, response.status_code)
         self.assertTrue(parses_json)
 
     def test_bad_request(self):
         params = {'user': 'JFR165'}
-        url = self.build_url(self.endpoint, params)
-        response = self.session(None).get(url)
-        parses_json = self.valid_json(response.text)
+        url = TestUtil.build_url(self.endpoint, params)
+        response = test_util.session(None).get(url)
+        parses_json = TestUtil.valid_json(response.text)
         self.assertEqual(status.HTTP_400_BAD_REQUEST, response.status_code)
         self.assertTrue(parses_json)
 
 
-class SubjectTeachersViewTest(BaseTest):
+class SubjectTeachersViewTest(unittest.TestCase):
 
     endpoint = '/user/subjects/{subject_id}/teachers/'
 
@@ -65,10 +66,10 @@ class SubjectTeachersViewTest(BaseTest):
         student = tests_config.USERS.get('student')
         subject_id = student.get('subjects').get('enrolled')
 
-        url = self.build_url(self.endpoint.format(subject_id=subject_id))
+        url = TestUtil.build_url(self.endpoint.format(subject_id=subject_id))
 
-        response = self.session('student').get(url)
-        parses_json = self.valid_json(response.text)
+        response = test_util.session('student').get(url)
+        parses_json = TestUtil.valid_json(response.text)
 
         self.assertEqual(status.HTTP_200_OK, response.status_code)
         self.assertTrue(parses_json)
@@ -77,16 +78,16 @@ class SubjectTeachersViewTest(BaseTest):
         student = tests_config.USERS.get('student')
         subject_id = student.get('subjects').get('not_enrolled')
 
-        url = self.build_url(self.endpoint.format(subject_id=subject_id))
+        url = TestUtil.build_url(self.endpoint.format(subject_id=subject_id))
 
-        response = self.session('student').get(url)
-        parses_json = self.valid_json(response.text)
+        response = test_util.session('student').get(url)
+        parses_json = TestUtil.valid_json(response.text)
 
         self.assertEqual(status.HTTP_403_FORBIDDEN, response.status_code)
         self.assertTrue(parses_json)
 
 
-class SubjectStudentsViewTest(BaseTest):
+class SubjectStudentsViewTest(unittest.TestCase):
 
     endpoint = '/user/subjects/{subject_id}/students/'
 
@@ -95,10 +96,10 @@ class SubjectStudentsViewTest(BaseTest):
         teacher = tests_config.USERS.get('teacher')
         subject_id = teacher.get('subjects').get('enrolled')
 
-        url = self.build_url(self.endpoint.format(subject_id=subject_id))
+        url = TestUtil.build_url(self.endpoint.format(subject_id=subject_id))
 
-        response = self.session('teacher').get(url)
-        parses_json = self.valid_json(response.text)
+        response = test_util.session('teacher').get(url)
+        parses_json = TestUtil.valid_json(response.text)
 
         self.assertEqual(status.HTTP_200_OK, response.status_code)
         self.assertTrue(parses_json)
@@ -108,10 +109,10 @@ class SubjectStudentsViewTest(BaseTest):
         student = tests_config.USERS.get('student')
         subject_id = student.get('subjects').get('enrolled')
 
-        url = self.build_url(self.endpoint.format(subject_id=subject_id))
+        url = TestUtil.build_url(self.endpoint.format(subject_id=subject_id))
 
-        response = self.session('student').get(url)
-        parses_json = self.valid_json(response.text)
+        response = test_util.session('student').get(url)
+        parses_json = TestUtil.valid_json(response.text)
 
         self.assertEqual(status.HTTP_403_FORBIDDEN, response.status_code)
         self.assertTrue(parses_json)
@@ -121,16 +122,16 @@ class SubjectStudentsViewTest(BaseTest):
         teacher = tests_config.USERS.get('teacher')
         subject_id = teacher.get('subjects').get('not_enrolled')
 
-        url = self.build_url(self.endpoint.format(subject_id=subject_id))
+        url = TestUtil.build_url(self.endpoint.format(subject_id=subject_id))
 
-        response = self.session('teacher').get(url)
-        parses_json = self.valid_json(response.text)
+        response = test_util.session('teacher').get(url)
+        parses_json = TestUtil.valid_json(response.text)
 
         self.assertEqual(status.HTTP_403_FORBIDDEN, response.status_code)
         self.assertTrue(parses_json)
 
 
-class GroupStudentsViewTest(BaseTest):
+class GroupStudentsViewTest(unittest.TestCase):
 
     endpoint = '/user/subjects/{subject_id}/groups/{group_id}/students/'
 
@@ -139,10 +140,10 @@ class GroupStudentsViewTest(BaseTest):
         teacher = tests_config.USERS.get('teacher')
         subject_id, group_id = teacher.get('groups').get('enrolled')
 
-        url = self.build_url(self.endpoint.format(subject_id=subject_id, group_id=group_id))
+        url = TestUtil.build_url(self.endpoint.format(subject_id=subject_id, group_id=group_id))
 
-        response = self.session('teacher').get(url)
-        parses_json = self.valid_json(response.text)
+        response = test_util.session('teacher').get(url)
+        parses_json = TestUtil.valid_json(response.text)
 
         self.assertEqual(status.HTTP_200_OK, response.status_code)
         self.assertTrue(parses_json)
@@ -152,50 +153,50 @@ class GroupStudentsViewTest(BaseTest):
         student = tests_config.USERS.get('student')
         subject_id, group_id = student.get('groups').get('enrolled')
 
-        url = self.build_url(self.endpoint.format(subject_id=subject_id, group_id=group_id))
+        url = TestUtil.build_url(self.endpoint.format(subject_id=subject_id, group_id=group_id))
 
-        response = self.session('student').get(url)
-        parses_json = self.valid_json(response.text)
+        response = test_util.session('student').get(url)
+        parses_json = TestUtil.valid_json(response.text)
 
         self.assertEqual(status.HTTP_403_FORBIDDEN, response.status_code)
         self.assertTrue(parses_json)
 
 
-class TeachersListViewTest(BaseTest):
+class TeachersListViewTest(unittest.TestCase):
 
     endpoint = '/user/teachers/'
 
     def test_success(self):
-        url = self.build_url(self.endpoint)
-        response = self.session('student').get(url)
-        parses_json = self.valid_json(response.text)
+        url = TestUtil.build_url(self.endpoint)
+        response = test_util.session('student').get(url)
+        parses_json = TestUtil.valid_json(response.text)
         self.assertEqual(status.HTTP_200_OK, response.status_code)
         self.assertTrue(parses_json)
 
 
-class StudentsListViewTest(BaseTest):
+class StudentsListViewTest(unittest.TestCase):
 
     endpoint = '/user/students/'
 
     def test_success(self):
-        url = self.build_url(self.endpoint)
-        response = self.session('teacher').get(url)
-        parses_json = self.valid_json(response.text)
+        url = TestUtil.build_url(self.endpoint)
+        response = test_util.session('teacher').get(url)
+        parses_json = TestUtil.valid_json(response.text)
         self.assertEqual(status.HTTP_200_OK, response.status_code)
         self.assertTrue(parses_json)
 
     def test_student(self):
 
-        url = self.build_url(self.endpoint)
+        url = TestUtil.build_url(self.endpoint)
 
-        response = self.session('student').get(url)
-        parses_json = self.valid_json(response.text)
+        response = test_util.session('student').get(url)
+        parses_json = TestUtil.valid_json(response.text)
 
         self.assertEqual(status.HTTP_403_FORBIDDEN, response.status_code)
         self.assertTrue(parses_json)
 
 
-class PeerDetailViewSuccess(BaseTest):
+class PeerDetailViewSuccess(unittest.TestCase):
 
     endpoint = '/user/{user_type}/{peer_id}/'
 
@@ -203,9 +204,9 @@ class PeerDetailViewSuccess(BaseTest):
 
         user_type = 'teachers'
         peer_id = tests_config.USERS.get('student').get('peers').get('teacher')
-        url = self.build_url(self.endpoint.format(user_type=user_type, peer_id=peer_id))
-        response = self.session('student').get(url)
-        parses_json = self.valid_json(response.text)
+        url = TestUtil.build_url(self.endpoint.format(user_type=user_type, peer_id=peer_id))
+        response = test_util.session('student').get(url)
+        parses_json = TestUtil.valid_json(response.text)
         self.assertEqual(status.HTTP_200_OK, response.status_code)
         self.assertTrue(parses_json)
 
@@ -213,9 +214,9 @@ class PeerDetailViewSuccess(BaseTest):
         user_type = 'students'
         peer_id = tests_config.USERS.get('student').get('peers').get('teacher')
 
-        url = self.build_url(self.endpoint.format(user_type=user_type, peer_id=peer_id))
-        response = self.session('student').get(url)
-        parses_json = self.valid_json(response.text)
+        url = TestUtil.build_url(self.endpoint.format(user_type=user_type, peer_id=peer_id))
+        response = test_util.session('student').get(url)
+        parses_json = TestUtil.valid_json(response.text)
         self.assertEqual(status.HTTP_403_FORBIDDEN, response.status_code)
         self.assertTrue(parses_json)
 
@@ -223,9 +224,9 @@ class PeerDetailViewSuccess(BaseTest):
         user_type = 'teachers'
         peer_id = tests_config.USERS.get('teacher').get('peers').get('teacher')
 
-        url = self.build_url(self.endpoint.format(user_type=user_type, peer_id=peer_id))
-        response = self.session('teacher').get(url)
-        parses_json = self.valid_json(response.text)
+        url = TestUtil.build_url(self.endpoint.format(user_type=user_type, peer_id=peer_id))
+        response = test_util.session('teacher').get(url)
+        parses_json = TestUtil.valid_json(response.text)
         self.assertEqual(status.HTTP_200_OK, response.status_code)
         self.assertTrue(parses_json)
 
@@ -233,9 +234,9 @@ class PeerDetailViewSuccess(BaseTest):
         user_type = 'students'
         peer_id = tests_config.USERS.get('teacher').get('peers').get('student')
 
-        url = self.build_url(self.endpoint.format(user_type=user_type, peer_id=peer_id))
-        response = self.session('teacher').get(url)
-        parses_json = self.valid_json(response.text)
+        url = TestUtil.build_url(self.endpoint.format(user_type=user_type, peer_id=peer_id))
+        response = test_util.session('teacher').get(url)
+        parses_json = TestUtil.valid_json(response.text)
         self.assertEqual(status.HTTP_200_OK, response.status_code)
         self.assertTrue(parses_json)
 
@@ -243,9 +244,9 @@ class PeerDetailViewSuccess(BaseTest):
         user_type = 'teachers'
         peer_id = tests_config.USERS.get('teacher').get('no_peers').get('teacher')
 
-        url = self.build_url(self.endpoint.format(user_type=user_type, peer_id=peer_id))
-        response = self.session('teacher').get(url)
-        parses_json = self.valid_json(response.text)
+        url = TestUtil.build_url(self.endpoint.format(user_type=user_type, peer_id=peer_id))
+        response = test_util.session('teacher').get(url)
+        parses_json = TestUtil.valid_json(response.text)
         self.assertEqual(status.HTTP_403_FORBIDDEN, response.status_code)
         self.assertTrue(parses_json)
 
@@ -253,11 +254,11 @@ class PeerDetailViewSuccess(BaseTest):
         user_type = 'students'
         peer_id = tests_config.USERS.get('teacher').get('no_peers').get('student')
 
-        url = self.build_url(self.endpoint.format(user_type=user_type, peer_id=peer_id))
+        url = TestUtil.build_url(self.endpoint.format(user_type=user_type, peer_id=peer_id))
 
         print url
-        response = self.session('teacher').get(url)
-        parses_json = self.valid_json(response.text)
+        response = test_util.session('teacher').get(url)
+        parses_json = TestUtil.valid_json(response.text)
         self.assertEqual(status.HTTP_403_FORBIDDEN, response.status_code)
         self.assertTrue(parses_json)
 
