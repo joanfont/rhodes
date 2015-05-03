@@ -1,14 +1,10 @@
 import sys
 import os
-
 sys.path.insert(0, os.path.realpath('../../'))
-
-print sys.path
 
 import requests
 import json
 import urllib
-from requests.packages import urllib3
 
 from application.tests import config as tests_config
 
@@ -20,24 +16,17 @@ class TestUtil(object):
     def __init__(self):
         super(TestUtil, self).__init__()
 
-        urllib3.disable_warnings()
-
         teacher_session = requests.Session()
         teacher_session.headers.update({
             'Authorization': tests_config.USERS.get('teacher').get('token')
         })
-
-        teacher_session.verify = tests_config.CERT_FILE
 
         student_session = requests.Session()
         student_session.headers.update({
             'Authorization': tests_config.USERS.get('student').get('token')
         })
 
-        student_session.verify = tests_config.CERT_FILE
-
         raw_session = requests.Session()
-        raw_session.verify = tests_config.CERT_FILE
 
         self.sessions = {
             'teacher': teacher_session,
