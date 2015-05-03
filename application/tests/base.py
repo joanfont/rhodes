@@ -27,13 +27,17 @@ class BaseTest(unittest.TestCase):
 
         student_session.verify = tests_config.CERT_FILE
 
+        raw_session = requests.Session()
+        raw_session.verify = tests_config.CERT_FILE
+
         self.sessions = {
             'teacher': teacher_session,
-            'student': student_session
+            'student': student_session,
+            'raw': raw_session
         }
 
     def session(self, kind):
-        return self.sessions.get(kind) or requests.Session()
+        return self.sessions.get(kind) or self.sessions.get('raw')
 
     def ok(self):
         print '{color}OK{off}'.format(color=self.GREEN, off=self.OFF)
