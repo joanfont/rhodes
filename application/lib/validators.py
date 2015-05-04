@@ -27,7 +27,7 @@ class BaseValidator(object):
     def validate(self, value):
         val = value if value is not None else self.options.get('default')
 
-        if not val and self.options.get('required'):
+        if not str(val) and self.options.get('required'):
             self.add_error('The value is required')
         else:
             if val:
