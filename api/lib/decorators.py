@@ -94,9 +94,13 @@ def validate(fnx):
 
 def login_required(fnx):
     def wrapped_fnx(*args, **kwargs):
+
         user = kwargs.get('get').get('user')
         password = kwargs.get('get').get('password')
-        password_encoded = encode_password(password)
+
+        password_encoded = encode_password(password) if password is not None else None
+
+        print password_encoded
 
         get_user_srv = CheckUserExistsByUserAndPassword()
         exists = get_user_srv.call({
