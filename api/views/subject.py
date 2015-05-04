@@ -4,7 +4,7 @@ from application.lib.validators import IntegerValidator
 from application.services.subject import GetUserSubject, GetUserSubjects
 
 
-class SubjectsView(ListAPIViewMixin, ModelResponseMixin):
+class ListSubjectsView(ListAPIViewMixin, ModelResponseMixin):
 
     @auth_token_required
     def get_action(self, *args, **kwargs):

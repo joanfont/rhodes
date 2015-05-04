@@ -33,7 +33,7 @@ class LoginView(ListAPIViewMixin):
         return {'token': token}
 
 
-class SubjectTeachersView(ListAPIViewMixin, ModelResponseMixin):
+class ListSubjectTeachersView(ListAPIViewMixin, ModelResponseMixin):
 
     def params(self):
         return {
@@ -53,7 +53,7 @@ class SubjectTeachersView(ListAPIViewMixin, ModelResponseMixin):
         return teachers
 
 
-class SubjectStudentsView(ListAPIViewMixin, ModelResponseMixin):
+class ListSubjectStudentsView(ListAPIViewMixin, ModelResponseMixin):
 
     def params(self):
         return {
@@ -74,7 +74,7 @@ class SubjectStudentsView(ListAPIViewMixin, ModelResponseMixin):
         return students
 
 
-class GroupStudentsView(ListAPIViewMixin, ModelResponseMixin):
+class ListGroupStudentsView(ListAPIViewMixin, ModelResponseMixin):
 
     def params(self):
         return {
@@ -131,7 +131,7 @@ class StudentDetailPeerView(ListAPIViewMixin, ModelResponseMixin):
         return peer
 
 
-class TeacherPeersView(ListAPIViewMixin, ModelResponseMixin):
+class ListTeacherPeersView(ListAPIViewMixin, ModelResponseMixin):
 
     @auth_token_required
     def get_action(self, *args, **kwargs):
@@ -141,7 +141,7 @@ class TeacherPeersView(ListAPIViewMixin, ModelResponseMixin):
         return peers
 
 
-class StudentPeersView(ListAPIViewMixin, ModelResponseMixin):
+class ListStudentPeersView(ListAPIViewMixin, ModelResponseMixin):
 
     @auth_token_required
     @is_teacher
