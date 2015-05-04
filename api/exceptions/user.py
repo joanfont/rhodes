@@ -31,7 +31,7 @@ class TeacherDoesNotTeachGroupError(ForbiddenActionError):
     message = 'Teacher does not teach the group'
 
 
-class StudentIsNotEnrolledToGroupError(ObjectNotFoundError):
+class StudentIsNotEnrolledToGroupError(ForbiddenActionError):
 
     message = 'Student is not enrolled to the group'
 
@@ -39,6 +39,7 @@ class StudentIsNotEnrolledToGroupError(ObjectNotFoundError):
 class PeerIsNotTeacherError(ConflictError):
 
     message = 'The requested peer is not a teacher'
+
 
 class PeerIsNotStudentError(ConflictError):
 
