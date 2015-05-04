@@ -1,6 +1,6 @@
 import unittest
 
-from application.tests.base import TestUtil
+from api.tests.base import TestUtil
 from api.tests import config as tests_config
 from common import status
 
