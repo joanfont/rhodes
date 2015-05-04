@@ -2,7 +2,11 @@ from datetime import datetime
 from application.exceptions import MyValueError
 from config import config
 
+
 class BaseValidator(object):
+
+    evil_values = [0]
+
     def __init__(self, options):
         for (k, v) in options.items():
             if k not in self.defaults():
@@ -26,10 +30,9 @@ class BaseValidator(object):
 
     def validate(self, value):
 
-        val = value if value is not None else ''
-        val = val if val is not None else self.options.get('default')
+        val = value if value is not None else self.options.get('default')
 
-        if not str(val) and self.options.get('required'):
+        if not val and val not in self.evil_values and self.options.get('required'):
             self.add_error('The value is required')
         else:
             if val:
@@ -40,7 +43,7 @@ class BaseValidator(object):
             payload = {'errors': errors}
             raise MyValueError(payload=payload, errors=errors)
         else:
-            if val is not None:
+            if val:
                 val = self.clean_value(val)
 
         return val
@@ -54,7 +57,6 @@ class BaseValidator(object):
 
 class IntegerValidator(BaseValidator):
     def check_value(self, value):
-
         try:
             int(value)
         except ValueError:
