@@ -1,5 +1,6 @@
-SERVER_URL = 'http://rhodes.joan-font.com'
-# SERVER_URL = 'http://127.0.0.1:8080'
+from common.environment import Environment
+
+SERVER_URL = Environment.get('TEST_URL')
 
 USERS = {
     'student': {
