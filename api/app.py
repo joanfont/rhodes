@@ -4,8 +4,12 @@ from config import config
 from api.lib.error_handlers import handlers
 from api.routing import routing
 
+from logging.handlers import RotatingFileHandler
+import logging
+
 
 def setup_config(application):
+
     application.config['JSON_SORT_KEYS'] = False
     application.config['SQLALCHEMY_DATABASE_URI'] = config.DB_DSN
 
@@ -13,9 +17,6 @@ def setup_config(application):
 
 
 def setup_logging(application):
-
-    from logging.handlers import RotatingFileHandler
-    import logging
 
     formatter = logging.Formatter('[%(asctime)s] [%(pathname)s:%(lineno)d] %(levelname)s - %(message)s')
 
