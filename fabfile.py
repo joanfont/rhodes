@@ -1,22 +1,26 @@
+import os
 from contextlib import contextmanager
+
 from fabric.context_managers import cd, prefix
 from fabric.decorators import task
 from fabric.operations import sudo, run
 from fabric.state import env
 
-from config.prod import rhodes as prod_config
+from common.environment import Environment
 
-import os
 
-env.hosts = ['rhodes.joan-font.com']
-env.user = 'root'
+from dotenv import load_dotenv
+load_dotenv('.env')
 
-VENV_DIR = '/root/.virtualenvs/rhodes'
+
+env.hosts = [
+    '{user}@{server}'.format(user=Environment.get('SERVER_USER'), server=Environment.get('SERVER_URL'))
+]
 
 
 @contextmanager
 def virtualenv():
-    with prefix('source ' + os.path.join(VENV_DIR, 'bin/activate')):
+    with prefix('source ' + os.path.join(Environment.get('SERVER_VENV'), 'bin/activate')):
         yield
 
 
@@ -25,10 +29,9 @@ def restart():
     sudo('supervisorctl restart rhodes')
     sudo('service nginx restart')
 
-
 @task
 def pip():
-    with cd(prod_config.PROJECT_DIR):
+    with cd(Environment.get('SERVER_PROJECT_DIR')):
         with virtualenv():
             run('pip install -r requirements.txt')
 
@@ -36,7 +39,7 @@ def pip():
 @task
 def branch(name):
     switch_branch_command = 'git checkout {branch}'.format(branch=name)
-    with cd(prod_config.PROJECT_DIR):
+    with cd(Environment.get('SERVER_PROJECT_DIR')):
         run('git reset --hard')
         run(switch_branch_command)
         run('git pull')
@@ -45,7 +48,7 @@ def branch(name):
 @task
 def migrate():
 
-    lib_dir = os.path.join(prod_config.PROJECT_DIR, 'application/lib')
+    lib_dir = os.path.join(Environment.get('SERVER_PROJECT_DIR'), 'application/lib')
     with cd(lib_dir):
         with virtualenv():
             run('alembic revision --autogenerate')
