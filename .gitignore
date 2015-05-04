@@ -21,6 +21,4 @@ config/nginx.conf
 *.lof
 docs/*.pdf
 
-*.pem
-*.key
-*.crt
+.env
