@@ -1,5 +1,5 @@
 SERVER_URL = 'http://rhodes.joan-font.com'
-SERVER_URL = 'http://127.0.0.1:8080'
+#SERVER_URL = 'http://127.0.0.1:8080'
 
 USERS = {
     'student': {
