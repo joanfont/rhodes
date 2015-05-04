@@ -6,7 +6,7 @@ from application.lib.validators import IntegerValidator
 from application.services.group import GetGroup, GetSubjectUserGroups
 
 
-class SubjectGroupsView(ListAPIViewMixin, ModelResponseMixin):
+class ListSubjectGroupsView(ListAPIViewMixin, ModelResponseMixin):
 
     def params(self):
         return {

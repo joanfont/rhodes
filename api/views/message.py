@@ -259,6 +259,7 @@ class PostDirectMessageView(CreateAPIViewMixin, ModelResponseMixin):
 
         return message
 
+
 class MessageDetailView(ListAPIViewMixin, ModelResponseMixin):
     def get_action(self, *args, **kwargs):
         message_id = kwargs.get('url').get('message_id')

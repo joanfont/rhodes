@@ -23,7 +23,7 @@ routing = {
         'methods': ['GET']
     },
     '/user/subjects/': {
-        'class': subject_views.SubjectsView,
+        'class': subject_views.ListSubjectsView,
         'name': 'user_subjects',
         'methods': ['GET']
     },
@@ -55,17 +55,17 @@ routing = {
         'methods': ['GET']
     },
     '/user/subjects/<subject_id>/teachers/': {
-        'class': user_views.SubjectTeachersView,
+        'class': user_views.ListSubjectTeachersView,
         'name': 'user_subject_teachers',
         'methods': ['GET']
     },
     '/user/subjects/<subject_id>/students/': {
-        'class': user_views.SubjectStudentsView,
+        'class': user_views.ListSubjectStudentsView,
         'name': 'user_subject_students',
         'methods': ['GET']
     },
     '/user/subjects/<subject_id>/groups/': {
-        'class': group_views.SubjectGroupsView,
+        'class': group_views.ListSubjectGroupsView,
         'name': 'user_subject_groups',
         'methods': ['GET']
     },
@@ -97,12 +97,12 @@ routing = {
         'methods': ['GET']
     },
     '/user/subjects/<subject_id>/groups/<group_id>/students/': {
-        'class': user_views.GroupStudentsView,
+        'class': user_views.ListGroupStudentsView,
         'name': 'user_subject_group_students',
         'methods': ['GET']
     },
     '/user/teachers/': {
-        'class': user_views.TeacherPeersView,
+        'class': user_views.ListTeacherPeersView,
         'name':  'user_teacher_peers',
         'methods': ['GET']
     },
@@ -112,7 +112,7 @@ routing = {
         'methods': ['GET']
     },
     '/user/students/': {
-        'class': user_views.StudentPeersView,
+        'class': user_views.ListStudentPeersView,
         'name':  'user_teacher_student_peers',
         'methods': ['GET']
     },
