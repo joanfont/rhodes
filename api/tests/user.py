@@ -76,18 +76,6 @@ class SubjectTeachersViewTest(unittest.TestCase):
         self.assertEqual(status.HTTP_200_OK, response.status_code)
         self.assertTrue(parses_json)
 
-    def test_user_not_enrolled(self):
-        student = tests_config.USERS.get('student')
-        subject_id = student.get('subjects').get('not_enrolled')
-
-        url = TestUtil.build_url(self.endpoint.format(subject_id=subject_id))
-
-        response = test_util.session('student').get(url)
-        parses_json = TestUtil.valid_json(response.text)
-
-        self.assertEqual(status.HTTP_403_FORBIDDEN, response.status_code)
-        self.assertTrue(parses_json)
-
 
 class SubjectStudentsViewTest(unittest.TestCase):
 
@@ -114,19 +102,6 @@ class SubjectStudentsViewTest(unittest.TestCase):
         url = TestUtil.build_url(self.endpoint.format(subject_id=subject_id))
 
         response = test_util.session('student').get(url)
-        parses_json = TestUtil.valid_json(response.text)
-
-        self.assertEqual(status.HTTP_403_FORBIDDEN, response.status_code)
-        self.assertTrue(parses_json)
-
-    def test_user_not_enrolled(self):
-
-        teacher = tests_config.USERS.get('teacher')
-        subject_id = teacher.get('subjects').get('not_enrolled')
-
-        url = TestUtil.build_url(self.endpoint.format(subject_id=subject_id))
-
-        response = test_util.session('teacher').get(url)
         parses_json = TestUtil.valid_json(response.text)
 
         self.assertEqual(status.HTTP_403_FORBIDDEN, response.status_code)

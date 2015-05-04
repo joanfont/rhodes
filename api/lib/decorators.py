@@ -289,16 +289,12 @@ def message_exists(fnx):
     def wrapped_fnx(*args, **kwargs):
 
         message_id = kwargs.get('url').get('message_id')
-
-        if message_id:
-
-            get_message_srv = GetMessage()
-            message = get_message_srv.call({'message_id': message_id})
-
-            if not message:
-                raise MessageNotFoundErorr()
-            else:
-                kwargs['message'] = message
+        get_message_srv = GetMessage()
+        message = get_message_srv.call({'message_id': message_id})
+        if not message:
+            raise MessageNotFoundErorr()
+        else:
+            kwargs['message'] = message
 
         return fnx(*args, **kwargs)
 
