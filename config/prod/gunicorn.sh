@@ -1,6 +1,6 @@
 #!/bin/bash
-
-. /usr/local/bin/virtualenvwrapper.sh*
+export WORKON_HOME=~/.virtualenvs/
+source /usr/local/bin/virtualenvwrapper.sh*
 workon rhodes
 
 USER=root
