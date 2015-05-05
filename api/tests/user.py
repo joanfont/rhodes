@@ -233,7 +233,6 @@ class PeerDetailViewSuccess(unittest.TestCase):
 
         url = TestUtil.build_url(self.endpoint.format(user_type=user_type, peer_id=peer_id))
 
-        print url
         response = test_util.session('teacher').get(url)
         parses_json = TestUtil.valid_json(response.text)
         self.assertEqual(status.HTTP_403_FORBIDDEN, response.status_code)
