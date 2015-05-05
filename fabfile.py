@@ -15,7 +15,11 @@ env.hosts = [
 
 @contextmanager
 def virtualenv():
-    with prefix('source ' + os.path.join(Environment.get('SERVER_VENV'), 'bin/activate')):
+    base_path = '/root/.virtualenvs/rhodes/'
+    activate = 'source ' + os.path.join(base_path, 'bin/activate')
+    postactivate = 'source ' + os.path.join(base_path, 'bin/postactivate')
+    code_line = activate + ' && ' + postactivate
+    with prefix(code_line):
         yield
 
 
@@ -26,28 +30,34 @@ def restart():
 
 @task
 def pip():
-    with cd(Environment.get('SERVER_PROJECT_DIR')):
-        with virtualenv():
+    with virtualenv():
+        with cd(Environment.get('PROJECT_DIR')):
             run('pip install -r requirements.txt')
+
+
+@task
+def test():
+    with virtualenv():
+        run('echo $DB_PASS')
 
 
 @task
 def branch(name):
     switch_branch_command = 'git checkout {branch}'.format(branch=name)
-    with cd(Environment.get('SERVER_PROJECT_DIR')):
-        run('git reset --hard')
-        run(switch_branch_command)
-        run('git pull')
+    with virtualenv():
+        with cd(Environment.get('PROJECT_DIR')):
+            run('git reset --hard')
+            run(switch_branch_command)
+            run('git pull')
 
 
 @task
 def migrate():
-
-    lib_dir = os.path.join(Environment.get('SERVER_PROJECT_DIR'), 'application/lib')
-    with cd(lib_dir):
-        with virtualenv():
-            run('alembic revision --autogenerate')
-            run('alembic upgrade head')
+    with virtualenv():
+        lib_dir = os.path.join(Environment.get('PROJECT_DIR'), 'application/lib')
+        with cd(lib_dir):
+                run('alembic revision --autogenerate')
+                run('alembic upgrade head')
 
 
 @task
