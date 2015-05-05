@@ -1,8 +1,11 @@
 #!/bin/bash
 
 set -e
+
+source /usr/local/bin/virtualenvwrapper.sh
+workon rhodes
+
 FLASKDIR=$PROJECT_DIR
-echo $FLASKDIR
 VIRTUAL_ENV=$VENV_DIR
 USER=root
 GROUP=root
@@ -15,9 +18,6 @@ NUM_WORKERS=3
 TIMEOUT=60
 
 cd $FLASKDIR
-source /usr/local/bin/virtualenvwrapper.sh
-workon rhodes
-
 export PYTHONPATH=$FLASKDIR:$PYTHONPATH
 
 test -d $LOGDIR || mkdir -p $LOGDIR
