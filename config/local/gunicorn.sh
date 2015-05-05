@@ -1,25 +1,23 @@
-#!/usr/bin/env bash
+#!/bin/bash
+export WORKON_HOME=~/.virtualenvs/
+source /usr/local/bin/virtualenvwrapper.sh*
+workon rhodes
 
-set -e
-FLASKDIR=/Users/joanfont/Developer/Python/rhodes
-VIRTUAL_ENV=/Users/joanfont/.virtualenvs/rhodes
-USER=joanfont
-GROUP=staff
-LOGFILE=$FLASKDIR/log/gunicorn.log
-LOGERRFILE=$FLASKDIR/log/gunicorn_err.log
+USER=root
+GROUP=root
+LOGFILE=$PROJECT_DIR/log/gunicorn.log
+LOGERRFILE=$PROJECT_DIR/log/gunicorn_err.log
 
 LOGDIR=$(dirname $LOGFILE)
 
-NUM_WORKERS=2
+NUM_WORKERS=3
 TIMEOUT=60
 
-cd $FLASKDIR
-source $VIRTUAL_ENV/bin/activate
-
-export PYTHONPATH=$FLASKDIR:$PYTHONPATH
+cd $PROJECT_DIR
+export PYTHONPATH=$PROJECT_DIR:$PYTHONPATH
 
 test -d $LOGDIR || mkdir -p $LOGDIR
 
-exec $VIRTUAL_ENV/bin/gunicorn rhodes:app -w $NUM_WORKERS -b 127.0.0.1:8080\
+exec gunicorn rhodes:app -w $NUM_WORKERS -b 127.0.0.1:8080\
     --user=$USER --group=$GROUP\
     --log-level=info --log-file=$LOGFILE 2>> $LOGERRFILE
