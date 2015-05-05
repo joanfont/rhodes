@@ -8,11 +8,6 @@ from fabric.state import env
 
 from common.environment import Environment
 
-
-from dotenv import load_dotenv
-load_dotenv('.env')
-
-
 env.hosts = [
     '{user}@{server}'.format(user=Environment.get('SERVER_USER'), server=Environment.get('SERVER_URL'))
 ]
