@@ -2,6 +2,7 @@
 
 set -e
 FLASKDIR=$PROJECT_DIR
+echo $FLASKDIR
 VIRTUAL_ENV=$VENV_DIR
 USER=root
 GROUP=root
@@ -21,6 +22,6 @@ export PYTHONPATH=$FLASKDIR:$PYTHONPATH
 
 test -d $LOGDIR || mkdir -p $LOGDIR
 
-exec $VIRTUAL_ENV/bin/gunicorn rhodes:app -w $NUM_WORKERS -b 127.0.0.1:8080\
+exec gunicorn rhodes:app -w $NUM_WORKERS -b 127.0.0.1:8080\
     --user=$USER --group=$GROUP\
     --log-level=info --log-file=$LOGFILE 2>> $LOGERRFILE
