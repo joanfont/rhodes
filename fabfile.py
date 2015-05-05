@@ -1,5 +1,4 @@
 from contextlib import contextmanager
-import os
 from fabric.context_managers import cd, prefix
 from fabric.decorators import task
 from fabric.operations import sudo, run
