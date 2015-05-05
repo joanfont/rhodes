@@ -3,20 +3,18 @@
 source /usr/local/bin/virtualenvwrapper.sh
 workon rhodes
 
-FLASKDIR=$PROJECT_DIR
-VIRTUAL_ENV=$VENV_DIR
 USER=root
 GROUP=root
-LOGFILE=$FLASKDIR/log/gunicorn.log
-LOGERRFILE=$FLASKDIR/log/gunicorn_err.log
+LOGFILE=$PROJECT_DIR/log/gunicorn.log
+LOGERRFILE=$PROJECT_DIR/log/gunicorn_err.log
 
 LOGDIR=$(dirname $LOGFILE)
 
 NUM_WORKERS=3
 TIMEOUT=60
 
-cd $FLASKDIR
-export PYTHONPATH=$FLASKDIR:$PYTHONPATH
+cd $PROJECT_DIR
+export PYTHONPATH=$PROJECT_DIR:$PYTHONPATH
 
 test -d $LOGDIR || mkdir -p $LOGDIR
 
