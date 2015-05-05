@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source /usr/local/bin/virtualenvwrapper.sh
+. /usr/local/bin/virtualenvwrapper.sh*
 workon rhodes
 
 USER=root
