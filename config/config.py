@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
-from common.environment import Environment
 
+from common.environment import Environment
 load_dotenv('.env')
 
 DB_DSN = '{driver}://{user}:{passw}@{host}/{name}?charset=utf8&use_unicode=0'.format(
