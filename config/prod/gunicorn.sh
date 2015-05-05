@@ -1,8 +1,8 @@
-#!/usr/bin/env bash
+#!/bin/bash bash
 
 set -e
-FLASKDIR=/root/rhodes
-VIRTUAL_ENV=/root/.virtualenvs/rhodes
+FLASKDIR=$PROJECT_DIR
+VIRTUAL_ENV=$VENV_DIR
 USER=root
 GROUP=root
 LOGFILE=$FLASKDIR/log/gunicorn.log
@@ -15,6 +15,7 @@ TIMEOUT=60
 
 cd $FLASKDIR
 source $VIRTUAL_ENV/bin/activate
+source $VIRTUAL_ENV/bin/postactivate
 
 export PYTHONPATH=$FLASKDIR:$PYTHONPATH
 
