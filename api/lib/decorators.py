@@ -100,8 +100,6 @@ def login_required(fnx):
 
         password_encoded = encode_password(password) if password is not None else None
 
-        print password_encoded
-
         get_user_srv = CheckUserExistsByUserAndPassword()
         exists = get_user_srv.call({
             'user': user,
@@ -355,8 +353,6 @@ def message_belongs_to_peers(fnx):
         sender_id = int(message.sender_id)
         recipient_id = int(message.user_id)
 
-        print user_id, peer_id, sender_id, recipient_id
-
         if isinstance(message, DirectMessage):
 
             cond1 = sender_id == user_id and recipient_id == peer_id
@@ -457,8 +453,6 @@ def user_is_related_to_peer(fnx):
 
         user = kwargs.get('user')
         peer = kwargs.get('peer')
-
-        print user, peer
 
         if peer.is_teacher():
             srv_class = UserCanSeeTeacher

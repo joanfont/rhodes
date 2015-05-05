@@ -247,8 +247,6 @@ class GroupMessageDetailViewTest(unittest.TestCase):
         subject_id, group_id = tests_config.USERS.get('student').get('groups').get('enrolled')
         url = TestUtil.build_url(self.endpoint.format(subject_id=subject_id, group_id=group_id, message_id=0))
 
-        print url
-
         response = test_util.session('student').get(url)
 
         parses_json = TestUtil.valid_json(response.text)
