@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e
-
 source /usr/local/bin/virtualenvwrapper.sh
 workon rhodes
 
