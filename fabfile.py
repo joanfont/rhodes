@@ -1,6 +1,5 @@
-import os
 from contextlib import contextmanager
-
+import os
 from fabric.context_managers import cd, prefix
 from fabric.decorators import task
 from fabric.operations import sudo, run
@@ -15,11 +14,17 @@ env.hosts = [
 
 @contextmanager
 def virtualenv():
-    base_path = '/root/.virtualenvs/rhodes/'
-    activate = 'source ' + os.path.join(base_path, 'bin/activate')
-    postactivate = 'source ' + os.path.join(base_path, 'bin/postactivate')
-    code_line = activate + ' && ' + postactivate
-    with prefix(code_line):
+    with prefix('workon rhodes'):
+        yield
+
+
+@contextmanager
+def project_dir(directory=None):
+    base_dir = 'echo $PROJECT_DIR'
+    if directory:
+        base_dir = '{base_dir}/{directory}'.format(base_dir=base_dir, directory=directory
+                                                   )
+    with cd(run(base_dir)):
         yield
 
 
@@ -28,24 +33,19 @@ def restart():
     sudo('supervisorctl restart rhodes')
     sudo('service nginx restart')
 
+
 @task
 def pip():
     with virtualenv():
-        with cd(Environment.get('PROJECT_DIR')):
+        with project_dir():
             run('pip install -r requirements.txt')
-
-
-@task
-def test():
-    with virtualenv():
-        run('echo $DB_PASS')
 
 
 @task
 def branch(name):
     switch_branch_command = 'git checkout {branch}'.format(branch=name)
     with virtualenv():
-        with cd(Environment.get('PROJECT_DIR')):
+        with project_dir():
             run('git reset --hard')
             run(switch_branch_command)
             run('git pull')
@@ -54,15 +54,9 @@ def branch(name):
 @task
 def migrate():
     with virtualenv():
-        lib_dir = os.path.join(Environment.get('PROJECT_DIR'), 'application/lib')
-        with cd(lib_dir):
+        with cd('application/lib'):
                 run('alembic revision --autogenerate')
                 run('alembic upgrade head')
-
-
-@task
-def setup():
-    pass
 
 
 @task
