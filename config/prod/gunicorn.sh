@@ -14,8 +14,8 @@ NUM_WORKERS=3
 TIMEOUT=60
 
 cd $FLASKDIR
-source $VIRTUAL_ENV/bin/activate
-source $VIRTUAL_ENV/bin/postactivate
+source /usr/local/bin/virtualenvwrapper.sh
+workon rhodes
 
 export PYTHONPATH=$FLASKDIR:$PYTHONPATH
 
