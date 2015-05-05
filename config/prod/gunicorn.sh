@@ -1,4 +1,4 @@
-#!/bin/bash bash
+#!/bin/bash
 
 set -e
 FLASKDIR=$PROJECT_DIR
