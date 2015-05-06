@@ -435,8 +435,6 @@ class TeacherCanSeeStudent(BasePersistanceService):
         return peers_query.count() > 0
 
 
-
-
 class GetUserConversators(BasePersistanceService):
 
     def input(self):

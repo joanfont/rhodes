@@ -308,3 +308,5 @@ class GroupMessageDetailView(MessageDetailView):
     @message_belongs_to_group
     def get_action(self, *args, **kwargs):
         return super(GroupMessageDetailView, self).get_action(*args, **kwargs)
+
+

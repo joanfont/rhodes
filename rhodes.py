@@ -1,9 +1,6 @@
 from flask.ext.script import Manager
-
 from api.app import app
-
 from application.tasks.generate_user_tokens import GenerateUserTokens
-
 
 manager = Manager(app)
 
