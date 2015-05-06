@@ -1,6 +1,6 @@
 import os
-
 from common.environment import Environment
+
 
 DB_DSN = '{driver}://{user}:{passw}@{host}/{name}?charset=utf8&use_unicode=0'.format(
     driver=Environment.get('DB_DRIVER'),
@@ -14,7 +14,7 @@ DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 MESSAGE_MAX_LENGTH = 400
 ITEMS_PER_PAGE = 15
 
-LOG_FILE = os.path.join(Environment.get('PROJECT_DIR'), 'log/rhodes.log')
+LOG_FILE = os.path.realpath('log/rhodes.log')
 
 PRIVATE_KEY = 'ZMsgjYbXyzHog7AtPvfiI2OW3cDTvycuYYztbYpT9tX3xsmgJMvSrtd3HtqOl9Okf2sBaSAKvfY2Fz76T9pr9BnEh5SPxt81f7mO' \
               'nfmtWiXBKGVCP8aBZqWNEl0jGMfR9qd30CoL2mNxIQZGS5l6BZQpt5fztPD7Mi5VFv5CrsGucW6ts3rQhZZ7usZLAX1Y60ltqfwS' \

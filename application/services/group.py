@@ -240,3 +240,75 @@ class GetSubjectUserGroups(BaseService):
         get_groups_srv = get_groups_cls()
         groups = get_groups_srv.call({'subject_id': subject_id, arg: user.id})
         return groups
+
+
+class GetTeacherGroups(BasePersistanceService):
+
+    def input(self):
+        return {
+            'teacher_id': IntegerValidator({'required': True})
+        }
+
+    def output(self):
+        return lambda x: Helper.array_of(x, Group) or x == []
+
+    def execute(self, args):
+
+        teacher_id = args.get('teacher_id')
+
+        teacher_groups_query = self.session.query(Group).\
+            join(Subject, Group.subject_id == Subject.id).\
+            join(TeacherSubject, Subject.id == TeacherSubject.subject_id).\
+            join(User, TeacherSubject.teacher_id == User.id).\
+            filter(User.id == teacher_id)
+
+        return teacher_groups_query.all()
+
+
+class GetStudentGroups(BasePersistanceService):
+
+    def input(self):
+        return {
+            'student_id': IntegerValidator({'required': True})
+        }
+
+    def output(self):
+        return lambda x: Helper.array_of(x, Group) or x == []
+
+    def execute(self, args):
+
+        student_id = args.get('student_id')
+
+        student_groups_query = self.session.query(Group).\
+            join(StudentGroup, Group.id == StudentGroup.group_id).\
+            join(User, StudentGroup.student_id == User.id).\
+            filter(User.id == student_id)
+
+        return student_groups_query.all()
+
+
+class GetUserGroups(BaseService):
+
+    def input(self):
+        return {
+            'user_id': IntegerValidator({'required': True})
+        }
+
+    def output(self):
+        return lambda x: Helper.array_of(x, Group) or x == []
+
+    def execute(self, args):
+
+        user_id = args.get('user_id')
+        get_user_srv = GetUser()
+        user = get_user_srv.call({'user_id': user_id})
+
+        dispatcher = {
+            UserType.TEACHER: (GetTeacherGroups, 'teacher_id'),
+            UserType.STUDENT: (GetStudentGroups, 'student_id')
+        }
+
+        get_groups_cls, arg = dispatcher.get(user.type.id)
+        get_groups_srv = get_groups_cls()
+        groups = get_groups_srv.call({arg: user.id})
+        return groups

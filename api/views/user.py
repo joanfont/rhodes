@@ -1,10 +1,10 @@
 from api.lib.decorators import login_required, user_belongs_to_subject, subject_exists, is_teacher, auth_token_required, \
     validate, group_exists, user_belongs_to_group, peer_exists, user_is_related_to_peer, peer_is_teacher, \
-    peer_is_student
+    peer_is_student, users_can_conversate
 from api.lib.mixins import ListAPIViewMixin, ModelResponseMixin
 from application.lib.validators import IntegerValidator, StringValidator
 from application.services.user import GetSubjectTeachers, GetSubjectStudents, GetUserAuthTokenByUserAndPassword, \
-    GetGroupStudents, GetUserTeacherPeers, GetTeacherStudentPeers
+    GetGroupStudents, GetUserTeacherPeers, GetTeacherStudentPeers, GetUserConversators
 from common.auth import encode_password
 
 
@@ -151,6 +151,34 @@ class ListStudentPeersView(ListAPIViewMixin, ModelResponseMixin):
         get_student_peers = GetTeacherStudentPeers()
         peers = get_student_peers.call({'user_id': user.id})
         return peers
+
+
+class ListConversatorsView(ListAPIViewMixin, ModelResponseMixin):
+
+    @auth_token_required
+    def get_action(self, *args, **kwargs):
+
+        user = kwargs.get('user')
+        get_conversations_srv = GetUserConversators()
+        conversations = get_conversations_srv.call({'user_id': user.id})
+
+        return conversations
+
+
+class ConversatorDetailView(ListAPIViewMixin, ModelResponseMixin):
+
+    def params(self):
+        return {
+            'peer_id': [self.PARAM_URL, IntegerValidator({'required': True})]
+        }
+
+    @validate
+    @auth_token_required
+    @peer_exists
+    @users_can_conversate
+    def get_action(self, *args, **kwargs):
+        peer = kwargs.get('peer')
+        return peer
 
 
 class ProfileView(ListAPIViewMixin, ModelResponseMixin):

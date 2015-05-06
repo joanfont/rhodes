@@ -2,9 +2,8 @@ from api.views import subject as subject_views
 from api.views import group as group_views
 from api.views import message as message_views
 from api.views import user as user_views
-from api.views import conversation as conversation_views
 from api.views import misc as misc_views
-
+from api.views import notification as notification_views
 
 routing = {
     '/config/': {
@@ -122,12 +121,12 @@ routing = {
         'methods': ['GET']
     },
     '/user/chats/': {
-        'class': conversation_views.ListConversationsView,
+        'class': user_views.ListConversatorsView,
         'name': 'user_chats',
         'methods': ['GET']
     },
     '/user/chats/<peer_id>/': {
-        'class': conversation_views.ConversationDetailView,
+        'class': user_views.ConversatorDetailView,
         'name': 'user_chat',
         'methods': ['GET']
     },
@@ -147,5 +146,21 @@ routing = {
         'class': message_views.ListPaginatedDirectMessagesView,
         'name': 'user_chat_paginated_messages',
         'methods': ['GET']
+    },
+    '/user/notifications/subject/': {
+        'class': notification_views.SubjectMessagesNotificationsView,
+        'name': 'user_subject_notifications',
+        'methods': ['GET']
+    },
+    '/user/notifications/group/': {
+        'class': notification_views.GroupMessagesNotificationsView,
+        'name': 'user_groups_notifications',
+        'methods': ['GET']
+    },
+    '/user/notifications/chat/': {
+        'class': notification_views.ConversationNotificationsView,
+        'name': 'user_chats_notifications',
+        'methods': ['GET']
     }
+
 }

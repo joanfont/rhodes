@@ -294,6 +294,13 @@ class GroupMessage(Message):
 
     __mapper_args__ = {'polymorphic_identity': MessageType.GROUP_MESSAGE}
 
+    def to_dict(self, **kwargs):
+        super_dict = super(GroupMessage, self).to_dict(**kwargs)
+        super_dict.update({
+            'group_id': self.group_id
+        })
+        return super_dict
+
 
 class SubjectMessage(Message):
 
@@ -303,3 +310,10 @@ class SubjectMessage(Message):
         backref=backref('received_subject_messages', uselist=True, cascade='delete,all'))
 
     __mapper_args__ = {'polymorphic_identity': MessageType.SUBJECT_MESSAGE}
+
+    def to_dict(self, **kwargs):
+        super_dict = super(SubjectMessage, self).to_dict(**kwargs)
+        super_dict.update({
+            'subject_id': self.subject_id
+        })
+        return super_dict

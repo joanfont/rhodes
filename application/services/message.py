@@ -1,9 +1,13 @@
-from sqlalchemy.orm import aliased, make_transient
+from sqlalchemy.orm import aliased
 from sqlalchemy import or_, and_
-from application.lib.models import Message, MessageType, DirectMessage, SubjectMessage, GroupMessage, MessageBody
+from application.lib.models import Message, MessageType, DirectMessage, SubjectMessage, GroupMessage, MessageBody, \
+    Subject
 from application.lib.validators import StringValidator, IntegerValidator, ChoicesValidator, DateValidator
 from application.services.base import BasePersistanceService, BaseService
 from application.lib.entities import PaginatedMessagesEntity
+from application.services.group import GetUserGroups
+from application.services.subject import GetUserSubjects
+from application.services.user import GetUserConversators
 from common.helper import Helper
 from common import constants
 from config import config
@@ -325,7 +329,80 @@ class GetDirectMessages(PaginatedMessagesService):
         return super(GetDirectMessages, self).execute(args)
 
 
-class GetLastDirectMessageBetweenUsers(BasePersistanceService):
+class GetLastMessage(BasePersistanceService):
+
+    message_cls = None
+
+    def input(self):
+        return {
+            'filter_value': IntegerValidator({'required': True})
+        }
+
+    def output(self):
+        return lambda x: Helper.instance_of(x, self.message_cls) or x is None
+
+    def execute(self, args):
+
+        filter_value = args.get('filter_value')
+
+        message_cls = self.message_cls
+
+        filter_mapping = {
+            SubjectMessage: SubjectMessage.subject_id,
+            GroupMessage: GroupMessage.group_id,
+            DirectMessage: DirectMessage.user_id
+        }
+
+        filter_field = filter_mapping.get(message_cls)
+
+        last_message_query = self.session.query(message_cls).\
+            filter(filter_field == filter_value).\
+            order_by(message_cls.created_at.desc()).\
+            limit(1)
+
+        if last_message_query.count():
+            message = last_message_query.all()[0]
+        else:
+            message = None
+
+        return message
+
+
+class GetLastSubjectMessage(GetLastMessage):
+
+    message_cls = SubjectMessage
+
+    def input(self):
+        return {
+            'subject_id': IntegerValidator({'required': True})
+        }
+
+    def output(self):
+        return lambda x: Helper.instance_of(x, SubjectMessage) or x is None
+
+    def execute(self, args):
+        args['filter_value'] = args.pop('subject_id', None)
+        return super(GetLastSubjectMessage, self).execute(args)
+
+
+class GetLastGroupMessage(GetLastMessage):
+
+    message_cls = GroupMessage
+
+    def input(self):
+        return {
+            'group_id': IntegerValidator({'required': True})
+        }
+
+    def output(self):
+        return lambda x: Helper.instance_of(x, GroupMessage) or x is None
+
+    def execute(self, args):
+        args['filter_value'] = args.pop('group_id', None)
+        return super(GetLastGroupMessage, self).execute(args)
+
+
+class GetLastConversationMessage(BasePersistanceService):
 
     def input(self):
         return {
@@ -334,7 +411,7 @@ class GetLastDirectMessageBetweenUsers(BasePersistanceService):
         }
 
     def output(self):
-        return lambda x: Helper.instance_of(x, Message) or x is None
+        return lambda x: Helper.instance_of(x, DirectMessage) or x is None
 
     def execute(self, args):
 
@@ -348,8 +425,98 @@ class GetLastDirectMessageBetweenUsers(BasePersistanceService):
             order_by(DirectMessage.created_at.desc()).limit(1)
 
         if message_query.count():
-            message = message_query.one()
+            message = message_query.all()[0]
         else:
             message = None
-
         return message
+
+
+class GetUserSubjectsLastMessages(BaseService):
+
+    def input(self):
+        return {
+            'user_id': IntegerValidator({'required': True})
+        }
+
+    def output(self):
+        return lambda x: Helper.array_of(x, SubjectMessage) or x == []
+
+    def execute(self, args):
+
+        get_last_subject_message_srv = GetLastSubjectMessage()
+
+        def get_last_subject_message(subject):
+            last_message = get_last_subject_message_srv.call({
+                'subject_id': subject.id
+            })
+            return last_message
+
+        user_id = args.get('user_id')
+
+        get_user_subjects_srv = GetUserSubjects()
+        subjects = get_user_subjects_srv.call({
+            'user_id': user_id
+        })
+
+        return filter(bool, map(get_last_subject_message, subjects))
+
+
+class GetUserGroupsLastMessages(BaseService):
+
+    def input(self):
+        return {
+            'user_id': IntegerValidator({'required': True})
+        }
+
+    def output(self):
+        return lambda x: Helper.array_of(x, GroupMessage) or x == []
+
+    def execute(self, args):
+        get_last_group_message_srv = GetLastGroupMessage()
+
+        def get_last_group_message(group):
+            last_message = get_last_group_message_srv.call({
+                'group_id': group.id
+            })
+            return last_message
+
+        user_id = args.get('user_id')
+
+        get_user_groups_srv = GetUserGroups()
+        groups = get_user_groups_srv.call({
+            'user_id': user_id
+        })
+
+        return filter(bool, map(get_last_group_message, groups))
+
+
+class GetUserConversationsLastMessages(BaseService):
+
+    def input(self):
+        return {
+            'user_id': IntegerValidator({'required': True})
+        }
+
+    def output(self):
+        return lambda x: Helper.array_of(x, DirectMessage) or x == []
+
+    def execute(self, args):
+
+        user_id = args.get('user_id')
+
+        get_conversation_last_message_srv = GetLastConversationMessage()
+
+        def get_last_conversation_message(its):
+            last_message = get_conversation_last_message_srv.call({
+                'my_id': user_id,
+                'its_id': its.id
+            })
+
+            return last_message
+
+        get_user_conversators_srv = GetUserConversators()
+        conversators = get_user_conversators_srv.call({
+            'user_id': user_id
+        })
+
+        return filter(bool, map(get_last_conversation_message, conversators))
