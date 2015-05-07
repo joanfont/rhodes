@@ -239,7 +239,7 @@ class PeerDetailViewSuccess(unittest.TestCase):
         self.assertTrue(parses_json)
 
 
-class ListConversationsViewTest(unittest.TestCase):
+class ListConversatorsViewTest(unittest.TestCase):
 
     endpoint = '/user/chats/'
 
@@ -254,7 +254,7 @@ class ListConversationsViewTest(unittest.TestCase):
         self.assertTrue(parses_json)
 
 
-class ConversationDetailViewTest(unittest.TestCase):
+class ConversatiorDetailViewTest(unittest.TestCase):
 
     endpoint = '/user/chats/{peer_id}/'
 
