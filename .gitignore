@@ -19,6 +19,7 @@ config/nginx.conf
 *.toc
 *.lot
 *.lof
+*.out
 docs/*.pdf
 
 .env
