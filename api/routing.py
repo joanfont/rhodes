@@ -147,6 +147,11 @@ routing = {
         'name': 'user_chat_paginated_messages',
         'methods': ['GET']
     },
+    '/user/notifications/': {
+        'class': notification_views.MessagesNotificationsView,
+        'name': 'user_notifications',
+        'methods': ['GET']
+    },
     '/user/notifications/subject/': {
         'class': notification_views.SubjectMessagesNotificationsView,
         'name': 'user_subject_notifications',
