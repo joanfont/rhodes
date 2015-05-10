@@ -79,25 +79,6 @@ class GetUserByUserAndPassword(BasePersistanceService):
         return user
 
 
-class GetUserAuthTokenByUserAndPassword(BasePersistanceService):
-
-    def input(self):
-        return {
-            'user': StringValidator({'required': True}),
-            'password': StringValidator({'required': True})
-        }
-
-    def output(self):
-        return lambda x: Helper.instance_of(x, unicode)
-
-    def execute(self, args):
-
-        get_user = GetUserByUserAndPassword()
-        user = get_user.call(args)
-
-        return user.auth_token
-
-
 class CheckUserExistsByUserAndPassword(BasePersistanceService):
 
     def input(self):
