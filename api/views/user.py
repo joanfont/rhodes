@@ -3,8 +3,8 @@ from api.lib.decorators import login_required, user_belongs_to_subject, subject_
     peer_is_student, users_can_conversate
 from api.lib.mixins import ListAPIViewMixin, ModelResponseMixin
 from application.lib.validators import IntegerValidator, StringValidator
-from application.services.user import GetSubjectTeachers, GetSubjectStudents, GetUserAuthTokenByUserAndPassword, \
-    GetGroupStudents, GetUserTeacherPeers, GetTeacherStudentPeers, GetUserConversators
+from application.services.user import GetSubjectTeachers, GetSubjectStudents, \
+    GetGroupStudents, GetUserTeacherPeers, GetTeacherStudentPeers, GetUserConversators, GetUserByUserAndPassword
 from common.auth import encode_password
 
 
@@ -23,14 +23,16 @@ class LoginView(ListAPIViewMixin):
         password = kwargs.get('get').get('password')
         password_encoded = encode_password(password)
 
-        get_auth_token_srv = GetUserAuthTokenByUserAndPassword()
+        get_auth_token_srv = GetUserByUserAndPassword()
 
-        token = get_auth_token_srv.call({
+        user = get_auth_token_srv.call({
             'user': user,
             'password': password_encoded
         })
 
-        return {'token': token}
+        return {
+            'user': user.to_dict(),
+            'token': user.auth_token}
 
 
 class ListSubjectTeachersView(ListAPIViewMixin, ModelResponseMixin):
