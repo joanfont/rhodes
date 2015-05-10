@@ -12,8 +12,8 @@ class ConfigView(ListAPIViewMixin):
         return {
             'message_max_length': config.MESSAGE_MAX_LENGTH,
             'user_types': {
-                int(UserType.TEACHER): 'Teacher',
-                int(UserType.STUDENT): 'Student'
+                UserType.TEACHER: 'Teacher',
+                UserType.STUDENT: 'Student'
             },
         }
 
