@@ -42,6 +42,7 @@ class GetSubject(BasePersistanceService):
 
         return subject
 
+
 class CheckSubjectExists(BasePersistanceService):
     def input(self):
         return {
@@ -234,7 +235,8 @@ class GetTeacherSubjects(BasePersistanceService):
         subjects = self.session.query(Subject). \
             join(TeacherSubject, Subject.id == TeacherSubject.subject_id). \
             join(User, TeacherSubject.teacher_id == User.id). \
-            filter(User.id == teacher_id).all()
+            filter(User.id == teacher_id). \
+            order_by(Subject.code.asc()).all()
         return subjects
 
 
@@ -257,7 +259,7 @@ class GetStudentSubjects(BasePersistanceService):
             join(StudentGroup, Group.id == StudentGroup.group_id). \
             join(User, StudentGroup.student_id == User.id). \
             filter(User.id == student_id). \
-            all()
+            order_by(Subject.code.asc()).all()
 
         subjects = map(SubjectHelper.attach_group_to_subject, subjects_and_groups)
         return subjects
