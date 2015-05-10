@@ -119,7 +119,8 @@ class GetSubjectTeachers(BasePersistanceService):
         teachers = self.session.query(User).\
             join(TeacherSubject, User.id == TeacherSubject.teacher_id).\
             join(Subject, TeacherSubject.subject_id == Subject.id).\
-            filter(Subject.id == subject_id).all()
+            filter(Subject.id == subject_id). \
+            order_by(User.last_name.asc(), User.first_name.asc()).all()
 
         return teachers
 
@@ -141,7 +142,8 @@ class GetSubjectStudents(BasePersistanceService):
             join(StudentGroup, User.id == StudentGroup.student_id).\
             join(Group, StudentGroup.group_id == Group.id).\
             join(Subject, Group.subject_id == Subject.id).\
-            filter(Subject.id == subject_id).all()
+            filter(Subject.id == subject_id). \
+            order_by(User.last_name.asc(), User.first_name.asc()).all()
 
         return students
 
@@ -162,7 +164,8 @@ class GetGroupStudents(BasePersistanceService):
         students = self.session.query(User).\
             join(StudentGroup, User.id == StudentGroup.student_id).\
             join(Group, StudentGroup.group_id == Group.id).\
-            filter(Group.id == group_id).all()
+            filter(Group.id == group_id). \
+            order_by(User.last_name.asc(), User.first_name.asc()).all()
 
         return students
 
@@ -193,7 +196,7 @@ class GetTeacherTeacherPeers(BasePersistanceService):
             join(me, my_teacher_subject.teacher_id == me.id).\
             filter(me.id == user_id).\
             filter(others.id != user_id).\
-            order_by(others.id.asc())
+            order_by(others.last_name.asc(), others.first_name.asc())
 
         peers = peers_query.all()
 
@@ -224,7 +227,7 @@ class GetStudentTeacherPeers(BasePersistanceService):
             join(StudentGroup, Group.id == StudentGroup.group_id).\
             join(me, StudentGroup.student_id == me.id).\
             filter(me.id == user_id).\
-            order_by(teachers.id.asc())
+            order_by(teachers.last_name.asc(), teachers.first_name.asc())
 
         peers = peers_query.all()
 
@@ -285,7 +288,7 @@ class GetTeacherStudentPeers(BasePersistanceService):
             join(TeacherSubject, Subject.id == TeacherSubject.subject_id).\
             join(me, TeacherSubject.teacher_id == me.id).\
             filter(me.id == user_id).\
-            order_by(students.id.asc())
+            order_by(students.last_name.asc(), students.first_name.asc())
 
         peers = peers_query.all()
 
@@ -434,7 +437,7 @@ class GetUserConversators(BasePersistanceService):
             join(DirectMessage, or_(User.id == DirectMessage.sender_id, User.id == DirectMessage.user_id)).\
             filter(or_(DirectMessage.sender_id == user_id, DirectMessage.user_id == user_id)).\
             filter(User.id != user_id).\
-            order_by(User.id.asc())
+            order_by(User.last_name.asc(), User.first_name.asc())
 
         users = users_query.all()
 
