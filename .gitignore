@@ -4,15 +4,19 @@ __pycache__
 
 .idea
 
+# Alembic migration files
 application/lib/migrations/versions/*.py
 
+# Logs
 log/*
 
-config/rhodes.py
+# Config files (environment specific)
 config/supervisor.conf
 config/gunicorn.sh
 config/nginx.conf
 
+# LaTeX files
+*.dvi
 *.log
 *.aux
 *.synctex.gz
@@ -20,6 +24,8 @@ config/nginx.conf
 *.lot
 *.lof
 *.out
+*.dvi
 docs/*.pdf
 
+# Env file (environment specific)
 .env
