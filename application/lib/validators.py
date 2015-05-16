@@ -2,7 +2,6 @@ from datetime import datetime
 from application.exceptions import MyValueError
 from config import config
 
-
 class BaseValidator(object):
 
     evil_values = [0]
@@ -150,3 +149,55 @@ class BooleanValidator(BaseValidator):
 
     def clean_value(self, value):
         return bool(value)
+
+
+class WerkzeugFileValidator(BaseValidator):
+
+    def check_value(self, value):
+
+        try:
+            from werkzeug.datastructures import FileStorage
+        except ImportError:
+            raise ImportError('Werkzeug FileStorage not found')
+
+        if not isinstance(value, FileStorage):
+            self.add_error('Value is not Werkzeug FileStorage type')
+
+    def clean_value(self, value):
+        return value
+
+
+class BytesIOValidator(BaseValidator):
+
+    def check_value(self, value):
+
+        try:
+            from io import BytesIO
+        except ImportError:
+            raise ImportError('BytesIO not found')
+
+        if not isinstance(value, BytesIO):
+            self.add_error('Value is not BytesIO type')
+
+    def clean_value(self, value):
+        return value
+
+
+class ClassValidator(BaseValidator):
+
+    def defaults(self):
+        _defaults = super(ClassValidator, self).defaults()
+        _defaults.update({
+            'class': object
+        })
+        return _defaults
+
+    def check_value(self, value):
+
+        cls = self.options.get('class', object)
+
+        if not isinstance(value, cls):
+            self.add_error('Value is not {cls} type'.format(cls=type(cls)))
+
+    def clean_value(self, value):
+        return value

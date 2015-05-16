@@ -1,6 +1,7 @@
 from flask import request, Response
 from flask.views import MethodView
 from api.lib.decorators import copy_params
+from application.services.media import GetMediaBytes
 from common import status
 from common.helper import Helper
 import json
@@ -34,6 +35,19 @@ class PaginatedResponse(JSONResponse):
         super(PaginatedResponse, self).__init__(response=response)
 
 
+class MediaResponse(Response):
+
+    def __init__(self, media, **options):
+
+        get_media_bytes_srv = GetMediaBytes()
+        media_bytes = get_media_bytes_srv.call({
+            'media': media
+        })
+
+        super(MediaResponse, self).__init__(response=media_bytes, status=status.HTTP_200_OK, mimetype=media.mime,
+                                            content_type=media.mime)
+
+
 class BaseResponseMixin(object):
     response_class = JSONResponse
 
@@ -43,17 +57,25 @@ class BaseResponseMixin(object):
 
 
 class ModelResponseMixin(BaseResponseMixin):
+
     response_class = ModelResponse
 
 
 class PaginatedResponseMixin(BaseResponseMixin):
+
     response_class = PaginatedResponse
+
+
+class MediaResponseMixin(BaseResponseMixin):
+
+    response_class = MediaResponse
 
 
 class APIView(BaseResponseMixin, MethodView):
     PARAM_URL = 1
     PARAM_GET = 2
     PARAM_POST = 3
+    PARAM_FILES = 4
 
     status_code = 0
 
@@ -74,8 +96,15 @@ class APIView(BaseResponseMixin, MethodView):
             (key, request.form.getlist(key) if len(request.form.getlist(key)) > 1 else request.form.getlist(key)[0]) for
             key in request.form.keys())
 
+    @staticmethod
+    def files_data():
+        return dict(
+            (key, request.files.getlist(key) if len(request.files.getlist(key)) > 1 else request.files.getlist(key)[0])
+            for key in request.files.keys())
+
 
 class ListAPIViewMixin(APIView):
+
     status_code = status.HTTP_200_OK
 
     @copy_params
@@ -103,21 +132,29 @@ class CreateAPIViewMixin(APIView):
         raise NotImplementedError()
 
 
-class UpdateAPIView(APIView):
+class UpdateAPIViewMixin(APIView):
     def put(self, *args, **kwargs):
         pass
 
-    def patch(self, *args, **kwargs):
-        pass
-
     def put_action(self, *args, **kwargs):
-        pass
+        raise NotImplementedError()
+
+
+class PartialUpdateAPIViewMixin(APIView):
+    status_code = status.HTTP_202_ACCEPTED
+
+    @copy_params
+    def patch(self, *args, **kwargs):
+        response_data = self.patch_action(*args, **kwargs)
+        response = self.response_class(response_data, **self.response_args)
+        response.status_code = self.status_code
+        return response
 
     def patch_action(self, *args, **kwargs):
-        pass
+        raise NotImplementedError()
 
 
-class DeleteAPIView(APIView):
+class DeleteAPIViewMixin(APIView):
     def delete(self, *args, **kwargs):
         pass
 

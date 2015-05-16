@@ -1,3 +1,4 @@
+import os
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Date, DateTime, ForeignKey, BigInteger
@@ -340,6 +341,7 @@ class Media(DictMixin, Base):
     type = Column(Integer, ForeignKey('media_type.id'))
     mime = Column(String(64))
     path = Column(String(256))
+    created_at = Column(DateTime)
 
     __mapper_args__ = {'polymorphic_on': type}
 
@@ -350,18 +352,38 @@ class Media(DictMixin, Base):
             'path': self.path,
         }
 
+    def get_directory(self):
+        raise NotImplementedError()
+
+    def get_file_name(self):
+        raise NotImplementedError()
+
+    def get_path(self):
+        directory = self.get_directory()
+        file_name = self.get_file_name()
+
+        return os.path.join(directory, file_name)
+
 
 class ProfilePictureMedia(Media):
 
     user_id = Column(BigInteger, ForeignKey('user.id'), unique=True)
-    subject = relationship(
-        Subject,
-        backref=backref('profile_picture', uselist=True, cascade='delete,all'))
+    user = relationship(
+        User,
+        backref=backref('avatar', uselist=True, cascade='delete,all'))
 
     __mapper_args__ = {'polymorphic_identity': MediaType.PROFILE_PICTURE}
 
+    def get_directory(self):
+        return os.path.realpath(os.path.join(config.MEDIA_FOLDER, 'profile_pictures'))
+
+    def get_file_name(self):
+        return Helper.md5(str(self.user_id))
+
 
 class MessageFileMedia(Media):
+
+    DIRECTORY = os.path.join(config.MEDIA_FOLDER, 'messages')
 
     message_id = Column(BigInteger, ForeignKey('message.id'))
     message = relationship(
@@ -369,3 +391,11 @@ class MessageFileMedia(Media):
         backref=backref('media', uselist=True, cascade='delete,all'))
 
     __mapper_args__ = {'polymorphic_identity': MediaType.MESSAGE_FILE}
+
+    def get_directory(self):
+        sender = self.message_id
+        hashed_sender = Helper.md5(sender)
+        return os.path.realpath(os.path.join(config.MEDIA_FOLDER, 'messages', hashed_sender))
+
+    def get_file_name(self):
+        return Helper.md5(str(self.id))

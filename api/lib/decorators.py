@@ -30,6 +30,7 @@ def copy_params(fnx):
         get_params = self.get_data()
         post_params = self.post_data()
         url_params = kwargs
+        files_params = self.files_data()
 
         get = {}
         post = {}
@@ -45,9 +46,13 @@ def copy_params(fnx):
         for (k, v) in url_params.iteritems():
             url[k] = v
 
+        for(k, v) in files_params.iteritems():
+            files[k] = v
+
         kwargs['get'] = get
         kwargs['post'] = post
         kwargs['url'] = url
+        kwargs['files'] = files
 
         return fnx(*args, **kwargs)
 
@@ -63,6 +68,7 @@ def validate(fnx):
             self.PARAM_URL: kwargs.get('url'),
             self.PARAM_GET: kwargs.get('get'),
             self.PARAM_POST: kwargs.get('post'),
+            self.PARAM_FILES: kwargs.get('files'),
 
         }
 

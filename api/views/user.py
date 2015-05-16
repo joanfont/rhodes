@@ -1,11 +1,16 @@
+from api.exceptions.user import UserAvatarNotFoundError
 from api.lib.decorators import login_required, user_belongs_to_subject, subject_exists, is_teacher, auth_token_required, \
     validate, group_exists, user_belongs_to_group, peer_exists, user_is_related_to_peer, peer_is_teacher, \
     peer_is_student, users_can_conversate
-from api.lib.mixins import ListAPIViewMixin, ModelResponseMixin
-from application.lib.validators import IntegerValidator, StringValidator
+from api.lib.mixins import ListAPIViewMixin, ModelResponseMixin, PartialUpdateAPIViewMixin, MediaResponseMixin
+from application.lib.storage import DiskStorage
+from application.lib.validators import IntegerValidator, StringValidator, WerkzeugFileValidator, ChoicesValidator
+from application.services.media import AttachAvatar, GetMediaBytes
 from application.services.user import GetSubjectTeachers, GetSubjectStudents, \
     GetGroupStudents, GetUserTeacherPeers, GetTeacherStudentPeers, GetUserConversators, GetUserByUserAndPassword
 from common.auth import encode_password
+
+from config import config
 
 
 class LoginView(ListAPIViewMixin):
@@ -190,3 +195,46 @@ class ProfileView(ListAPIViewMixin, ModelResponseMixin):
 
         user = kwargs.get('user')
         return user
+
+
+class AvatarView(ListAPIViewMixin, MediaResponseMixin):
+
+    @auth_token_required
+    def get_action(self, *args, **kwargs):
+
+        user = kwargs.get('user')
+
+        if not user.avatar:
+            raise UserAvatarNotFoundError()
+
+        avatar = user.avatar[0]
+        return avatar
+
+
+class UpdateAvatarView(PartialUpdateAPIViewMixin):
+
+    def params(self):
+        return {
+            'avatar': [self.PARAM_FILES, WerkzeugFileValidator({'required': True})],
+            'mime': [self.PARAM_POST, ChoicesValidator({'required': True, 'choices': config.ALLOWED_MIME_TYPES})]
+        }
+
+    @validate
+    @auth_token_required
+    def patch_action(self, *args, **kwargs):
+
+        user = kwargs.get('user')
+        avatar = kwargs.get('files').get('avatar')
+        mime = kwargs.get('post').get('mime')
+
+        byte_data = avatar.stream
+
+        attach_avatar_srv = AttachAvatar()
+
+        media = attach_avatar_srv.call({
+            'bytes': byte_data,
+            'mime': mime,
+            'user_id': user.id
+        })
+
+        return media

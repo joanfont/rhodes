@@ -188,6 +188,7 @@ class PutMessageBody(BasePersistanceService):
 
 
 class PutMessage(BasePersistanceService):
+
     def input(self):
         return {
             'sender_id': IntegerValidator({'required': True}),

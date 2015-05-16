@@ -37,3 +37,15 @@ PRIVATE_KEY = 'ZMsgjYbXyzHog7AtPvfiI2OW3cDTvycuYYztbYpT9tX3xsmgJMvSrtd3HtqOl9Okf
               'mjA4kNQzLbfloU7xbD35bu7rUMOFB3YPigzTMtl0xCK1P5V8QGgpj2eQOt5YQeZKS5T1Vb2lRAo2zUTMRp55hYyX885ry3kzsA2g' \
               'FfBxXSeO8NqKEwdp1XEuHgSanAzo54DM9vbHGr4yXSiZhuQABZLkXEZO6fG1W1eUNDLfbDsWkMaYzXmZ4yYNcwqlH1XddmvtUzXX' \
               'JUIy0vhqKw01gUdmtuhL5BnSYWUFdGhKgLyM3lKP5SNiMZCo'
+
+ALLOWED_MIME_TYPES = [
+    'image/png',
+    'image/jpeg',
+    'image/pjpeg'
+    'image/gif',
+    'image/bmp',
+]
+
+MAX_FILE_SIZE = 2 * 1024 * 1024
+
+MEDIA_FOLDER = 'media/'
