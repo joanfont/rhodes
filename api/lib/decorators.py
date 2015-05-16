@@ -34,6 +34,7 @@ def copy_params(fnx):
         get = {}
         post = {}
         url = {}
+        files = {}
 
         for (k, v) in get_params.iteritems():
             get[k] = v
