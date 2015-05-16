@@ -21,6 +21,16 @@ routing = {
         'name': 'profile',
         'methods': ['GET']
     },
+    '/user/': {
+        'class': user_views.UpdateAvatarView,
+        'name': 'user_update_avatar',
+        'methods': ['PATCH']
+    },
+    '/user/avatar/': {
+        'class': user_views.AvatarView,
+        'name': 'user_view_avatar',
+        'methods': ['GET']
+    },
     '/user/subjects/': {
         'class': subject_views.ListSubjectsView,
         'name': 'user_subjects',
@@ -166,6 +176,6 @@ routing = {
         'class': notification_views.ConversationNotificationsView,
         'name': 'user_chats_notifications',
         'methods': ['GET']
-    }
+    },
 
 }

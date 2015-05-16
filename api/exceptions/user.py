@@ -6,6 +6,11 @@ class UserNotFoundError(ObjectNotFoundError):
     message = 'User not found'
 
 
+class UserAvatarNotFoundError(ObjectNotFoundError):
+
+    message = 'User avatar not found'
+
+
 class TeacherNotFoundError(ObjectNotFoundError):
 
     message = 'Teacher not found'

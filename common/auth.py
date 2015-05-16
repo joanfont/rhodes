@@ -1,20 +1,18 @@
 import hashlib
 import hmac
-import base64
+from common.helper import Helper
 
 
 def encode_password(password):
-    m = hashlib.md5()
-    m.update(password)
-    return m.hexdigest()
+    return Helper.md5(password)
 
 
 def encode_auth_token(token):
-    return base64.b64encode(token)
+    return Helper.b64_encode(token)
 
 
 def decode_auth_token(token):
-    return base64.b64decode(token)
+    return Helper.b64_decode(token)
 
 
 def generate_auth_token(message, secret):
