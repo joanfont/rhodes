@@ -24,8 +24,10 @@ config/nginx.conf
 *.lot
 *.lof
 *.out
-*.dvi
 docs/*.pdf
 
 # Env file (environment specific)
 .env
+
+media/messages/*
+media/profile_pictures/*

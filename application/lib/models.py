@@ -207,7 +207,6 @@ class Group(DictMixin, Base):
         return data
 
 
-
 class MessageType(Base):
 
     DIRECT_MESSAGE = 1
@@ -317,3 +316,56 @@ class SubjectMessage(Message):
             'subject_id': self.subject_id
         })
         return super_dict
+
+
+class MediaType(Base):
+
+    PROFILE_PICTURE = 1
+    MESSAGE_FILE = 2
+
+    CHOICES = [PROFILE_PICTURE, MESSAGE_FILE]
+
+    __tablename__ = 'media_type'
+    __table_args__ = {'mysql_charset': 'utf8'}
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(20))
+
+
+class Media(DictMixin, Base):
+
+    __tablename__ = 'media'
+
+    id = Column(BigInteger, primary_key=True)
+    type = Column(Integer, ForeignKey('media_type.id'))
+    mime = Column(String(64))
+    path = Column(String(256))
+
+    __mapper_args__ = {'polymorphic_on': type}
+
+    def to_dict(self, **kwargs):
+        return {
+            'id': self.id,
+            'mime': self.mime,
+            'path': self.path,
+        }
+
+
+class ProfilePictureMedia(Media):
+
+    user_id = Column(BigInteger, ForeignKey('user.id'), unique=True)
+    subject = relationship(
+        Subject,
+        backref=backref('profile_picture', uselist=True, cascade='delete,all'))
+
+    __mapper_args__ = {'polymorphic_identity': MediaType.PROFILE_PICTURE}
+
+
+class MessageFileMedia(Media):
+
+    message_id = Column(BigInteger, ForeignKey('message.id'))
+    message = relationship(
+        Message,
+        backref=backref('media', uselist=True, cascade='delete,all'))
+
+    __mapper_args__ = {'polymorphic_identity': MediaType.MESSAGE_FILE}

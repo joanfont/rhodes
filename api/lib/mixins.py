@@ -1,6 +1,6 @@
 from flask import request, Response
 from flask.views import MethodView
-from api.lib.decorators import copy_params as c_params, copy_params
+from api.lib.decorators import copy_params
 from common import status
 from common.helper import Helper
 import json
@@ -111,10 +111,10 @@ class UpdateAPIView(APIView):
         pass
 
     def put_action(self, *args, **kwargs):
-        raise NotImplementedError()
+        pass
 
     def patch_action(self, *args, **kwargs):
-        raise NotImplementedError()
+        pass
 
 
 class DeleteAPIView(APIView):
