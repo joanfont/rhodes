@@ -1,3 +1,4 @@
+from io import BytesIO
 from flask import request
 from api.exceptions.auth import NotAuthenticatedError, NotEnoughPermissionError
 from api.exceptions.group import GroupNotFoundError, GroupDoesNotBelongToSubjectError
@@ -652,3 +653,15 @@ def user_can_see_media(fnx):
 
     return wrapped_fnx
 
+
+def file_max_length(field):
+
+    def file_max_length_decorator(fnx):
+
+        def wrapped_fnx(*args, **kwargs):
+
+            return fnx(*args, **kwargs)
+
+        return wrapped_fnx
+
+    return file_max_length_decorator
