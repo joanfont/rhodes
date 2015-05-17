@@ -375,7 +375,8 @@ class ProfilePictureMedia(Media):
     __mapper_args__ = {'polymorphic_identity': MediaType.PROFILE_PICTURE}
 
     def get_directory(self):
-        return os.path.realpath(os.path.join(config.MEDIA_FOLDER, 'profile_pictures'))
+        last_name = self.user.last_name
+        return os.path.realpath(os.path.join(config.MEDIA_FOLDER, 'avatars', ))
 
     def get_file_name(self):
         return Helper.md5(str(self.user_id))

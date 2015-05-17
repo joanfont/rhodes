@@ -2,11 +2,7 @@ from io import BytesIO
 import os
 
 
-class BaseStorage(object):
-    pass
-
-
-class DiskStorage(BaseStorage):
+class DiskStorage(object):
 
     @staticmethod
     def save_bytes(byte_data, path):
@@ -28,6 +24,11 @@ class DiskStorage(BaseStorage):
     def remove(path):
         if os.path.exists(path):
             os.remove(path)
+
+
+    @staticmethod
+    def ensure_path(path):
+
 
 
 

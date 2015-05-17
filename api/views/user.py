@@ -3,9 +3,8 @@ from api.lib.decorators import login_required, user_belongs_to_subject, subject_
     validate, group_exists, user_belongs_to_group, peer_exists, user_is_related_to_peer, peer_is_teacher, \
     peer_is_student, users_can_conversate
 from api.lib.mixins import ListAPIViewMixin, ModelResponseMixin, PartialUpdateAPIViewMixin, MediaResponseMixin
-from application.lib.storage import DiskStorage
 from application.lib.validators import IntegerValidator, StringValidator, WerkzeugFileValidator, ChoicesValidator
-from application.services.media import AttachAvatar, GetMediaBytes
+from application.services.media import AttachAvatar
 from application.services.user import GetSubjectTeachers, GetSubjectStudents, \
     GetGroupStudents, GetUserTeacherPeers, GetTeacherStudentPeers, GetUserConversators, GetUserByUserAndPassword
 from common.auth import encode_password
@@ -103,12 +102,36 @@ class ListGroupStudentsView(ListAPIViewMixin, ModelResponseMixin):
         return students
 
 
-class TeacherDetailPeerView(ListAPIViewMixin, ModelResponseMixin):
+class PeerDetailView(ListAPIViewMixin, ModelResponseMixin):
 
     def params(self):
         return {
             'peer_id': [self.PARAM_URL, IntegerValidator({'required': True})]
         }
+
+    def get_action(self, *args, **kwargs):
+        peer = kwargs.get('peer')
+        return peer
+
+
+class PeerAvatarView(ListAPIViewMixin, MediaResponseMixin):
+
+    def params(self):
+        return {
+            'peer_id': [self.PARAM_URL, IntegerValidator({'required': True})]
+        }
+
+    def get_action(self, *args, **kwargs):
+
+        peer = kwargs.get('peer')
+        if not peer.avatar:
+            raise UserAvatarNotFoundError()
+
+        avatar = peer.avatar[0]
+        return avatar
+
+
+class TeacherDetailView(PeerDetailView):
 
     @validate
     @auth_token_required
@@ -116,16 +139,21 @@ class TeacherDetailPeerView(ListAPIViewMixin, ModelResponseMixin):
     @peer_is_teacher
     @user_is_related_to_peer
     def get_action(self, *args, **kwargs):
-        peer = kwargs.get('peer')
-        return peer
+        return super(TeacherDetailView, self).get_action(*args, **kwargs)
 
 
-class StudentDetailPeerView(ListAPIViewMixin, ModelResponseMixin):
+class TeacherAvatarView(PeerAvatarView):
 
-    def params(self):
-        return {
-            'peer_id': [self.PARAM_URL, IntegerValidator({'required': True})]
-        }
+    @validate
+    @auth_token_required
+    @peer_exists
+    @peer_is_teacher
+    @user_is_related_to_peer
+    def get_action(self, *args, **kwargs):
+        return super(PeerAvatarView, self).get_action(*args, **kwargs)
+
+
+class StudentDetailView(PeerDetailView):
 
     @validate
     @auth_token_required
@@ -134,8 +162,18 @@ class StudentDetailPeerView(ListAPIViewMixin, ModelResponseMixin):
     @peer_is_student
     @user_is_related_to_peer
     def get_action(self, *args, **kwargs):
-        peer = kwargs.get('peer')
-        return peer
+        return super(StudentDetailView, self).get_action(*args, **kwargs)
+
+
+class StudentAvatarView(PeerAvatarView):
+
+    @validate
+    @auth_token_required
+    @peer_exists
+    @peer_is_student
+    @user_is_related_to_peer
+    def get_action(self, *args, **kwargs):
+        return super(StudentAvatarView, self).get_action(*args, **kwargs)
 
 
 class ListTeacherPeersView(ListAPIViewMixin, ModelResponseMixin):

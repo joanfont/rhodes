@@ -116,8 +116,13 @@ routing = {
         'methods': ['GET']
     },
     '/user/teachers/<peer_id>/': {
-        'class': user_views.TeacherDetailPeerView,
+        'class': user_views.TeacherDetailView,
         'name':  'user_teachers_peer_detail',
+        'methods': ['GET']
+    },
+    '/user/teachers/<peer_id>/avatar/': {
+        'class': user_views.TeacherAvatarView,
+        'name': 'user_teacher_avatar',
         'methods': ['GET']
     },
     '/user/students/': {
@@ -126,8 +131,13 @@ routing = {
         'methods': ['GET']
     },
     '/user/students/<peer_id>/': {
-        'class': user_views.StudentDetailPeerView,
+        'class': user_views.StudentDetailView,
         'name':  'user_students_peer_detail',
+        'methods': ['GET']
+    },
+    '/user/students/<peer_id>/avatar/': {
+        'class': user_views.StudentAvatarView,
+        'name': 'user_student_avatar',
         'methods': ['GET']
     },
     '/user/chats/': {
