@@ -1,9 +1,10 @@
-from io import BytesIO
+from copy import deepcopy, copy
 from flask import request
+import sys
 from api.exceptions.auth import NotAuthenticatedError, NotEnoughPermissionError
 from api.exceptions.group import GroupNotFoundError, GroupDoesNotBelongToSubjectError
 from api.exceptions.media import MediaNotFoundError, UserCanNotSeeMediaError, LimitOfMessageFilesReachedError, \
-    CantAttachMediaToMessageError
+    CantAttachMediaToMessageError, FileTooLargeError
 from api.exceptions.message import MessageNotFoundErorr, MessageDoesNotBelongToSubjectError, \
     MessageKindIsNotSubjectMessageErrror, MessageDoesNotBelongToGroupError, MessageKindIsNotGroupMessageErrror, \
     MessageDoesNotBelongToConversationError, MessageKindIsNotDirectMessageError
@@ -22,7 +23,8 @@ from common.auth import encode_password
 
 from application.services.user import CheckUserExistsByUserAndPassword, GetUserByAuthToken, UserCanSeeTeacher, GetUser, \
     TeacherCanSeeStudent
-from application.services.subject import GetUserSubject, GetSubject
+from application.services.subject import GetSubject
+from common.helper import Helper
 from config import config
 
 
@@ -58,6 +60,7 @@ def copy_params(fnx):
         kwargs['post'] = post
         kwargs['url'] = url
         kwargs['files'] = files
+        kwargs['streams'] = {}
 
         return fnx(*args, **kwargs)
 
@@ -654,11 +657,33 @@ def user_can_see_media(fnx):
     return wrapped_fnx
 
 
+def file_to_stream(field):
+
+    def file_to_stream_decorator(fnx):
+
+        def wrapped_fnx(*args, **kwargs):
+
+            f = kwargs.get('files').get(field)
+            bio = Helper.werkzeug_to_stream(f)
+
+            kwargs['streams'][field] = bio
+
+            return fnx(*args, **kwargs)
+
+        return wrapped_fnx
+
+    return file_to_stream_decorator
+
 def file_max_length(field):
 
     def file_max_length_decorator(fnx):
 
         def wrapped_fnx(*args, **kwargs):
+
+            f = kwargs.get('streams').get(field)
+
+            if len(f.getvalue()) > config.MAX_FILE_SIZE:
+                raise FileTooLargeError()
 
             return fnx(*args, **kwargs)
 

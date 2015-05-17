@@ -4,13 +4,14 @@ from api.exceptions.message import MessageNotFoundErorr
 from api.lib.decorators import user_belongs_to_subject, group_exists, user_belongs_to_group, \
     group_belongs_to_subject, auth_token_required, subject_exists, message_belongs_to_subject, \
     message_belongs_to_group, message_exists, validate, peer_exists, users_can_conversate, message_belongs_to_peers, \
-    can_add_file_to_message
+    can_add_file_to_message, file_max_length, file_to_stream
 from api.lib.mixins import ListAPIViewMixin, CreateAPIViewMixin, ModelResponseMixin, PaginatedResponseMixin, \
     MediaResponseMixin, PartialUpdateAPIViewMixin
 from application.lib.validators import IntegerValidator, StringValidator, WerkzeugFileValidator, ChoicesValidator
 from application.services.media import AttachMessageFile
 from application.services.message import GetGroupMessages, PutGroupMessage, PutSubjectMessage, GetSubjectMessages, \
     GetMessage, GetDirectMessages, PutDirectMessage
+from common.helper import Helper
 
 from config import config
 
@@ -355,13 +356,13 @@ class AttachFileToMessageView(PartialUpdateAPIViewMixin, ModelResponseMixin):
     def patch_action(self, *args, **kwargs):
 
         message_id = kwargs.get('url').get('message_id')
-        werkzeug_file = kwargs.get('files').get('file')
+        _file = kwargs.get('files').get('file')
         mime = kwargs.get('post').get('mime')
 
         attach_message_file_srv = AttachMessageFile()
 
         media = attach_message_file_srv.call({
-            'bytes': werkzeug_file.stream,
+            'bytes': _file,
             'mime': mime,
             'message_id': message_id
         })
@@ -385,6 +386,8 @@ class AttachFileToSubjectMessageView(AttachFileToMessageView):
     @message_exists
     @message_belongs_to_subject
     @can_add_file_to_message
+    @file_to_stream('file')
+    @file_max_length('file')
     def patch_action(self, *args, **kwargs):
         return super(AttachFileToSubjectMessageView, self).patch_action(*args, **kwargs)
 
@@ -408,6 +411,8 @@ class AttachFileToGroupMessageView(AttachFileToMessageView):
     @message_exists
     @message_belongs_to_group
     @can_add_file_to_message
+    @file_to_stream('file')
+    @file_max_length('file')
     def patch_action(self, *args, **kwargs):
         return super(AttachFileToGroupMessageView, self).patch_action(*args, **kwargs)
 
@@ -424,5 +429,8 @@ class AttachFileToDirectMessage(AttachFileToMessageView):
     @auth_token_required
     @peer_exists
     @users_can_conversate
+    @can_add_file_to_message
+    @file_to_stream('file')
+    @file_max_length('file')
     def patch_action(self, *args, **kwargs):
         return super(AttachFileToDirectMessage, self).patch_action(*args, **kwargs)

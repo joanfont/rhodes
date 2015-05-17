@@ -2,6 +2,7 @@ from flask import jsonify
 from werkzeug.exceptions import RequestEntityTooLarge
 from api.exceptions import ObjectNotFoundError, ForbiddenActionError, ConflictError, APIError
 from api.exceptions.auth import NotAuthenticatedError
+from api.exceptions.media import FileTooLargeError
 from api.exceptions.response import CantSerializeArrayError
 from application.exceptions import ValidationError as ApplicationValidationError
 from api.exceptions.validation import ValidationError as APIValidationError
@@ -78,23 +79,6 @@ class AppValidationErrorHandler(BaseErrorHandler):
         return response
 
 
-class RequestEntityTooLargeErrorHandler(BaseErrorHandler):
-
-    def __init__(self):
-        super(RequestEntityTooLargeErrorHandler, self).__init__()
-
-    def __call__(self, error):
-
-        api_error = APIError(message=error.description, code='request_entity_too_large', status_code=error.code)
-
-        response = jsonify(api_error.to_dict())
-        response.status_code = api_error.status_code
-
-        super(RequestEntityTooLargeErrorHandler, self).__call__(api_error)
-
-        return response
-
-
 handlers = {
 
     # generic errors
@@ -112,6 +96,6 @@ handlers = {
     # special case for application validation errors
     ApplicationValidationError: AppValidationErrorHandler(),
 
-    RequestEntityTooLarge: RequestEntityTooLargeErrorHandler()
+    FileTooLargeError: APIErrorHandler()
 
 }
