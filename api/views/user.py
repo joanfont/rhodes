@@ -2,7 +2,8 @@ from api.exceptions.user import UserAvatarNotFoundError
 from api.lib.decorators import login_required, user_belongs_to_subject, subject_exists, is_teacher, auth_token_required, \
     validate, group_exists, user_belongs_to_group, peer_exists, user_is_related_to_peer, peer_is_teacher, \
     peer_is_student, users_can_conversate
-from api.lib.mixins import ListAPIViewMixin, ModelResponseMixin, PartialUpdateAPIViewMixin, MediaResponseMixin
+from api.lib.mixins import ListAPIViewMixin, ModelResponseMixin, PartialUpdateAPIViewMixin, MediaResponseMixin, \
+    UpdateAPIViewMixin
 from application.lib.validators import IntegerValidator, StringValidator, WerkzeugFileValidator, ChoicesValidator
 from application.services.media import AttachAvatar
 from application.services.user import GetSubjectTeachers, GetSubjectStudents, \
@@ -235,21 +236,7 @@ class ProfileView(ListAPIViewMixin, ModelResponseMixin):
         return user
 
 
-class AvatarView(ListAPIViewMixin, MediaResponseMixin):
-
-    @auth_token_required
-    def get_action(self, *args, **kwargs):
-
-        user = kwargs.get('user')
-
-        if not user.avatar:
-            raise UserAvatarNotFoundError()
-
-        avatar = user.avatar[0]
-        return avatar
-
-
-class UpdateAvatarView(PartialUpdateAPIViewMixin):
+class UpdateAvatarView(UpdateAPIViewMixin, ModelResponseMixin):
 
     def params(self):
         return {
@@ -259,7 +246,7 @@ class UpdateAvatarView(PartialUpdateAPIViewMixin):
 
     @validate
     @auth_token_required
-    def patch_action(self, *args, **kwargs):
+    def put_action(self, *args, **kwargs):
 
         user = kwargs.get('user')
         avatar = kwargs.get('files').get('avatar')

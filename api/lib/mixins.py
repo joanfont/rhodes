@@ -43,7 +43,6 @@ class MediaResponse(Response):
         media_bytes = get_media_bytes_srv.call({
             'media': media
         })
-
         super(MediaResponse, self).__init__(response=media_bytes, status=status.HTTP_200_OK, mimetype=media.mime,
                                             content_type=media.mime)
 
@@ -133,14 +132,22 @@ class CreateAPIViewMixin(APIView):
 
 
 class UpdateAPIViewMixin(APIView):
+
+    status_code = status.HTTP_202_ACCEPTED
+
+    @copy_params
     def put(self, *args, **kwargs):
-        pass
+        response_data = self.put_action(*args, **kwargs)
+        response = self.response_class(response_data, **self.response_args)
+        response.status_code = self.status_code
+        return response
 
     def put_action(self, *args, **kwargs):
         raise NotImplementedError()
 
 
 class PartialUpdateAPIViewMixin(APIView):
+
     status_code = status.HTTP_202_ACCEPTED
 
     @copy_params

@@ -2,6 +2,7 @@ import os
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Date, DateTime, ForeignKey, BigInteger
+from common.environment import Environment
 
 from common.helper import Helper
 from common.session import manager
@@ -15,7 +16,6 @@ Base = declarative_base()
 
 
 class SessionWrapper:
-
     def __init__(self):
         self.session = manager.get('flask')
 
@@ -33,13 +33,11 @@ class SessionWrapper:
 
 
 class DictMixin(object):
-
     def to_dict(self, **kwargs):
         raise NotImplementedError()
 
 
 class StudentGroup(Base):
-
     __tablename__ = 'student_group'
     __table_args__ = {'mysql_charset': 'utf8'}
 
@@ -48,7 +46,6 @@ class StudentGroup(Base):
 
 
 class TeacherSubject(Base):
-
     __tablename__ = 'teacher_subject'
     __table_args__ = {'mysql_charset': 'utf8'}
 
@@ -57,7 +54,6 @@ class TeacherSubject(Base):
 
 
 class UserType(Base):
-
     __tablename__ = 'user_type'
     __table_args__ = {'mysql_charset': 'utf8'}
 
@@ -71,7 +67,6 @@ class UserType(Base):
 
 
 class User(DictMixin, Base):
-
     __tablename__ = 'user'
     __table_args__ = {'mysql_charset': 'utf8'}
 
@@ -87,13 +82,20 @@ class User(DictMixin, Base):
         UserType,
         backref=backref('users', uselist=True, cascade='delete,all'))
 
+    def get_avatar(self):
+        return self.avatar[0] if self.avatar and len(self.avatar) > 0 else None
+
     def to_dict(self, **kwargs):
+
+        avatar = self.get_avatar().to_dict() if self.get_avatar() else None
+
         return {
             'id': self.id,
             'first_name': self.first_name,
             'last_name': self.last_name,
             'user': self.user,
             'type': self.type_id,
+            'avatar': avatar
         }
 
     def is_teacher(self):
@@ -112,7 +114,6 @@ class User(DictMixin, Base):
         return generate_auth_token(message, secret)
 
     def get_subject_ids(self):
-
         def _get_teacher_subejct_ids():
             return map(lambda x: int(x.id), self.subjects)
 
@@ -130,9 +131,7 @@ class User(DictMixin, Base):
         return subjects
 
     def get_groups_ids(self):
-
         def _get_teacher_groups_ids():
-
             def _get_subject_groups(subject):
                 return map(lambda x: int(x.id), subject.groups)
 
@@ -155,7 +154,6 @@ class User(DictMixin, Base):
 
 
 class Subject(DictMixin, Base):
-
     __tablename__ = 'subject'
     __table_args__ = {'mysql_charset': 'utf8'}
 
@@ -166,24 +164,18 @@ class Subject(DictMixin, Base):
     teachers = relationship('User', backref='subjects', secondary=TeacherSubject.__table__)
 
     def to_dict(self, **kwargs):
-        base = {
+        groups = map(lambda x: x.to_dict(**kwargs), self.groups)
+
+        return {
             'id': self.id,
             'code': self.code,
             'name': self.name,
+            'groups': groups
+
         }
-
-        if kwargs.get('with_group'):
-            base.update({'group': self.group.to_dict(**kwargs)})
-
-        if kwargs.get('with_groups'):
-            groups = map(lambda x: x.to_dict(**kwargs), self.groups)
-            base.update({'groups': groups})
-
-        return base
 
 
 class Group(DictMixin, Base):
-
     __tablename__ = 'group'
     __table_args__ = {'mysql_charset': 'utf8'}
 
@@ -209,7 +201,6 @@ class Group(DictMixin, Base):
 
 
 class MessageType(Base):
-
     DIRECT_MESSAGE = 1
     GROUP_MESSAGE = 2
     SUBJECT_MESSAGE = 3
@@ -224,7 +215,6 @@ class MessageType(Base):
 
 
 class MessageBody(Base):
-
     MAX_LENGTH = config.MESSAGE_MAX_LENGTH
 
     __tablename__ = 'message_body'
@@ -234,7 +224,6 @@ class MessageBody(Base):
 
 
 class Message(DictMixin, Base):
-
     __tablename__ = 'message'
     __table_args__ = {'mysql_charset': 'utf8'}
 
@@ -256,18 +245,21 @@ class Message(DictMixin, Base):
         primaryjoin=body_id == MessageBody.id)
 
     def to_dict(self, **kwargs):
+        media = self.media if self.media else []
+        if media:
+            media = map(lambda x: x.to_dict(**kwargs), media)
         return {
             'id': self.id,
             'body': self.body.content,
             'created_at': Helper.datetime_format(self.created_at),
-            'sender': self.sender.to_dict(**kwargs)
+            'sender': self.sender.to_dict(**kwargs),
+            'media': media
         }
 
     __mapper_args__ = {'polymorphic_on': type}
 
 
 class DirectMessage(Message):
-
     user_id = Column(BigInteger, ForeignKey('user.id'))
     user = relationship(
         User,
@@ -286,7 +278,6 @@ class DirectMessage(Message):
 
 
 class GroupMessage(Message):
-
     group_id = Column(BigInteger, ForeignKey('group.id'))
     group = relationship(
         Group,
@@ -303,7 +294,6 @@ class GroupMessage(Message):
 
 
 class SubjectMessage(Message):
-
     subject_id = Column(BigInteger, ForeignKey('subject.id'))
     subject = relationship(
         Subject,
@@ -320,11 +310,10 @@ class SubjectMessage(Message):
 
 
 class MediaType(Base):
-
-    PROFILE_PICTURE = 1
+    AVATAR = 1
     MESSAGE_FILE = 2
 
-    CHOICES = [PROFILE_PICTURE, MESSAGE_FILE]
+    CHOICES = [AVATAR, MESSAGE_FILE]
 
     __tablename__ = 'media_type'
     __table_args__ = {'mysql_charset': 'utf8'}
@@ -334,7 +323,6 @@ class MediaType(Base):
 
 
 class Media(DictMixin, Base):
-
     __tablename__ = 'media'
 
     id = Column(BigInteger, primary_key=True)
@@ -349,7 +337,7 @@ class Media(DictMixin, Base):
         return {
             'id': self.id,
             'mime': self.mime,
-            'path': self.path,
+            'url': self.get_url()
         }
 
     def get_directory(self):
@@ -364,19 +352,23 @@ class Media(DictMixin, Base):
 
         return os.path.join(directory, file_name)
 
+    def get_url(self):
+        host = Environment.get('HOST')
+        return '{host}/media/{media_id}/'.format(host=host, media_id=self.id)
 
-class ProfilePictureMedia(Media):
 
+class AvatarMedia(Media):
     user_id = Column(BigInteger, ForeignKey('user.id'), unique=True)
     user = relationship(
         User,
         backref=backref('avatar', uselist=True, cascade='delete,all'))
 
-    __mapper_args__ = {'polymorphic_identity': MediaType.PROFILE_PICTURE}
+    __mapper_args__ = {'polymorphic_identity': MediaType.AVATAR}
 
     def get_directory(self):
         last_name = self.user.last_name
-        return os.path.realpath(os.path.join(config.MEDIA_FOLDER, 'avatars', ))
+        last_name_dir = last_name[0].lower()
+        return os.path.realpath(os.path.join(config.MEDIA_FOLDER, 'avatars', last_name_dir))
 
     def get_file_name(self):
         return Helper.md5(str(self.user_id))
@@ -384,7 +376,11 @@ class ProfilePictureMedia(Media):
 
 class MessageFileMedia(Media):
 
-    DIRECTORY = os.path.join(config.MEDIA_FOLDER, 'messages')
+    directory_type = {
+        MessageType.DIRECT_MESSAGE: 'chat',
+        MessageType.GROUP_MESSAGE: 'group',
+        MessageType.SUBJECT_MESSAGE: 'subject'
+    }
 
     message_id = Column(BigInteger, ForeignKey('message.id'))
     message = relationship(
@@ -394,9 +390,24 @@ class MessageFileMedia(Media):
     __mapper_args__ = {'polymorphic_identity': MediaType.MESSAGE_FILE}
 
     def get_directory(self):
-        sender = self.message_id
-        hashed_sender = Helper.md5(sender)
-        return os.path.realpath(os.path.join(config.MEDIA_FOLDER, 'messages', hashed_sender))
+
+        message_type = self.message.type
+
+        message_directory_type = self.directory_type.get(message_type)
+
+        if message_type == MessageType.DIRECT_MESSAGE:
+            sender = self.message.sender.last_name
+            subfolder = sender[0].lower()
+        elif message_type == MessageType.GROUP_MESSAGE:
+            group = self.message.group
+            subfolder = group.id
+        elif message_type == MessageType.SUBJECT_MESSAGE:
+            subject = self.message.subject
+            subfolder = subject.id
+
+        subfolder = str(subfolder)
+
+        return os.path.realpath(os.path.join(config.MEDIA_FOLDER, 'messages', message_directory_type, subfolder))
 
     def get_file_name(self):
         return Helper.md5(str(self.id))

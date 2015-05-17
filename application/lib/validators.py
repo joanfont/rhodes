@@ -1,5 +1,6 @@
 from datetime import datetime
 from application.exceptions import MyValueError
+from common.helper import Helper
 from config import config
 
 class BaseValidator(object):
@@ -76,7 +77,7 @@ class StringValidator(BaseValidator):
         min_length = self.options.get('min_length')
         max_length = self.options.get('max_length')
 
-        if not isinstance(value, (basestring, unicode, str)):
+        if not Helper.instance_of(value, (basestring, unicode, str)):
             self.add_error('The value is not an string')
 
         if min_length and len(value) < min_length:
@@ -99,8 +100,8 @@ class ChoicesValidator(BaseValidator):
 
         choices = self.options.get('choices')
 
-        if not isinstance(choices, (list, tuple)):
-            self.add_eror('Choices option must be a list or a tuple')
+        if not Helper.instance_of(choices, (list, tuple)):
+            self.add_error('Choices option must be a list or a tuple')
 
         if value not in choices:
             self.add_error('The value is not in choices')
@@ -121,7 +122,7 @@ class DateValidator(BaseValidator):
 
     @staticmethod
     def get_instance(value, frmat):
-        return value if isinstance(value, datetime) else datetime.strptime(value, frmat)
+        return value if Helper.instance_of(value, datetime) else datetime.strptime(value, frmat)
 
     def check_value(self, value):
 
@@ -143,8 +144,9 @@ class DateValidator(BaseValidator):
 
 
 class BooleanValidator(BaseValidator):
+
     def check_value(self, value):
-        if not isinstance(value, bool):
+        if not Helper.instance_of(value, bool):
             self.add_error('Value is not boolean')
 
     def clean_value(self, value):
@@ -160,11 +162,28 @@ class WerkzeugFileValidator(BaseValidator):
         except ImportError:
             raise ImportError('Werkzeug FileStorage not found')
 
-        if not isinstance(value, FileStorage):
+        if not Helper.instance_of(value, FileStorage):
             self.add_error('Value is not Werkzeug FileStorage type')
 
     def clean_value(self, value):
         return value
+
+
+class MultipleWerkzeugFileValidator(BaseValidator):
+
+    def check_value(self, value):
+
+        try:
+            from werkzeug.datastructures import FileStorage
+        except ImportError:
+            raise ImportError('Werkzeug FileStorage not found')
+
+        if not Helper.array_of(value, FileStorage):
+            self.add_error('Almost one value is not Werkzeug FileStorage type')
+
+    def clean_value(self, value):
+        return value
+
 
 
 class BytesIOValidator(BaseValidator):
@@ -176,7 +195,7 @@ class BytesIOValidator(BaseValidator):
         except ImportError:
             raise ImportError('BytesIO not found')
 
-        if not isinstance(value, BytesIO):
+        if not Helper.instance_of(value, BytesIO):
             self.add_error('Value is not BytesIO type')
 
     def clean_value(self, value):
@@ -196,7 +215,7 @@ class ClassValidator(BaseValidator):
 
         cls = self.options.get('class', object)
 
-        if not isinstance(value, cls):
+        if not Helper.instance_of(value, cls):
             self.add_error('Value is not {cls} type'.format(cls=type(cls)))
 
     def clean_value(self, value):
