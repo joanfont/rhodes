@@ -1,7 +1,9 @@
+from io import BytesIO
+import sys
 from api.exceptions.user import UserAvatarNotFoundError
 from api.lib.decorators import login_required, user_belongs_to_subject, subject_exists, is_teacher, auth_token_required, \
     validate, group_exists, user_belongs_to_group, peer_exists, user_is_related_to_peer, peer_is_teacher, \
-    peer_is_student, users_can_conversate, file_max_length
+    peer_is_student, users_can_conversate, file_max_length, file_to_stream
 from api.lib.mixins import ListAPIViewMixin, ModelResponseMixin, PartialUpdateAPIViewMixin, MediaResponseMixin, \
     UpdateAPIViewMixin
 from application.lib.validators import IntegerValidator, StringValidator, WerkzeugFileValidator, ChoicesValidator
@@ -9,6 +11,7 @@ from application.services.media import AttachAvatar
 from application.services.user import GetSubjectTeachers, GetSubjectStudents, \
     GetGroupStudents, GetUserTeacherPeers, GetTeacherStudentPeers, GetUserConversators, GetUserByUserAndPassword
 from common.auth import encode_password
+from common.helper import Helper
 
 from config import config
 
@@ -246,21 +249,18 @@ class UpdateAvatarView(UpdateAPIViewMixin, ModelResponseMixin):
 
     @validate
     @auth_token_required
+    @file_to_stream('avatar')
     @file_max_length('avatar')
     def put_action(self, *args, **kwargs):
 
         user = kwargs.get('user')
-        avatar = kwargs.get('files').get('avatar')
+        avatar = kwargs.get('streams').get('avatar')
         mime = kwargs.get('post').get('mime')
-
-        byte_data = avatar.stream
-
-        print byte_data
 
         attach_avatar_srv = AttachAvatar()
 
         media = attach_avatar_srv.call({
-            'bytes': byte_data,
+            'bytes': avatar,
             'mime': mime,
             'user_id': user.id
         })

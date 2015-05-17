@@ -1,5 +1,6 @@
 import base64
 import hashlib
+from io import BytesIO
 from config import config
 
 
@@ -33,3 +34,9 @@ class Helper(object):
     @staticmethod
     def b64_decode(data):
         return base64.b64decode(data)
+
+    @staticmethod
+    def werkzeug_to_stream(f):
+        stream = f.stream
+        return BytesIO(stream.read())
+
