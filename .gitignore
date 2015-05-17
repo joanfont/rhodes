@@ -29,5 +29,7 @@ docs/*.pdf
 # Env file (environment specific)
 .env
 
-media/messages/*
-media/profile_pictures/*
+media/messages/chat/*
+media/messages/group/*
+media/messages/subject/*
+media/avatars/*
