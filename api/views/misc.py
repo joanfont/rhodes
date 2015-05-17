@@ -11,9 +11,13 @@ class ConfigView(ListAPIViewMixin):
     def get_action(self, *args, **kwargs):
         return {
             'message_max_length': config.MESSAGE_MAX_LENGTH,
+            'max_file_size': config.MAX_FILE_SIZE,
+            'allowed_mime_types': config.ALLOWED_MIME_TYPES,
+            'max_message_files': config.MAX_MESSAGE_FILES,
             'user_types': {
                 UserType.TEACHER: 'Teacher',
                 UserType.STUDENT: 'Student'
             },
+
         }
 

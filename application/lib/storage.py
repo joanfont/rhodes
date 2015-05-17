@@ -25,10 +25,10 @@ class DiskStorage(object):
         if os.path.exists(path):
             os.remove(path)
 
-
     @staticmethod
     def ensure_path(path):
-
+        if not os.path.exists(path):
+            os.makedirs(path)
 
 
 

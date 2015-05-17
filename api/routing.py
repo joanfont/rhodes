@@ -4,7 +4,7 @@ from api.views import message as message_views
 from api.views import user as user_views
 from api.views import misc as misc_views
 from api.views import notification as notification_views
-
+from api.views import media as media_views
 routing = {
     '/config/': {
         'class': misc_views.ConfigView,
@@ -21,15 +21,10 @@ routing = {
         'name': 'profile',
         'methods': ['GET']
     },
-    '/user/': {
+    '/user/avatar/': {
         'class': user_views.UpdateAvatarView,
         'name': 'user_update_avatar',
-        'methods': ['PATCH']
-    },
-    '/user/avatar/': {
-        'class': user_views.AvatarView,
-        'name': 'user_view_avatar',
-        'methods': ['GET']
+        'methods': ['PUT']
     },
     '/user/subjects/': {
         'class': subject_views.ListSubjectsView,
@@ -57,6 +52,11 @@ routing = {
         'class': message_views.SubjectMessageDetailView,
         'name': 'user_subject_message',
         'methods': ['GET']
+    },
+    '/user/subjects/<subject_id>/messages/<message_id>/media/': {
+        'class': message_views.AttachFileToSubjectMessageView,
+        'name': 'user_subject_message_attach_file',
+        'methods': ['PATCH']
     },
     '/user/subjects/<subject_id>/messages/<message_id>/<direction>/': {
         'class': message_views.ListPaginatedSubjectMessagesView,
@@ -99,6 +99,11 @@ routing = {
         'class': message_views.GroupMessageDetailView,
         'name': 'user_subject_group_message',
         'methods': ['GET']
+    },
+    '/user/subjects/<subject_id>/groups/<group_id>/messages/<message_id>/media/': {
+        'class': message_views.AttachFileToSubjectMessageView,
+        'name': 'user_subject_group_message_attach_file',
+        'methods': ['PATCH']
     },
     '/user/subjects/<subject_id>/groups/<group_id>/messages/<message_id>/<direction>/': {
         'class': message_views.ListPaginatedGroupMessagesView,
@@ -162,6 +167,11 @@ routing = {
             'methods': ['POST']
         }
     ],
+    '/user/chats/<peer_id>/messages/<message_id>/': {
+        'class': message_views.DirectMessageDetailView,
+        'name': 'user_chat_message_detail',
+        'methods': ['GET']
+    },
     '/user/chats/<peer_id>/messages/<message_id>/<direction>/': {
         'class': message_views.ListPaginatedDirectMessagesView,
         'name': 'user_chat_paginated_messages',
@@ -187,5 +197,10 @@ routing = {
         'name': 'user_chats_notifications',
         'methods': ['GET']
     },
+    '/media/<media_id>/': {
+        'class': media_views.MediaView,
+        'name': 'media',
+        'methods': ['GET']
+    }
 
 }

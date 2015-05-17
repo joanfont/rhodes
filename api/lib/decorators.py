@@ -1,6 +1,8 @@
 from flask import request
 from api.exceptions.auth import NotAuthenticatedError, NotEnoughPermissionError
 from api.exceptions.group import GroupNotFoundError, GroupDoesNotBelongToSubjectError
+from api.exceptions.media import MediaNotFoundError, UserCanNotSeeMediaError, LimitOfMessageFilesReachedError, \
+    CantAttachMediaToMessageError
 from api.exceptions.message import MessageNotFoundErorr, MessageDoesNotBelongToSubjectError, \
     MessageKindIsNotSubjectMessageErrror, MessageDoesNotBelongToGroupError, MessageKindIsNotGroupMessageErrror, \
     MessageDoesNotBelongToConversationError, MessageKindIsNotDirectMessageError
@@ -11,14 +13,16 @@ from api.exceptions.user import UserNotFoundError, TeacherDoesNotTeachSubjectErr
     PeerIsNotTeacherError, PeerIsNotStudentError
 from api.exceptions.validation import ValidationError
 from application.exceptions import MyValueError
-from application.lib.models import UserType, SubjectMessage, GroupMessage, DirectMessage
+from application.lib.models import UserType, SubjectMessage, GroupMessage, DirectMessage, MediaType, MessageType
 from application.services.group import GetGroup
+from application.services.media import GetMedia
 from application.services.message import GetMessage
 from common.auth import encode_password
 
 from application.services.user import CheckUserExistsByUserAndPassword, GetUserByAuthToken, UserCanSeeTeacher, GetUser, \
     TeacherCanSeeStudent
 from application.services.subject import GetUserSubject, GetSubject
+from config import config
 
 
 def copy_params(fnx):
@@ -211,12 +215,6 @@ def user_belongs_to_subject(fnx):
         user_subjects = user.get_subject_ids()
         user_belongs = subject_id in user_subjects
 
-        # check_user_belongs_to_subject_srv = CheckUserBelongsToSubject()
-        # user_belongs = check_user_belongs_to_subject_srv.call({
-        # 'subject_id': subject_jd,
-        #     'user_id': user.id
-        # })
-
         if not user_belongs:
             exception_cls = exception_dispatcher.get(user.type_id)
             raise exception_cls()
@@ -259,12 +257,6 @@ def user_belongs_to_group(fnx):
 
         user_groups = user.get_groups_ids()
         user_belongs = group_id in user_groups
-
-        # check_user_belongs_to_group_srv = CheckUserBelongsToGroup()
-        # user_belongs = check_user_belongs_to_group_srv.call({
-        # 'group_id': group_id,
-        #     'user_id': user.id
-        # })
 
         if not user_belongs:
             exception_cls = dispatcher.get(user.type.id)
@@ -556,3 +548,107 @@ def teacher_can_see_student(fnx):
         return fnx(*args, **kwargs)
 
     return wrapped_fnx
+
+
+def can_add_file_to_message(fnx):
+
+    def wrapped_fnx(*args, **kwargs):
+
+        user = kwargs.get('user')
+        message = kwargs.get('message')
+
+        if len(message.media) > config.MAX_MESSAGE_FILES:
+            raise LimitOfMessageFilesReachedError()
+
+        if message.sender_id != user.id:
+            raise CantAttachMediaToMessageError()
+
+        return fnx(*args, **kwargs)
+
+    return wrapped_fnx
+
+
+def media_exists(fnx):
+
+    def wrapped_fnx(*args, **kwargs):
+
+        media_id = kwargs.get('url').get('media_id')
+
+        get_media_srv = GetMedia()
+        media = get_media_srv.call({
+            'id': media_id
+        })
+
+        if not media:
+            raise MediaNotFoundError()
+
+        kwargs['media'] = media
+        return fnx(*args, **kwargs)
+
+    return wrapped_fnx
+
+
+def user_can_see_media(fnx):
+
+    def wrapped_fnx(*args, **kwargs):
+
+        def check_avatar_media():
+
+            peer = media.user
+
+            previous_condition = False
+
+            if user.is_teacher():
+                srv_class = UserCanSeeTeacher
+                key = 'teacher_id'
+            elif user.is_student():
+                if peer.is_teacher():
+                    srv_class = TeacherCanSeeStudent
+                    key = 'student_id'
+                elif peer.is_student():
+                    previous_condition = peer.id == user.id
+
+            if not previous_condition:
+                srv_instance = srv_class()
+
+                can_see_peer = srv_instance.call({
+                    'user_id': user.id,
+                    key: peer.id
+                })
+            else:
+                can_see_peer = previous_condition
+
+            return can_see_peer
+
+        def check_message_media():
+            message = media.message
+            message_type = message.type
+
+            if message_type == MessageType.DIRECT_MESSAGE:
+                can_see_message = message.sender_id == user.id or message.user_id == user.id
+            elif message_type == MessageType.GROUP_MESSAGE:
+                can_see_message = message.group_id in user.get_groups_ids()
+            elif message_type == MessageType.SUBJECT_MESSAGE:
+                can_see_message = message.subject_id in user.get_subject_ids()
+
+            return can_see_message
+
+        dispatcher = {
+            MediaType.AVATAR: check_avatar_media,
+            MediaType.MESSAGE_FILE: check_message_media
+        }
+
+        user = kwargs.get('user')
+        media = kwargs.get('media')
+
+        check_fnx = dispatcher.get(media.type)
+
+        can_see = check_fnx()
+
+        if not can_see:
+            raise UserCanNotSeeMediaError()
+
+        return fnx(*args, **kwargs)
+
+    return wrapped_fnx
+

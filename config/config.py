@@ -41,11 +41,13 @@ PRIVATE_KEY = 'ZMsgjYbXyzHog7AtPvfiI2OW3cDTvycuYYztbYpT9tX3xsmgJMvSrtd3HtqOl9Okf
 ALLOWED_MIME_TYPES = [
     'image/png',
     'image/jpeg',
-    'image/pjpeg'
+    'image/pjpeg',
     'image/gif',
     'image/bmp',
 ]
 
 MAX_FILE_SIZE = 2 * 1024 * 1024
+
+MAX_MESSAGE_FILES = 5
 
 MEDIA_FOLDER = 'media/'
