@@ -1,7 +1,7 @@
 from api.exceptions.user import UserAvatarNotFoundError
 from api.lib.decorators import login_required, user_belongs_to_subject, subject_exists, is_teacher, auth_token_required, \
     validate, group_exists, user_belongs_to_group, peer_exists, user_is_related_to_peer, peer_is_teacher, \
-    peer_is_student, users_can_conversate
+    peer_is_student, users_can_conversate, file_max_length
 from api.lib.mixins import ListAPIViewMixin, ModelResponseMixin, PartialUpdateAPIViewMixin, MediaResponseMixin, \
     UpdateAPIViewMixin
 from application.lib.validators import IntegerValidator, StringValidator, WerkzeugFileValidator, ChoicesValidator
@@ -246,6 +246,7 @@ class UpdateAvatarView(UpdateAPIViewMixin, ModelResponseMixin):
 
     @validate
     @auth_token_required
+    @file_max_length('avatar')
     def put_action(self, *args, **kwargs):
 
         user = kwargs.get('user')
@@ -253,6 +254,8 @@ class UpdateAvatarView(UpdateAPIViewMixin, ModelResponseMixin):
         mime = kwargs.get('post').get('mime')
 
         byte_data = avatar.stream
+
+        print byte_data
 
         attach_avatar_srv = AttachAvatar()
 
