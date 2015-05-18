@@ -334,7 +334,6 @@ class DirectMessageDetailView(MessageDetailView):
         })
         return super_params
 
-
     @validate
     @auth_token_required
     @peer_exists
