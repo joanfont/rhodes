@@ -356,7 +356,7 @@ class AttachFileToMessageView(PartialUpdateAPIViewMixin, ModelResponseMixin):
     def patch_action(self, *args, **kwargs):
 
         message_id = kwargs.get('url').get('message_id')
-        _file = kwargs.get('files').get('file')
+        _file = kwargs.get('streams').get('file')
         mime = kwargs.get('post').get('mime')
 
         attach_message_file_srv = AttachMessageFile()
