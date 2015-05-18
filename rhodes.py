@@ -1,10 +1,12 @@
 from flask.ext.script import Manager
 from api.app import app
 from application.tasks.generate_user_tokens import GenerateUserTokens
+from application.tasks.remove_images import RemoveImages
 
 manager = Manager(app)
 
 manager.add_command('generate_user_tokens', GenerateUserTokens())
+manager.add_command('remove_images', RemoveImages())
 
 
 @manager.command
