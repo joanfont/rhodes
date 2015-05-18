@@ -602,14 +602,14 @@ def user_can_see_media(fnx):
 
             previous_condition = False
 
-            if user.is_teacher():
+            if peer.is_teacher():
                 srv_class = UserCanSeeTeacher
                 key = 'teacher_id'
-            elif user.is_student():
-                if peer.is_teacher():
+            elif peer.is_student():
+                if user.is_teacher():
                     srv_class = TeacherCanSeeStudent
                     key = 'student_id'
-                elif peer.is_student():
+                elif user.is_student():
                     previous_condition = peer.id == user.id
 
             if not previous_condition:
