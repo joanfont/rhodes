@@ -614,7 +614,7 @@ def user_can_see_media(fnx):
 
             peer_ids = map(lambda x: int(x.id), peers)
 
-            return int(peer.id) in peer_ids
+            return int(peer.id) in peer_ids or peer.id == user.id
 
         def check_message_media():
             message = media.message
