@@ -5,7 +5,7 @@ from api.lib.decorators import login_required, user_belongs_to_subject, subject_
     validate, group_exists, user_belongs_to_group, peer_exists, user_is_related_to_peer, peer_is_teacher, \
     peer_is_student, users_can_conversate, file_max_length, file_to_stream
 from api.lib.mixins import ListAPIViewMixin, ModelResponseMixin, PartialUpdateAPIViewMixin, MediaResponseMixin, \
-    UpdateAPIViewMixin
+    UpdateAPIViewMixin, CreateAPIViewMixin
 from application.lib.validators import IntegerValidator, StringValidator, WerkzeugFileValidator, ChoicesValidator
 from application.services.media import AttachAvatar
 from application.services.user import GetSubjectTeachers, GetSubjectStudents, \
@@ -16,19 +16,19 @@ from common.helper import Helper
 from config import config
 
 
-class LoginView(ListAPIViewMixin):
+class LoginView(CreateAPIViewMixin):
 
     def params(self):
         return {
-            'user': [self.PARAM_GET, StringValidator({'required': True})],
-            'password': [self.PARAM_GET, StringValidator({'required': True})]
+            'user': [self.PARAM_POST, StringValidator({'required': True})],
+            'password': [self.PARAM_POST, StringValidator({'required': True})]
         }
 
     @validate
     @login_required
-    def get_action(self, *args, **kwargs):
-        user = kwargs.get('get').get('user')
-        password = kwargs.get('get').get('password')
+    def post_action(self, *args, **kwargs):
+        user = kwargs.get('post').get('user')
+        password = kwargs.get('post').get('password')
         password_encoded = encode_password(password)
 
         get_auth_token_srv = GetUserByUserAndPassword()

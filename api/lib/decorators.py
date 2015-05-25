@@ -22,7 +22,7 @@ from application.services.message import GetMessage
 from common.auth import encode_password
 
 from application.services.user import CheckUserExistsByUserAndPassword, GetUserByAuthToken, UserCanSeeTeacher, GetUser, \
-    TeacherCanSeeStudent
+    TeacherCanSeeStudent, GetUserTeacherPeers, GetUserStudentPeers
 from application.services.subject import GetSubject
 from common.helper import Helper
 from config import config
@@ -600,29 +600,21 @@ def user_can_see_media(fnx):
 
             peer = media.user
 
-            previous_condition = False
+            srv_dispatcher = {
+                UserType.TEACHER: GetUserTeacherPeers,
+                UserType.STUDENT: GetUserStudentPeers
+            }
 
-            if peer.is_teacher():
-                srv_class = UserCanSeeTeacher
-                key = 'teacher_id'
-            elif peer.is_student():
-                if user.is_teacher():
-                    srv_class = TeacherCanSeeStudent
-                    key = 'student_id'
-                elif user.is_student():
-                    previous_condition = peer.id == user.id
+            get_peers_cls = srv_dispatcher.get(peer.type_id)
+            get_peers_srv = get_peers_cls()
 
-            if not previous_condition:
-                srv_instance = srv_class()
+            peers = get_peers_srv.call({
+                'user_id': user.id
+            })
 
-                can_see_peer = srv_instance.call({
-                    'user_id': user.id,
-                    key: peer.id
-                })
-            else:
-                can_see_peer = previous_condition
+            peer_ids = map(lambda x: int(x.id), peers)
 
-            return can_see_peer
+            return int(peer.id) in peer_ids
 
         def check_message_media():
             message = media.message

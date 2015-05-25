@@ -295,6 +295,69 @@ class GetTeacherStudentPeers(BasePersistanceService):
         return peers
 
 
+class GetStudentStudentPeers(BasePersistanceService):
+
+    def input(self):
+        return {
+            'user_id': IntegerValidator({'required': True})
+
+        }
+
+    def output(self):
+        return lambda x: Helper.array_of(x, User) or x == []
+
+    def execute(self, args):
+
+        user_id = args.get('user_id')
+        students = aliased(User, name='students')
+        me = aliased(User, name='me')
+
+        their_student_group = aliased(StudentGroup, name='their_student_group')
+        my_student_group = aliased(StudentGroup, name='my_student_gruop')
+
+        peers_query = self.session.query(students).\
+            join(their_student_group, students.id == their_student_group.student_id).\
+            join(Group, their_student_group.group_id == Group.id).\
+            join(my_student_group, Group.id == my_student_group.group_id).\
+            join(me, my_student_group.student_id == me.id).\
+            filter(me.id == user_id).\
+            filter(students.id != user_id).\
+            order_by(students.last_name.asc(), students.first_name.asc())
+
+        peers = peers_query.all()
+
+        return peers
+
+
+class GetUserStudentPeers(BaseService):
+
+    def input(self):
+        return {
+            'user_id': IntegerValidator({'required': True})
+        }
+
+    def output(self):
+        return lambda x: Helper.array_of(x, User) or x == []
+
+    def execute(self, args):
+
+        user_id = args.get('user_id')
+
+        dispatcher = {
+            UserType.TEACHER: GetTeacherStudentPeers,
+            UserType.STUDENT: GetStudentStudentPeers
+        }
+
+        get_user_srv = GetUser()
+        user = get_user_srv.call({'user_id': user_id})
+
+        get_student_peers_cls = dispatcher.get(user.type_id)
+        get_student_peers = get_student_peers_cls()
+
+        peers = get_student_peers.call({'user_id': user_id})
+
+        return peers
+
 class TeacherCanSeeTeacher(BasePersistanceService):
 
     def input(self):
