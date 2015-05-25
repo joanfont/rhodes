@@ -110,8 +110,8 @@ def validate(fnx):
 def login_required(fnx):
     def wrapped_fnx(*args, **kwargs):
 
-        user = kwargs.get('get').get('user')
-        password = kwargs.get('get').get('password')
+        user = kwargs.get('post').get('user')
+        password = kwargs.get('post').get('password')
 
         password_encoded = encode_password(password) if password is not None else None
 

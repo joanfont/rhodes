@@ -27,12 +27,14 @@ class LoginViewTest(unittest.TestCase):
     endpoint = '/login/'
 
     def test_success(self):
+
         params = {
             'user': tests_config.USERS.get('student').get('user'),
-            'password': tests_config.USERS.get('student').get('password')}
+            'password': tests_config.USERS.get('student').get('password')
+        }
 
-        url = TestUtil.build_url(self.endpoint, params)
-        response = test_util.session(None).get(url)
+        url = TestUtil.build_url(self.endpoint)
+        response = test_util.session(None).post(url, params)
         parses_json = TestUtil.valid_json(response.text)
         self.assertEqual(status.HTTP_200_OK, response.status_code)
         self.assertTrue(parses_json)
@@ -44,16 +46,16 @@ class LoginViewTest(unittest.TestCase):
 
     def test_failure(self):
         params = {'user': 'JFR143', 'password': 'asdfg'}
-        url = TestUtil.build_url(self.endpoint, params)
-        response = test_util.session(None).get(url)
+        url = TestUtil.build_url(self.endpoint)
+        response = test_util.session(None).post(url, params)
         parses_json = TestUtil.valid_json(response.text)
         self.assertEqual(status.HTTP_404_NOT_FOUND, response.status_code)
         self.assertTrue(parses_json)
 
     def test_bad_request(self):
         params = {'user': 'JFR165'}
-        url = TestUtil.build_url(self.endpoint, params)
-        response = test_util.session(None).get(url)
+        url = TestUtil.build_url(self.endpoint)
+        response = test_util.session(None).post(url, params)
         parses_json = TestUtil.valid_json(response.text)
         self.assertEqual(status.HTTP_400_BAD_REQUEST, response.status_code)
         self.assertTrue(parses_json)
