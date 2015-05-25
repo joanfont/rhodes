@@ -10,6 +10,7 @@ from application.lib.validators import IntegerValidator, StringValidator, Werkze
 from application.services.media import AttachAvatar
 from application.services.user import GetSubjectTeachers, GetSubjectStudents, \
     GetGroupStudents, GetUserTeacherPeers, GetTeacherStudentPeers, GetUserConversators, GetUserByUserAndPassword
+from common import status
 from common.auth import encode_password
 from common.helper import Helper
 
@@ -17,6 +18,8 @@ from config import config
 
 
 class LoginView(CreateAPIViewMixin):
+
+    status_code = status.HTTP_200_OK
 
     def params(self):
         return {
