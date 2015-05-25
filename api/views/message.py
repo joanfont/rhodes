@@ -337,6 +337,7 @@ class DirectMessageDetailView(MessageDetailView):
     @auth_token_required
     @peer_exists
     @users_can_conversate
+    @message_exists
     def get_action(self, *args, **kwargs):
         return super(DirectMessageDetailView, self).get_action(*args, **kwargs)
 
@@ -427,6 +428,7 @@ class AttachFileToDirectMessageView(AttachFileToMessageView):
     @auth_token_required
     @peer_exists
     @users_can_conversate
+    @message_exists
     @can_add_file_to_message
     @file_to_stream('file')
     @file_max_length('file')
