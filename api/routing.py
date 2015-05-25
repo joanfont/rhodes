@@ -14,7 +14,7 @@ routing = {
     '/login/': {
         'class': user_views.LoginView,
         'name': 'login',
-        'methods': ['GET']
+        'methods': ['POST']
     },
     '/user/': {
         'class': user_views.ProfileView,
@@ -56,7 +56,7 @@ routing = {
     '/user/subjects/<subject_id>/messages/<message_id>/media/': {
         'class': message_views.AttachFileToSubjectMessageView,
         'name': 'user_subject_message_attach_file',
-        'methods': ['PATCH']
+        'methods': ['POST']
     },
     '/user/subjects/<subject_id>/messages/<message_id>/<direction>/': {
         'class': message_views.ListPaginatedSubjectMessagesView,
@@ -101,9 +101,9 @@ routing = {
         'methods': ['GET']
     },
     '/user/subjects/<subject_id>/groups/<group_id>/messages/<message_id>/media/': {
-        'class': message_views.AttachFileToSubjectMessageView,
+        'class': message_views.AttachFileToGroupMessageView,
         'name': 'user_subject_group_message_attach_file',
-        'methods': ['PATCH']
+        'methods': ['POST']
     },
     '/user/subjects/<subject_id>/groups/<group_id>/messages/<message_id>/<direction>/': {
         'class': message_views.ListPaginatedGroupMessagesView,
@@ -171,6 +171,11 @@ routing = {
         'class': message_views.DirectMessageDetailView,
         'name': 'user_chat_message_detail',
         'methods': ['GET']
+    },
+    '/user/chats/<peer_id>/messages/<message_id>/media/': {
+        'class': message_views.AttachFileToDirectMessageView,
+        'name': 'user_chat_message_media',
+        'methods': ['POST']
     },
     '/user/chats/<peer_id>/messages/<message_id>/<direction>/': {
         'class': message_views.ListPaginatedDirectMessagesView,

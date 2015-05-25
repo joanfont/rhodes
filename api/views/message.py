@@ -311,7 +311,6 @@ class GroupMessageDetailView(MessageDetailView):
         })
         return super_params
 
-
     @validate
     @auth_token_required
     @subject_exists
@@ -343,7 +342,7 @@ class DirectMessageDetailView(MessageDetailView):
 
 
 
-class AttachFileToMessageView(PartialUpdateAPIViewMixin, ModelResponseMixin):
+class AttachFileToMessageView(CreateAPIViewMixin, ModelResponseMixin):
 
     def params(self):
         return {
@@ -352,7 +351,7 @@ class AttachFileToMessageView(PartialUpdateAPIViewMixin, ModelResponseMixin):
             'mime': [self.PARAM_POST, ChoicesValidator({'required': True, 'choices': config.ALLOWED_MIME_TYPES})]
         }
 
-    def patch_action(self, *args, **kwargs):
+    def post_action(self, *args, **kwargs):
 
         message_id = kwargs.get('url').get('message_id')
         _file = kwargs.get('streams').get('file')
@@ -387,14 +386,14 @@ class AttachFileToSubjectMessageView(AttachFileToMessageView):
     @can_add_file_to_message
     @file_to_stream('file')
     @file_max_length('file')
-    def patch_action(self, *args, **kwargs):
-        return super(AttachFileToSubjectMessageView, self).patch_action(*args, **kwargs)
+    def post_action(self, *args, **kwargs):
+        return super(AttachFileToSubjectMessageView, self).post_action(*args, **kwargs)
 
 
 class AttachFileToGroupMessageView(AttachFileToMessageView):
 
     def params(self):
-        super_params = super(AttachFileToSubjectMessageView, self).params()
+        super_params = super(AttachFileToGroupMessageView, self).params()
         super_params.update({
             'subject_id': [self.PARAM_URL, IntegerValidator({'required': True})],
             'group_id': [self.PARAM_URL, IntegerValidator({'required': True})]
@@ -412,13 +411,13 @@ class AttachFileToGroupMessageView(AttachFileToMessageView):
     @can_add_file_to_message
     @file_to_stream('file')
     @file_max_length('file')
-    def patch_action(self, *args, **kwargs):
-        return super(AttachFileToGroupMessageView, self).patch_action(*args, **kwargs)
+    def post_action(self, *args, **kwargs):
+        return super(AttachFileToGroupMessageView, self).post_action(*args, **kwargs)
 
-class AttachFileToDirectMessage(AttachFileToMessageView):
+class AttachFileToDirectMessageView(AttachFileToMessageView):
 
     def params(self):
-        super_params = super(AttachFileToDirectMessage, self).params()
+        super_params = super(AttachFileToDirectMessageView, self).params()
         super_params.update({
             'peer_id': [self.PARAM_URL, IntegerValidator({'required': True})]
         })
@@ -431,5 +430,5 @@ class AttachFileToDirectMessage(AttachFileToMessageView):
     @can_add_file_to_message
     @file_to_stream('file')
     @file_max_length('file')
-    def patch_action(self, *args, **kwargs):
-        return super(AttachFileToDirectMessage, self).patch_action(*args, **kwargs)
+    def post_action(self, *args, **kwargs):
+        return super(AttachFileToDirectMessageView, self).post_action(*args, **kwargs)
