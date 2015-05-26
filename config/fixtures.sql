@@ -91,4 +91,9 @@ VALUES
 	(1,'TEACHER'),
 	(2,'STUDENT');
 
+INSERT INTO `media_type` (`id`, `name`)
+VALUES
+	(1,'AVATAR'),
+	(2,'MESSAGE_FILE');
+
 SET FOREIGN_KEY_CHECKS = 1;
