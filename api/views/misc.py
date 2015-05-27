@@ -14,6 +14,7 @@ class ConfigView(ListAPIViewMixin):
             'max_file_size': config.MAX_FILE_SIZE,
             'allowed_mime_types': config.ALLOWED_MIME_TYPES,
             'max_message_files': config.MAX_MESSAGE_FILES,
+            'message_interval': config.MESSAGE_INTERVAL,
             'user_types': {
                 UserType.TEACHER: 'Teacher',
                 UserType.STUDENT: 'Student'

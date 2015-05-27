@@ -1,4 +1,4 @@
-from api.exceptions import ObjectNotFoundError, ConflictError
+from api.exceptions import ObjectNotFoundError, ConflictError, APIError, TooManyRequestsError
 
 
 class MessageNotFoundErorr(ObjectNotFoundError):
@@ -33,3 +33,8 @@ class MessageKindIsNotDirectMessageError(ConflictError):
 class MessageDoesNotBelongToConversationError(ConflictError):
 
     message = 'Message does not belong to conversation'
+
+class DuplicateMessageWithinIntervalError(TooManyRequestsError):
+
+    message = 'Message with body already exists, try again later'
+

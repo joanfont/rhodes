@@ -2,7 +2,7 @@ import unittest
 from api.tests import config as tests_config
 from api.tests.base import TestUtil
 from common import status
-
+from uuid import uuid4 as uuid
 
 test_util = TestUtil()
 
@@ -31,7 +31,7 @@ class PostSubjectMessageViewTest(unittest.TestCase):
     def test_success(self):
 
         data = {
-            'body': 'Lorem ipsum dolor sit amet'
+            'body': 'Lorem ipsum dolor sit amet {}'.format(uuid())
         }
 
         subject_id = tests_config.USERS.get('student').get('subjects').get('enrolled')
@@ -85,7 +85,7 @@ class PostGroupMessageViewTest(unittest.TestCase):
     def test_success(self):
 
         data = {
-            'body': 'Lorem ipsum dolor sit amet'
+            'body': 'Lorem ipsum dolor sit amet {}'.format(uuid())
         }
 
         subject_id, group_id = tests_config.USERS.get('student').get('groups').get('enrolled')
@@ -139,7 +139,7 @@ class PostDirectMessageViewTest(unittest.TestCase):
     def test_success(self):
 
         data = {
-            'body': 'Lorem ipsum dolor sit amet'
+            'body': 'Lorem ipsum dolor sit amet {}'.format(uuid())
         }
 
         peer_id = tests_config.USERS.get('student').get('peers').get('teacher')
@@ -178,7 +178,7 @@ class SubjectMessageDetailViewTest(unittest.TestCase):
     def test_success(self):
 
         data = {
-            'body': 'Lorem ipsum dolor sit amet'
+            'body': 'Lorem ipsum dolor sit amet {}'.format(uuid())
         }
 
         subject_id = tests_config.USERS.get('student').get('subjects').get('enrolled')
@@ -220,7 +220,7 @@ class GroupMessageDetailViewTest(unittest.TestCase):
 
     def test_success(self):
         data = {
-            'body': 'Lorem ipsum dolor sit amet'
+            'body': 'Lorem ipsum dolor sit amet {}'.format(uuid())
         }
 
         subject_id, group_id = tests_config.USERS.get('student').get('groups').get('enrolled')
