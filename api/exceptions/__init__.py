@@ -34,3 +34,13 @@ class ConflictError(APIError):
     message = 'Conflict'
     code = 'conflict'
     status_code = status.HTTP_409_CONFLICT
+
+class TooManyRequestsError(APIError):
+
+    message = 'Too many requests'
+    code = 'too_many_requests'
+    status_code = status.HTTP_429_TOO_MANY_REQUESTS
+
+    message = 'Too many requests'
+    code = 'too_many_requests'
+    status_code = status.HTTP_409_CONFLICT

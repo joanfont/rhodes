@@ -521,3 +521,30 @@ class GetUserConversationsLastMessages(BaseService):
         })
 
         return filter(bool, map(get_last_conversation_message, conversators))
+
+
+class GetUserMessagesWithinTimestamps(BasePersistanceService):
+
+    def input(self):
+        return {
+            'user_id': IntegerValidator({'required': True}),
+            'from': DateValidator({'required': True}),
+            'to': DateValidator({'required': True})
+        }
+
+    def output(self):
+        return lambda x: Helper.array_of(x, Message) or x == []
+
+
+    def execute(self, args):
+        user_id = args.get('user_id')
+        _from = args.get('from')
+        to = args.get('to')
+
+        messages_query = self.session.query(Message).\
+            filter(Message.sender_id == user_id).\
+            filter(Message.created_at >= _from).\
+            filter(Message.created_at <= to).\
+            order_by(Message.created_at.desc())
+
+        return messages_query.all()

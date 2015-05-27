@@ -1,13 +1,11 @@
-from copy import deepcopy, copy
 from flask import request
-import sys
 from api.exceptions.auth import NotAuthenticatedError, NotEnoughPermissionError
 from api.exceptions.group import GroupNotFoundError, GroupDoesNotBelongToSubjectError
 from api.exceptions.media import MediaNotFoundError, UserCanNotSeeMediaError, LimitOfMessageFilesReachedError, \
     CantAttachMediaToMessageError, FileTooLargeError
 from api.exceptions.message import MessageNotFoundErorr, MessageDoesNotBelongToSubjectError, \
     MessageKindIsNotSubjectMessageErrror, MessageDoesNotBelongToGroupError, MessageKindIsNotGroupMessageErrror, \
-    MessageDoesNotBelongToConversationError, MessageKindIsNotDirectMessageError
+    MessageDoesNotBelongToConversationError, MessageKindIsNotDirectMessageError, DuplicateMessageWithinIntervalError
 
 from api.exceptions.subject import SubjectNotFoundError
 from api.exceptions.user import UserNotFoundError, TeacherDoesNotTeachSubjectError, StudentIsNotEnrolledToSubjectError, \
@@ -18,7 +16,7 @@ from application.exceptions import MyValueError
 from application.lib.models import UserType, SubjectMessage, GroupMessage, DirectMessage, MediaType, MessageType
 from application.services.group import GetGroup
 from application.services.media import GetMedia
-from application.services.message import GetMessage
+from application.services.message import GetMessage, GetUserMessagesWithinTimestamps
 from common.auth import encode_password
 
 from application.services.user import CheckUserExistsByUserAndPassword, GetUserByAuthToken, UserCanSeeTeacher, GetUser, \
@@ -26,7 +24,8 @@ from application.services.user import CheckUserExistsByUserAndPassword, GetUserB
 from application.services.subject import GetSubject
 from common.helper import Helper
 from config import config
-
+from datetime import datetime
+from datetime import timedelta
 
 def copy_params(fnx):
 
@@ -684,3 +683,34 @@ def file_max_length(field):
         return wrapped_fnx
 
     return file_max_length_decorator
+
+def check_message_interval(fnx):
+
+    def wrapped_fnx(*args, **kwargs):
+
+        def _filter_with_same_body(message):
+            return message.body.content == body
+
+        body = kwargs.get('post').get('body')
+        user = kwargs.get('user')
+
+        to = datetime.now()
+        _from = to - timedelta(seconds=config.MESSAGE_INTERVAL)
+
+        get_messages_srv = GetUserMessagesWithinTimestamps()
+        messages = get_messages_srv.call({
+            'user_id': user.id,
+            'from': _from,
+            'to': to
+        })
+
+        messages_with_same_body = filter(_filter_with_same_body, messages)
+
+        if len(messages_with_same_body) > 0:
+            raise DuplicateMessageWithinIntervalError()
+        else:
+            return fnx(*args, **kwargs)
+
+    return wrapped_fnx
+
+

@@ -4,7 +4,7 @@ from api.exceptions.message import MessageNotFoundErorr
 from api.lib.decorators import user_belongs_to_subject, group_exists, user_belongs_to_group, \
     group_belongs_to_subject, auth_token_required, subject_exists, message_belongs_to_subject, \
     message_belongs_to_group, message_exists, validate, peer_exists, users_can_conversate, message_belongs_to_peers, \
-    can_add_file_to_message, file_max_length, file_to_stream
+    can_add_file_to_message, file_max_length, file_to_stream, check_message_interval
 from api.lib.mixins import ListAPIViewMixin, CreateAPIViewMixin, ModelResponseMixin, PaginatedResponseMixin, \
     MediaResponseMixin, PartialUpdateAPIViewMixin
 from application.lib.validators import IntegerValidator, StringValidator, WerkzeugFileValidator, ChoicesValidator
@@ -76,6 +76,7 @@ class PostSubjectMessageView(CreateAPIViewMixin, ModelResponseMixin):
     @auth_token_required
     @subject_exists
     @user_belongs_to_subject
+    @check_message_interval
     def post_action(self, *args, **kwargs):
 
         user = kwargs.get('user')
@@ -161,6 +162,7 @@ class PostGroupMessageView(CreateAPIViewMixin, ModelResponseMixin):
     @group_exists
     @group_belongs_to_subject
     @user_belongs_to_group
+    @check_message_interval
     def post_action(self, *args, **kwargs):
 
         user = kwargs.get('user')
@@ -249,6 +251,7 @@ class PostDirectMessageView(CreateAPIViewMixin, ModelResponseMixin):
     @auth_token_required
     @peer_exists
     @users_can_conversate
+    @check_message_interval
     def post_action(self, *args, **kwargs):
 
         user = kwargs.get('user')

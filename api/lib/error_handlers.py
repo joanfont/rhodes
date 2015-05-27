@@ -1,6 +1,5 @@
 from flask import jsonify
-from werkzeug.exceptions import RequestEntityTooLarge
-from api.exceptions import ObjectNotFoundError, ForbiddenActionError, ConflictError, APIError
+from api.exceptions import ObjectNotFoundError, ForbiddenActionError, ConflictError, APIError, TooManyRequestsError
 from api.exceptions.auth import NotAuthenticatedError
 from api.exceptions.media import FileTooLargeError
 from api.exceptions.response import CantSerializeArrayError
@@ -82,7 +81,7 @@ class AppValidationErrorHandler(BaseErrorHandler):
 handlers = {
 
     # generic errors
-    (ObjectNotFoundError, ForbiddenActionError, ConflictError): APIErrorHandler(),
+    (ObjectNotFoundError, ForbiddenActionError, ConflictError, TooManyRequestsError): APIErrorHandler(),
 
     # auth errors
     NotAuthenticatedError: APIErrorHandler(),
