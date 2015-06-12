@@ -1,23 +1,2 @@
 %!TeX root=MemoriaTFG.tex
 \chapter{Importació de dades}\label{importacio}
-
-
-En aquest annex es presentarà el format de les dades esperat per a importar la informació real de la universitat dins el sistema de missatgeria exposat anteriorment. S'explicarà quin és el procediment a seguir per tenir la informació real de la universitat totalment integrada al nostre sistema. Quines dades en concret i en quin format les espera l'aplicació.
-
-S'ha dissenyat un mètode d'importació mitjançant cridades a una \ac{API} \ac{REST} que proporciona alumnes, professors, assignatures i grups. Aquest sistema ha estat pensat per tal de minimitzar el nombre de peticions HTTP i reduïr el tràfic web del servidor de la universitat allà on hi ha les dades.
-
-El volum de les dades que s'han d'importar és variable, aquesta característica s'ha tengut en compte per optimitzar el nombre de peticions \ac{HTTP} que s'han de fer. Per que no es faci una petició amb un gran volum de dades, el sistema espera que les dades venguin paginades. Al cos de la resposta de la petició s'espera:
-\begin{itemize}
- 	\item \textbf{total:} el nombre total d'ítems
- 	\item \textbf{items:} el nombre d'ítems que conté la petició en qüestió
- 	\item \textbf{results:} llista dels resultats de la petició
- \end{itemize}
-  
- Mitjançant un paràmetre a la \ac{URL}
-\section{Usuaris: alumnes i professors}
- S'espera un recurs de l'\ac{API} per obtenir un llistat d'assignatures i els seus grups.
-
-\section{Refresc de les dades}
-El nombre de canvis que poden sofrir les dades que depenen de la universitat no és significant fora del període de matrícula, aquest nombre és insignificant si el comparam amb l'inici d'un quatrimestre (setembre o febrer). Només en període obert de matricula és quan hi pot haver major nombre de canvis. 
-
-Per aquest motiu, està previst que l'interval de refresc de les dades en període obert de matrícula sigui  més curt que fora del període. Per posar un exemple: dins el període de matrícula, l'interval de refresc de les dades podria esser cada 2 dies, mentre que en període fora de matrícula aquest procés es podría dur a terme cada setmana.

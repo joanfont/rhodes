@@ -1,4 +1,130 @@
-% !TEX root=MemoriaTFG.tex
+ comu% !TEX root=MemoriaTFG.tex
 
-\chapter{Entorn}\label{entorn}
+\chapter{Estat de l'art}\label{entorn}
+En aquest capítol del document analitzarem en quines tecnologies i metodologies són les més usades a l'hora de desenvolupar una \ac{API} per ser operada via web. Es veurà en detall quines solucions, metodologies s'usen a l'actualitat per desenvolupar \ac{API}'s. En primer lloc veurem en que consteix una \ac{API}, a continuació analitzarem la metodologia de treball d'arquitectura orientada a serveis, el protocol \ac{HTTP}, l'arquitectura \ac{REST} i la tècnica d'accés a base de dades \ac{ORM}.
+\section{\ac{API}}\label{sec_api}
+Una \ac{API} és una interfície que especifica com diferents components de programes informàtics haurien d'interaccionar. Dit d'una altra manera, és un conjunt de declaracions que defineix el contracte d'un component informàtic amb qui farà ús dels seus serveis.\\
 
+Una \ac{API} sol venir acompanyada d'un manual d'ús, on s'especifiquen totes les funcions que es poden invocar, els arguments que requereix i quina sortida retorna la funció.
+\section{\ac{SOA}}
+
+L'arquitectura \ac{SOA}, és un patró de disseny de software dirigit a aplicacións distribuïdes. L'ús més comú d'aquest patró és per satisfer les necessitats d'un negoci, proporcionant flexibilitat a l'hora d'integrar els serveis dissenyats amb els aplicatius del negoci. Aquesta metodologia brinda una invocació i una especificació de serveis ben definida, el que facilita la interacció entre diferents sistemes, ja siguin propis o de tercers.\\
+\newline
+Entre els principis del patró arquitectònic \ac{SOA} hi podem trobar:
+
+\begin{itemize}
+	\item \textbf{Sense estat.} No manté ni depèn d'una condició existent. Els serveis \ac{SOA} són serveis autònoms.
+
+	\item \textbf{Orquestració.} Al ser serveis totalment autònoms, podem encadenar cridades a diferents serveis i proporcionar logica adicional pel processament de les dades.
+	
+	\item \textbf{Contracte de serveis unificat.} Els serveis tenen un acord de comunicació comú entre ells, tots els serveis són invocats de la mateixa manera.
+	
+	\item \textbf{Abstracció.} Els serveis oculten la lògica de negoci als altres serveis. La única part exposada cap a l'exterior és el contracte d'entrada.
+	
+	\item \textbf{Reutilització.} La lògica es divideix en serveis d'una única responsabilitat amb la intenció de reutilitzar-los en un futur.
+	
+	\item \textbf{Autonomia.} Els serveis tenen control sobre la lògica que encapsulen, desde una perspectiva de disseny i execució.
+\end{itemize}
+
+\section{\ac{HTTP}}\label{sec_http}
+
+\ac{HTTP} és el protocol usat en cada transacció web que segueix l'esquema de petició-resposta. Un client \ac{HTTP} efectua una petició a un servidor, i aquest retorna una resposta a la petició realitzada.\\
+\newline
+Cal destacar que \ac{HTTP} és un protocol sense estat, és a dir, que cada petició no te cap dependència en peticions anteriors. Una petició \ac{HTTP} està composta per els següents elements:
+\begin{itemize}
+	\item \textbf{Línia de petició.} Especifica el recurs demanat al servidor i la versió \ac{HTTP} usada.
+	\item \textbf{Capçaleres de la petició.} Meta-informació per a la petició. Credencials d'autenticació, el tamany de la petició, el \emph{host} al qual es fa la petició, entre d'altes.
+	\item \textbf{Línia en blanc.}
+	\item \textbf{Missatge opcional.}
+\end{itemize}
+ 
+A la figura \ref{fig:exemple_peticio_http} es pot veure un exemple de petició \ac{HTTP}.
+
+\begin{figure}[here]
+	\begin{verbatim}
+		GET /user/subjects/ HTTP/1.1
+		Authorization: OLlmxXLkS2vdi1zEWy44W1vFj02gCFbv76JSI3Q6cS8=
+		Host: missatgeria.uib.cat
+	\end{verbatim}
+\caption{Exemple d'una petició \ac{HTTP}}
+\label{fig:exemple_peticio_http}
+\end{figure}
+
+Una vegada feta la petició \ac{HTTP} al servidor, aquest ens envia una resposta. Una resposta \ac{HTTP} està composada per:
+
+\begin{itemize}
+	\item \textbf{Línia d'estat.} Indica el codi d'estat i la seva descripció.
+	\item \textbf{Capçaleres de la resposta.} Meta-informació de la resposta del servidor. Típus \ac{MIME} de la resposta, tamany de la resposta en bytes, típus de connexió, nom comercial del servidor \ac{HTTP} al qual s'ha solicitat el recurs, entre d'altres.
+	\item \textbf{Línia en blanc.}
+	\item \textbf{Missatge opcional.}
+\end{itemize}
+
+A la figura \ref{fig:exemple_resposta_http} es pot veure un exemple de resposta \ac{HTTP}.\\
+
+\begin{figure}[here!]
+	\begin{verbatim}
+		HTTP/1.1 200 OK
+		Server: nginx/1.4.6 (Ubuntu)
+		Date: Fri, 29 May 2015 17:34:50 GMT
+		Content-Type: application/json
+		Content-Length: 91
+		Connection: keep-alive
+		
+		[
+  			{
+   				"id": 1,
+   				"code": 21710,
+   				"name": "Estructures de Dades"
+    			"groups": [
+      				{
+        				"id": 1,
+        				"name": "GG1"
+     				 }
+    			]
+   			}
+		]
+  	\end{verbatim}
+  	\caption{Exemple de resposta \ac{HTTP}}
+  	\label{fig:exemple_resposta_http}
+ \end{figure}
+ 
+Un element important de una petició \ac{HTTP} és el verb (o mètode). El verb indica quina acció farà la petició que realitzarem al servidor. A la taula \ref{table:verbs_http} es pot trobar una llista amb els verbs \ac{HTTP} i l'acció que realitzen sobre el recurs.
+
+\begin{table}[here]
+ 	\begin{center}
+ 		\begin{tabularx}{\textwidth}{|l|X|}
+  			\hline
+ 			\bfseries Verb & \bfseries Descripció \\ \hline
+			GET &  Demana una representació del recurs especificat. \\ \hline
+			HEAD & Petició idèntica una GET però sense retornar la representació del recurs. Només retorna les capçaleres.\\ \hline
+			POST & Juntament amb un conjunt de dades, una petició POST s'usa per crear un element del recurs especificat a la petició.\\ \hline
+			PUT & Juntament amb un conjunt de dades, una petició PUT s'usa per modificar tot el contingut d'un element del recurs.\\ \hline
+			DELETE & Aplicat sobre un recurs, indica al servidor l'acció d'eliminar-lo.\\ \hline
+			OPTIONS & Demana al servidor quins mètodes estàn disponibles pel recurs sol·licitat.\\ \hline
+		\end{tabularx}
+	\end{center}
+	\label{table:verbs_http}
+	\caption{Verbs \ac{HTTP}} 
+\end{table}
+\section{\ac{REST}}
+La metodologia \ac{REST} és en una patró arquitectònic de software que consisteix en un conjunt de guies i bones pràctiques per crear serveis web escalables. \ac{REST} va néixer com una alternativa a les anteriors metodologies de serveis web \ac{SOAP} i \ac{WSDL}. Al llarg dels darrers anys s'ha anat imposant com a metodologia més usada per a construïr serveis web.\\
+
+Freqüentment, la metodologia \ac{REST} opera baix el protocol \ac{HTTP} (vist a la secció \ref{sec_http}) i emplea els verbs \ac{HTTP} per indicar quina acció volem realitzar sobre un recurs.\\
+
+Les característiques d'un servei \ac{REST} són les següents:
+\begin{itemize}
+	
+	\item \textbf{Client-servidor.} Separació client-servidor. D'aquesta manera el client no té control sobre l'emmagatzematge de les dades i així s'aconsegueix que el seu codi font sigui més portable. Quant al servidor, no es preocupa de l'estat del client, fent que aquest pugui ser més escalable. El desenvolupament del client i del servidor pot ser independent l'un de l'altre mentre la interfície uniforme entre els dos no sigui alterada.
+	
+	\item \textbf{Sense estat.} Cada petició \ac{REST} no depèn de cap estat. Tota la informació necessària per a processar les dades està continguda dins la mateixa petició.
+	
+	\item \textbf{Cacheable.} Les respostes enviades pel servidor s'han de poder definir a sí mateixes com a cacheables.
+	
+	\item \textbf{Sistema per capes.} El client final no assumeix que hi ha una connexió directa amb el servidor final. Poden existir sistemes software o hardware entre ells
+	
+\end{itemize}
+
+\section{\ac{ORM}}
+\ac{ORM} és una tècnica de programació per convertir les dades desde objectes dels llenguatges de programació a la seva representació en bases de dades relacionals a través de la definició de correspondències entre els diferents sistemes. A la pràctica, es crea una base de dades orientada a objectes virtuals que opera sobre la base de dades relacional.\\
+
+Aquesta tècnica permet l'ús de les característiques de la \ac{POO}, com l'herència o polimorfisme,  amb bases de dades.
