@@ -172,6 +172,8 @@ class GetGroupStudents(BasePersistanceService):
 
 class GetTeacherTeacherPeers(BasePersistanceService):
 
+    """ Retrieves the teachers of all the subjects a teacher teaches """
+
     def input(self):
         return {
             'user_id': IntegerValidator({'required': True})
@@ -188,6 +190,13 @@ class GetTeacherTeacherPeers(BasePersistanceService):
         others = aliased(User, name='others')
         my_teacher_subject = aliased(TeacherSubject, name='ts1')
         their_teacher_subject = aliased(TeacherSubject, name='ts2')
+
+        """ SELECT others.* FROM user AS others
+            INNER JOIN teacher_subject AS ts1 ON others.id = ts1.teacher_id
+            INNER JOIN subject ON ts1.subject_id = ts1.subject_id
+            INNER JOIN teacher_subject AS ts2 ON subject.id = ts2.subject_id
+            INNER JOIN user AS me on me.id = ts2.teacher_id
+            WHERE me.id == :my_id AND others.id <> :my_id; """
 
         peers_query = self.session.query(others).\
             join(their_teacher_subject, their_teacher_subject.teacher_id == others.id).\

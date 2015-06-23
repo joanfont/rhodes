@@ -169,6 +169,7 @@ class CheckMessageExists(BasePersistanceService):
 
 
 class PutMessageBody(BasePersistanceService):
+    
     def input(self):
         return {
             'body': StringValidator({'required': True, 'max_length': MessageBody.MAX_LENGTH}),
