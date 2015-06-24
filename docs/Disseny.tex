@@ -905,7 +905,7 @@ def execute(self, args):
 			
 			\item \textbf{GetTeacherGroups, GetStudentGroups i GetUserGroups:} el primer servei de tots obté els grups que imparteix un professor. Per obtenir-los basta en agafar per cada assignatura on el professor està matriculat tots els seus grups.\\
 			
-			El segon servei, basta consultar l'entitat auxiliar \texttt{StudentGroup} i agafar només els de l'usuari que volem consultar.\\
+			El segon servei consulta l'entitat auxiliar \texttt{StudentGroup} i agafa només els grups de l'usuari que volem consultar.\\
 			
 			El tercer servei actúa com a servei \emph{proxy} dels dos anteriors. En els tres casos, la seva especificació és la següent:
 		
@@ -919,6 +919,249 @@ def execute(self, args):
 				
 		\end{itemize}
 \section{\ac{API}} \label{sec_api2}
+
+En aquest capítol es veurà com s'ha dissenyat l'\ac{API} \ac{REST} que aten peticions \ac{HTTP} i retorna les dades sol·licitades o els corresponents errors si n'hi hagués. Aquesta \ac{API} s'ha montat amb el framework \emph{Flask} de Python. En primer lloc veurem el sistema d'enrutament montat, que mapeja una \ac{URL} a una classe que atén la petició.\\
+
+A continuació es veuràn les classes que actúen com a controladors. Aquestes classes atendràn cada petició realitzada i cridarà al servei corresponent. En aquest apartat també veurem com s'ha implementat el control d'accés a la \ac{API} i de la coherència de les dades demanades.  Aquestes classes cridaràn als serveis i retornaràn les dades. \\
+
+Per finalitzar es veurà com s'ha fet la gestió d'excepcions de l'\ac{API}. Veurem els anomanats \emph{error handlers} que s'encarreguen transformar una excepció en un format llegible per l'usuari final.
+
+\subsection{Sistema d'enrutament}
+El sistema d'enrutament de l'\ac{API} consisteix en un fitxer, \texttt{routing.py} que conté un diccionari on estàn mapejades cada ruta de l'\ac{API} amb la classe que atendrà la petició. Es pot veure un fragment d'aquest diccionari a la figura \ref{fig:routing}. Aquest fragment conté dues rutes de l'\ac{API}. La primera és per obtenir el detall d'una assignatura. La segona és per llistar els missatges d'aquesta assignatura o bé inserir-ne un.\\
+
+En ambdos casos veim que la clau del diccionari és la ruta de la \ac{API}. Els paràmetres s'indiquen amb el format \texttt{<nom\_del\_parametre>}. Aquests paràmetres després poden ser recollits a la funció que s'encarrega de atendre cada petició. Es trobaran dins la variable \texttt{kwargs} injectada a cada funció. \\
+
+Com s'observa a la figura \ref{fig:routing}, la \ac{URL} per veure el detall d'una assignatura només mapeja a una única funció. La \ac{URL} per llistar els missatges de l'assignatura o inserir-ne un de nou mapeja a dues funcions, una per cada una de les responsabilitats.\\
+
+Per declarar una \ac{URL} necessitam la següent una informació:
+
+\begin{itemize}
+	\item \textbf{class:} referència a la classe que atendrà la petició
+	\item \textbf{name:} nom per referència a la \ac{URL}.
+	\item \textbf{methods:} llista de mètodes \ac{HTTP} que estàn permesos.
+\end{itemize}
+
+\begin{figure}[h!]
+	\begin{python}
+routing = {
+	'/user/subjects/<subject_id>/': {
+		'class': subject_views.SubjectDetailView,
+		'name': 'user_subject',
+		'methods': ['GET']
+	},
+	'/user/subjects/<subject_id>/messages/': [
+		{
+			'class': message_views.ListSubjectMessagesView,
+			'name': 'user_subject_messages',
+			'methods': ['GET']
+		},
+		{
+			'class': message_views.PostSubjectMessageView,
+			'name': 'user_subject_messages_post',
+			'methods': ['POST']
+		}
+	]
+}
+	\end{python}
+	\label{fig:routing}
+	\caption{Fragment del fitxer \texttt{routing.py}}
+\end{figure}
+
+El primer pas que es fa al inicialitzat el servidor que dóna suport a l'\ac{API} és recórrer aquest fitxer d'enrutament i mapejar cada \ac{URL} a la seva funció amb els seus verbs \ac{HTTP}.
+
+\subsection{Vistes}
+En aquest capítol veurem com s'estructuren les classes encarregades d'atendre les peticions que arriben a l'\ac{API}. S'han creat quatre classes per donar suport a l'\ac{API} \ac{REST}. \\
+
+Abans d'entrar en qüestió introduïrem dos conceptes de Python que són necessàris per entendre les classes desenvolupades. Aquests dos conceptes són: els \emph{mixins} i els decoradors.\\
+
+Python és un llenguatge que permet l'herència múltiple de classes. Un \emph{mixin} és una porció de codi que es pot implementar a qualsevol classe amb la finalitat d'afegir-li funcionalitats. Aquests són independents de la classe a la que s'implementin, és a dir, es poden implementar a qualsevol classe.\\
+
+Un decorador és un element del llenguatge que com bé el seu nom indica serveix per decorar una funció. Dit amb unes altre paraules, un decorador encapsula una funció. La figura \ref{fig:decorator} serveix com a il·lustració del funcionament d'un decorador.
+
+\begin{figure}[h!]
+	\begin{python}
+def decorator(fnx):
+	def wrapped_fnx(*args, **kwargs):
+		print 'Before function'
+		fnx(*args, **kwargs)
+		print 'After function'
+
+	return wrapped_fnx
+
+@decorator
+def hello_world():
+	print 'Hello, world!'
+
+hello_world()
+>>> Before function
+>>> Hello, world!
+>>> After function
+	\end{python}
+	\label{fig:decorator}
+	\caption{Exemple d'un decorador de Python}
+\end{figure}
+
+\subsubsection{\emph{Mixins}}
+
+S'han desenvlupat dos típus de \emph{mixins}: uns que ens serviràn per definir quins mètodes \ac{HTTP} ha d'implementar la classe que ha d'atendre la petició i els que ens defineixen el format de la resposta a la petició realitzada. \\
+
+En primer lloc, s'han desenvolupat una sèrie de \emph{mixins} per atendre diferents típus de peticions en funció del verb \ac{HTTP} (GET, POST, PUT, etc...). Els mixins que s'han desenvolupat es poden veure a la taula \ref{table:mixins}.\\
+
+\begin{table}[here]
+ 	\begin{center}
+ 		\begin{tabularx}{\textwidth}{|l|l|X|}
+  			\hline
+ 			\bfseries \emph{Mixin} & \bfseries Verb \ac{HTTP} & \bfseries Descripció \\ \hline
+			\texttt{ListAPIViewMixin} &  GET & \emph{Mixin} que implementa el mètode GET. En \ac{REST} s'usa per la lectura de recursos\\ \hline
+			\texttt{CreateAPIViewMixin} & POST & \emph{Mixin} que implementa el mètode POST. En \ac{REST} s'usa per la creació d'un determinat recurs.\\ \hline
+			\texttt{UpdateAPIViewMixin} & PUT & \emph{Mixin} que implementa el mètode PUT. En \ac{REST} s'usa per actualitzar (per complet) un recurs.\\ \hline
+			\texttt{PartialUpdateAPIViewMixin} & PATCH & \emph{Mixin} que implementa el mètode PATCH. En \ac{REST} s'usa per actualitzar (de manera parcial) un recurs.\\ \hline
+			\texttt{DeleteAPIViewMixin} & DELETE  & \emph{Mixin} que implementa el mètode DELETE. En \ac{REST} s'usa per eliminar un recurs.\\ \hline
+		\end{tabularx}
+	\end{center}
+	\label{table:mixins}
+	\caption{Relació de tecnologies usades al projecte} 
+\end{table}
+
+\emph{Flask} ens proporciona una classe anomenada \texttt{MethodView} que ens permet implementar una funció per cada verb \ac{HTTP}. Cada \emph{mixin} extendrà d'aquesta super-classe i es declaràn dos mètodes. \\
+
+Un farà referència al verb \ac{HTTP} al qual fa referència el \emph{mixin}. Aquest serà l'encarregat d'atendre la petició i retornar les dades amb un determinat codi d'estat. És dins aquest mètode on entra l'altre típus de \emph{mixin} desenvolupat que serà explicat a continuació.\\
+
+L'altra funció declarada al \emph{mixin} serà la que ens servirà per obtenir les dades que la petició ha de retornar i que el programador haurà d'implementar a la classe final. Aquesta funció portarà el nom del verb \ac{HTTP} que el \emph{mixin} implementa seguit del prefixe \texttt{\_data}. Aquest mètode es deixarà com a abstracte\footnote{Python no té suport per a mètodes abstractes de manera nativa. S'ha emulat l'abstracció llançant l'excepció \texttt{NotImplementedError}}.\\
+
+Com es pot observar a la figura \ref{fig:mixin}, cada \emph{mixin} que dona suport a un verb \ac{HTTP} te com a atribut el codi d'estat \ac{HTTP} per defecte que tornarà la resposta. \\
+
+El mètode \texttt{get} és el que s'hereta de la classe \texttt{MethodView} i aquest es el que atendrà la petició. Aquest mètode primer de tot crida al mètode \texttt{get\_action} i obté les dades que la petició ha de retornar.\\
+
+\begin{figure}[h!]
+	\begin{python}
+class ListAPIViewMixin(MethodView):
+
+	status_code = status.HTTP_200_OK
+	
+	@copy_params
+	def get(self, *args, **kwargs):
+		response_data = self.get_action(*args, **kwargs)
+		response = self.response_class(response_data, **self.response_args)
+		response.status_code = self.status_code
+		return response
+		
+	def get_action(self, *args, **kwargs):
+		raise NotImplementedError()
+	\end{python}
+	\label{fig:mixin}
+	\caption{\emph{Mixin}}
+\end{figure}
+
+D'altra banda tenim els \emph{mixins} que ens defineixen el format de la resposta de la petició. La majoria de les peticions a l'\ac{API} s'alimentaran dels serveis comentats al capítol anterior. Aquests serveis en la majoria de casos retornen entitats del nostre model de dades, pero no es pot retornar una entitat o llista d'entitats ja que no són serialitzables. \\
+
+Abans de retornar les dades a l'usuari final aquestes s'han de presentar en un format serialitzable. Per tal d'agilitzar la tasca al desenvolupador es proporciona un \emph{mixin} que transforma aquestes entitats en un format natiu del llenguatge amb la finalitat que aquest pugui ser serialitzat. Aquest format seràn els diccionaris amb l'atribut com a clau i el seu valor com a valor de la clau.\\
+
+Cada entitat del model de dades te implementada la funcio \texttt{to\_dict} que transforma l'entitat a un diccionari. El \emph{mixin} que serialitzarà l'entitat (o entitats) cridarà a aquesta funció i en retornarà el seu resultat. Aquest \emph{mixin} s'ha anomenat \texttt{ModelResponseMixin}.\\
+
+Seguint l'exemple de la petició per obtenir el detall d'una assignatura,  la classe que representa aquesta petició quedaría com la de la figura \ref{fig:subject_detail_class}.
+
+\begin{figure}[h!]
+	\begin{python}
+class SubjectDetailView(ListAPIViewMixin, ModelResponseMixin):
+
+	def params(self):
+		return {
+			'subject_id': [
+				self.PARAM_URL, 
+				IntegerValidator({'required': True})
+			]
+		}
+		
+	@validate
+	@auth_token_required
+	@subject_exists
+	@user_belongs_to_subject
+	def get_action(self, *args, **kwargs):
+		user = kwargs.get('user')
+		subject_id = kwargs.get('url').get('subject_id')
+		
+		get_subject_srv = GetUserSubject()
+		subject = get_subject_srv.call({
+			'subject_id': subject_id, 
+			'user_id': user.id
+		})
+		return subject
+	\end{python}
+	\label{fig:subject_detail_class}
+	\caption{Classe per atendre la petició del detall d'una assignatura}
+\end{figure}
+
+\subsubsection{Decoradors}
+Com ja s'ha comentat anteriorment, els decoradors serveixen per encapsular una funció (o classe). Si observam el codi de la figura \ref{fig:subject_detail_class} veurem que a la funció \texttt{get\_action} les variables \texttt{user} i \texttt{subject\_id} venen del paràmetre \texttt{kwargs} (contracció de \emph{keyword arguments}). Aquests paràmetres han estat injectats dins la variable \texttt{kwargs} a partir de decoradors.\\
+
+A l'\ac{API} desenvolupada els decoradors s'han usat principalment per dues finalitats: per una banda assegurar la coherència dels paràmetres de la \ac{URL} i per l'altra proporcionar un sistema de control d'accés als recursos. \\
+
+En primer lloc, quan parlam de coherència en els paràmetres de la \ac{URL} ens referim a que quan es sol·liciten per exemple els missatges del grup \texttt{x} de l'assignatura \texttt{y}, assegurar que el grup \texttt{x} pertany a l'assignatura \texttt{y}. Si derivam totes aquestes comprovacions a petites funcions que no formin part del codi de la funció principal de la petició, questa queda lliure de qualsevol comprovació.\\
+
+En el cas de que la comprovació de la coherència de les dades sigui satisfactòria, s'injectaràn les entitats corresponents dins la variable \texttt{kwargs}. D'aquesta manera, en un futur, si es vol fer ús de les entitats de les quals s'ha fet la comprovació, no s'ha de tornar a realitzar la consulta a la base de dades. Aquestes entitats s'injecten a la variable \texttt{kwargs}. Es pot veure aquest decorador a la figura \ref{fig:decorador_coherencia}.
+
+\begin{figure}[h!]
+	\begin{python}
+def group_belongs_to_subject(fnx):
+
+	def wrapped_fnx(*args, **kwargs):
+		subject = kwargs.get('subject')
+		group = kwargs.get('group')
+		
+		group_subject_id = int(group.subject_id)
+		subject_id = int(subject.id)
+		
+		if group_subject_id != subject_id:
+			raise GroupDoesNotBelongToSubjectError()
+		
+		return fnx(*args, **kwargs)
+	return wrapped_fnx
+	\end{python}
+	\label{fig:decorador_coherencia}
+	\caption{Decorador de comprovació de coherència dels paràmetres a la \ac{URL}. En aquest cas de que un grup pertany a una assignatura.}
+\end{figure}
+
+Per l'altra banda tenim els decoradors que ens donen suport al control d'accés a determinats recursos de l'\ac{API}. Per exemple, si un alumne intenta accedir a una assignatura a la qual no està matriculat, el sistema ha d'aturar el fluxe d'execució i notificar a l'usuari que no està autoritzat a veure aquest recurs. \\
+
+En el cas de que l'usuari no estigui autoritzat , el decorador llençarà una excepció que serà gestionada pel corresponent \emph{error handler} que es tractarà a la següent secció. Es pot veure aquest decorador a la figura \ref{fig:decorador_control_acces}
+
+\begin{figure}[h!]
+	\begin{python}
+def user_belongs_to_subject(fnx):
+	
+	def wrapped_fnx(*args, **kwargs):
+		user = kwargs.get('user')
+		
+		dispatcher = {
+			UserType.TEACHER: TeacherDoesNotTeachSubjectError,
+			UserType.STUDENT: StudentIsNotEnrolledToSubjectError
+		}
+		
+		subject_id = kwargs.get('subject').id
+		user_subjects = user.get_subject_ids()
+		user_belongs = subject_id in user_subjects
+		
+		if not user_belongs:
+			exception_cls = dispatcher.get(user.type_id)
+			raise exception_cls()
+		
+		return fnx(*args, **kwargs)
+	
+	return wrapped_fnx
+	\end{python}
+	\label{fig:decorador_control_acces}
+	\caption{Decorador de control d'accés. En aquest cas de que un usuari està matriculat a l'assignatura sol·licitada.}
+\end{figure}
+
+Python permet l'anidació de decoradors. L'ordre d'execució d'aquests serà el mateix en el que estàn declarats. \\
+
+Com a darrer apunt, s'ha desenvolupat un decorador per donar suport a la validació dels paràmetres tant de la \ac{URL}, als paràmetres del \emph{query string}, als paràmetres POST o als fitxers. Cada funció que atén peticions que cont´enen paràmetres defineix una espècie de contracte d'entrada on s'especifica el nom del paràmetre, la seva procedència (\ac{URL}, POST, etc...) i el seu validador. El seu comportament és el mateix que la validació del contracte d'entrada. Aquest validador s'ha aplicat a la funció que implementa el verb \ac{HTTP} de la petició que s'ha realitzat, als \emph{mixins} explicats anteriorment. 
+
+
+
+\subsection{Control d'errors}
+
 
 \section{Contingut multimèdia} \label{contingut_multimedia}
 	

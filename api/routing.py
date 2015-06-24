@@ -5,6 +5,7 @@ from api.views import user as user_views
 from api.views import misc as misc_views
 from api.views import notification as notification_views
 from api.views import media as media_views
+
 routing = {
     '/config/': {
         'class': misc_views.ConfigView,
