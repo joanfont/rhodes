@@ -1,9 +1,9 @@
-\backcite {web_framework}{{12}{3.4.1}{section*.23}}
-\backcite {python}{{12}{3.4.2}{section*.27}}
-\backcite {mysql}{{12}{3.4.2}{section*.28}}
-\backcite {flask}{{12}{3.4.2}{section*.29}}
-\backcite {jinja}{{12}{3.4.2}{section*.29}}
-\backcite {json}{{12}{3.4.2}{section*.30}}
+\backcite {web_framework}{{12}{3.4.1}{section*.24}}
+\backcite {python}{{12}{3.4.2}{section*.28}}
+\backcite {mysql}{{12}{3.4.2}{section*.29}}
+\backcite {flask}{{12}{3.4.2}{section*.30}}
+\backcite {jinja}{{12}{3.4.2}{section*.30}}
+\backcite {json}{{12}{3.4.2}{section*.31}}
 \backcite {sqlalchemy}{{13}{3.4.2}{section*.33}}
 \backcite {fabric}{{13}{3.4.2}{section*.33}}
 \backcite {alembic}{{13}{3.4.2}{section*.33}}

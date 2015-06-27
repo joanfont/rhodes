@@ -8,6 +8,7 @@ import json
 
 
 class JSONResponse(Response):
+    
     mimetype = 'application/json'
     content_type = 'application/json'
 

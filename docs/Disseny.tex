@@ -429,7 +429,7 @@ class IntegerValidator:
 	 
 	 Aquestes dues opcions estan especificades al \texttt{BaseValidator} i es poden extendre a cada validador específic.
 	 
-	\subsection{Serveis de l'aplicació}
+	\subsection{Serveis de l'aplicació} \label{serveis_aplicacio}
 	
 		En el capítol anterior s'ha exposat la manera en que s'implementen els serveis. Hem vist en que consisteix el contracte d'entrada, el contracte de sortida, la funció d'execució del servei i la llibreria auxiliar per donar suport a la validació del contracte d'entrada.\\
 		
@@ -918,18 +918,68 @@ def execute(self, args):
 				\end{itemize}
 				
 		\end{itemize}
+
 \section{\ac{API}} \label{sec_api2}
 
-En aquest capítol es veurà com s'ha dissenyat l'\ac{API} \ac{REST} que aten peticions \ac{HTTP} i retorna les dades sol·licitades o els corresponents errors si n'hi hagués. Aquesta \ac{API} s'ha montat amb el framework \emph{Flask} de Python. En primer lloc veurem el sistema d'enrutament montat, que mapeja una \ac{URL} a una classe que atén la petició.\\
+En aquest capítol es veurà com s'ha dissenyat l'\ac{API} \ac{REST} que atén peticions \ac{HTTP} i retorna les dades sol·licitades o els corresponents errors si escua. Aquesta \ac{API} s'ha montat amb el framework \emph{Flask} de Python. \\
 
-A continuació es veuràn les classes que actúen com a controladors. Aquestes classes atendràn cada petició realitzada i cridarà al servei corresponent. En aquest apartat també veurem com s'ha implementat el control d'accés a la \ac{API} i de la coherència de les dades demanades.  Aquestes classes cridaràn als serveis i retornaràn les dades. \\
+En primer lloc veurem la configuració de l'\ac{API} i a continuació el sistema d'enrutament, que mapeja una \ac{URL} a una classe que atén la petició.\\
 
-Per finalitzar es veurà com s'ha fet la gestió d'excepcions de l'\ac{API}. Veurem els anomanats \emph{error handlers} que s'encarreguen transformar una excepció en un format llegible per l'usuari final.
+Seguidament es veuràn les classes que atendràn cada petició realitzada i duran a terme l'acció corresponent a la seva responsabilitat. En aquest apartat també veurem com s'ha implementat el control d'accés a la \ac{API} i com s'ha assegurat la coherència dels paràmetres.\\
+
+A continuació es veurà com s'ha fet la gestió d'excepcions de l'\ac{API}. Veurem els anomanats \emph{error handlers} que s'encarreguen transformar una excepció en un format llegible per l'usuari final.\\
+
+Per finalitzar el catpítol veurem les tècniques i eines d'integració contínua emprades per tal d'agilitzar el procés de desplegament i testeig.
+
+\subsection{Configuració}
+
+En aquest capítol es definiran els paràmetres de configuració del servidor. Però abans d'entrar en detall s'ha de tenir en compte que hi ha paràmetres de configuració que depenen de l'entorn on està desplegat el sistema (desenvolupament, testeig o producció) i d'altres que no varien. En primer lloc veurem els paràmetres que si que varien en funció de l'entorn i per finalitzar veurem aquestes que són constants.
+
+\subsubsection{Variables d'entorn}
+
+El millor exemple per il·lustrar una configuració que si que depèn de l'entorn on es troba desplegat el sistema és la informació de connexió a la base de dades.\\
+
+S'han de definir variables d'entorn per donar suport a aquesta connexió. Aquesta configuració serà interpretada per \emph{SQLAlchemy} per a conectar l'\ac{ORM} amb el \ac{SGBD}. A continuació podem veure aquestes variables:
+
+\begin{itemize}
+	\item \textbf{DB\_DRIVER:} connector del \ac{SGBD} que s'usarà (MySQL, PostgreSQL, Oracle, SQLite, etc...). En el nostre cas serà \textbf{mysql}.
+	\item \textbf{DB\_USER:} usuari de connexió a la base de dades.
+	\item \textbf{DB\_PASS:} contrassenya de l'usuari.
+	\item \textbf{DB\_PORT:} port del \ac{SGBD}.
+	\item \textbf{DB\_NAME:} nom de la base de dades de l'aplicació.
+\end{itemize}
+
+A banda de la connexió de la base de dades, les altres variables dependents de l'entorn on s'executi el sistema són:
+\begin{itemize}
+	\item \textbf{PROJECT\_DIR:} carpeta on es troba el codi de l'aplicació.
+	\item \textbf{VENV\_DIR:} carpeta on es troba la configuració de l'entorn virtual.
+	\item \textbf{HOST:} host de l'aplicació. En el cas que estiguem en l'entorn de desenvolupament (local) aquest serà: \texttt{localhost:8080}
+	\item \textbf{TEST\_URL:} \ac{URL} que s'usarà per executar la batería de proves.
+\end{itemize}
+
+\subsubsection{Variables independents de l'entorn}
+Les variables independents de l'entorn seràn aquelles que estigui on estigui desplegat el sistema sempre tindràn el mateix valor. Aquestes variables són les següents:
+
+\begin{itemize}	
+	
+	\item \textbf{DATETIME\_FORMAT:} format per defecte de formateig de les dates. 
+	\item \textbf{MESSAGE\_MAX\_LENGTH:} longitud màxima del cos del missatge.
+	\item \textbf{ITEMS\_PER\_PAGE:} en la llista paginada de missatges, el nombre màxim d'ítems que pot llistar en una petició.
+	\item \textbf{ALLOWED\_MIME\_TYPES:} llista de tipus \ac{MIME} permesos a la pujada de fitxers.
+	\item \textbf{MAX\_FILE\_SIZE:} tamany màxim d'un fitxer (en bytes).
+	\item \textbf{MAX\_MESSAGE\_FILES:} nombre màxim de fitxers que es poden adjuntar a un missatge.
+	\item \textbf{MESSAGE\_INTERVAL:} interval de temps (en segons) en el que no es pot publicar un missatge amb el mateix cos.
+\end{itemize}
+
+Aquestes dades seràn accessibles desde la \ac{URL} de l'\ac{API} \texttt{/config/} per facilitar la tasca al desenvolupador.
 
 \subsection{Sistema d'enrutament}
-El sistema d'enrutament de l'\ac{API} consisteix en un fitxer, \texttt{routing.py} que conté un diccionari on estàn mapejades cada ruta de l'\ac{API} amb la classe que atendrà la petició. Es pot veure un fragment d'aquest diccionari a la figura \ref{fig:routing}. Aquest fragment conté dues rutes de l'\ac{API}. La primera és per obtenir el detall d'una assignatura. La segona és per llistar els missatges d'aquesta assignatura o bé inserir-ne un.\\
 
-En ambdos casos veim que la clau del diccionari és la ruta de la \ac{API}. Els paràmetres s'indiquen amb el format \texttt{<nom\_del\_parametre>}. Aquests paràmetres després poden ser recollits a la funció que s'encarrega de atendre cada petició. Es trobaran dins la variable \texttt{kwargs} injectada a cada funció. \\
+El sistema d'enrutament de l'\ac{API} consisteix en un fitxer, \texttt{routing.py}, que conté un diccionari on estàn mapejades cada ruta de l'\ac{API} amb la classe que atendrà la petició.\\
+
+ Es pot veure un fragment d'aquest diccionari a la figura \ref{fig:routing}. Aquest fragment conté dues rutes de l'\ac{API}. La primera és per obtenir el detall d'una assignatura. La segona és per llistar els missatges d'aquesta assignatura o bé inserir-ne un.\\
+
+En ambdos casos veim que la clau del diccionari és la ruta de la \ac{API}. Els paràmetres de la \ac{URL} s'indiquen amb el format \texttt{<nom\_del\_parametre>}. Aquests paràmetres després poden ser recollits a la funció que s'encarrega de atendre cada petició. Es trobaran dins la variable \texttt{kwargs} injectada a cada funció. \\
 
 Com s'observa a la figura \ref{fig:routing}, la \ac{URL} per veure el detall d'una assignatura només mapeja a una única funció. La \ac{URL} per llistar els missatges de l'assignatura o inserir-ne un de nou mapeja a dues funcions, una per cada una de les responsabilitats.\\
 
@@ -963,16 +1013,17 @@ routing = {
 	]
 }
 	\end{python}
-	\label{fig:routing}
 	\caption{Fragment del fitxer \texttt{routing.py}}
+	\label{fig:routing}
 \end{figure}
 
-El primer pas que es fa al inicialitzat el servidor que dóna suport a l'\ac{API} és recórrer aquest fitxer d'enrutament i mapejar cada \ac{URL} a la seva funció amb els seus verbs \ac{HTTP}.
+El primer pas que es fa al inicialitzat el servidor que dóna suport a l'\ac{API} és recórrer aquest diccionari d'enrutament i mapejar cada \ac{URL} a la seva funció amb els seus verbs \ac{HTTP}.
 
-\subsection{Vistes}
-En aquest capítol veurem com s'estructuren les classes encarregades d'atendre les peticions que arriben a l'\ac{API}. S'han creat quatre classes per donar suport a l'\ac{API} \ac{REST}. \\
+\subsection{Controladors}
 
-Abans d'entrar en qüestió introduïrem dos conceptes de Python que són necessàris per entendre les classes desenvolupades. Aquests dos conceptes són: els \emph{mixins} i els decoradors.\\
+En aquest capítol veurem com s'estructuren les classes encarregades d'atendre les peticions que arriben a l'\ac{API}. \\
+
+Abans d'entrar en qüestió introduïrem dos conceptes de Python que són necessàris per entendre les classes desenvolupades: els \emph{mixins} i els decoradors.\\
 
 Python és un llenguatge que permet l'herència múltiple de classes. Un \emph{mixin} és una porció de codi que es pot implementar a qualsevol classe amb la finalitat d'afegir-li funcionalitats. Aquests són independents de la classe a la que s'implementin, és a dir, es poden implementar a qualsevol classe.\\
 
@@ -997,17 +1048,17 @@ hello_world()
 >>> Hello, world!
 >>> After function
 	\end{python}
-	\label{fig:decorator}
 	\caption{Exemple d'un decorador de Python}
+	\label{fig:decorator}
 \end{figure}
 
 \subsubsection{\emph{Mixins}}
 
-S'han desenvlupat dos típus de \emph{mixins}: uns que ens serviràn per definir quins mètodes \ac{HTTP} ha d'implementar la classe que ha d'atendre la petició i els que ens defineixen el format de la resposta a la petició realitzada. \\
+S'han desenvlupat dos típus de \emph{mixins}: uns que ens serviràn per definir quins mètodes \ac{HTTP} ha d'implementar la classe que ha d'atendre la petició i els que ens defineixen el format de la resposta a la petició realitzada.\\
 
-En primer lloc, s'han desenvolupat una sèrie de \emph{mixins} per atendre diferents típus de peticions en funció del verb \ac{HTTP} (GET, POST, PUT, etc...). Els mixins que s'han desenvolupat es poden veure a la taula \ref{table:mixins}.\\
+En primer lloc, s'han desenvolupat una sèrie de \emph{mixins} per atendre diferents típus de peticions en funció del verb \ac{HTTP} (GET, POST, PUT, etc...). Aquests mixins s'han desenvolupat seguint els estàndars \ac{REST}. Els mixins que s'han desenvolupat es poden veure a la taula \ref{table:mixins}. 
 
-\begin{table}[here]
+\begin{table}[h!]
  	\begin{center}
  		\begin{tabularx}{\textwidth}{|l|l|X|}
   			\hline
@@ -1019,19 +1070,17 @@ En primer lloc, s'han desenvolupat una sèrie de \emph{mixins} per atendre difer
 			\texttt{DeleteAPIViewMixin} & DELETE  & \emph{Mixin} que implementa el mètode DELETE. En \ac{REST} s'usa per eliminar un recurs.\\ \hline
 		\end{tabularx}
 	\end{center}
+	\caption{\emph{Mixins} desenvolupats} 
 	\label{table:mixins}
-	\caption{Relació de tecnologies usades al projecte} 
 \end{table}
 
-\emph{Flask} ens proporciona una classe anomenada \texttt{MethodView} que ens permet implementar una funció per cada verb \ac{HTTP}. Cada \emph{mixin} extendrà d'aquesta super-classe i es declaràn dos mètodes. \\
+\emph{Flask} ens proporciona una classe anomenada \texttt{MethodView} que ens permet implementar un mètode per cada verb \ac{HTTP}. Cada \emph{mixin} hereterà aquesta classe i es declaràn dos mètodes. \\
 
-Un farà referència al verb \ac{HTTP} al qual fa referència el \emph{mixin}. Aquest serà l'encarregat d'atendre la petició i retornar les dades amb un determinat codi d'estat. És dins aquest mètode on entra l'altre típus de \emph{mixin} desenvolupat que serà explicat a continuació.\\
+Un farà referència al verb \ac{HTTP} al qual fa referència el \emph{mixin}. Aquest serà l'encarregat d'atendre la petició i retornar les dades amb un determinat codi d'estat.\\
 
-L'altra funció declarada al \emph{mixin} serà la que ens servirà per obtenir les dades que la petició ha de retornar i que el programador haurà d'implementar a la classe final. Aquesta funció portarà el nom del verb \ac{HTTP} que el \emph{mixin} implementa seguit del prefixe \texttt{\_data}. Aquest mètode es deixarà com a abstracte\footnote{Python no té suport per a mètodes abstractes de manera nativa. S'ha emulat l'abstracció llançant l'excepció \texttt{NotImplementedError}}.\\
+L'altre mètode declarat al \emph{mixin} és el que ens servirà per obtenir les dades que la petició ha de retornar. Aquest mètode portarà el nom del verb \ac{HTTP} que el \emph{mixin} implementa seguit del prefixe \texttt{\_data}. Aquest mètode es deixarà com a abstracte\footnote{Python no té suport per a mètodes abstractes de manera nativa. S'ha emulat l'abstracció llançant l'excepció \texttt{NotImplementedError}}.\\
 
 Com es pot observar a la figura \ref{fig:mixin}, cada \emph{mixin} que dona suport a un verb \ac{HTTP} te com a atribut el codi d'estat \ac{HTTP} per defecte que tornarà la resposta. \\
-
-El mètode \texttt{get} és el que s'hereta de la classe \texttt{MethodView} i aquest es el que atendrà la petició. Aquest mètode primer de tot crida al mètode \texttt{get\_action} i obté les dades que la petició ha de retornar.\\
 
 \begin{figure}[h!]
 	\begin{python}
@@ -1039,25 +1088,26 @@ class ListAPIViewMixin(MethodView):
 
 	status_code = status.HTTP_200_OK
 	
-	@copy_params
 	def get(self, *args, **kwargs):
 		response_data = self.get_action(*args, **kwargs)
-		response = self.response_class(response_data, **self.response_args)
+		response = self.response_class(response_data, **kwargs)
 		response.status_code = self.status_code
 		return response
 		
 	def get_action(self, *args, **kwargs):
 		raise NotImplementedError()
 	\end{python}
+	\caption{\texttt{ListAPIViewMixin}}
 	\label{fig:mixin}
-	\caption{\emph{Mixin}}
 \end{figure}
 
-D'altra banda tenim els \emph{mixins} que ens defineixen el format de la resposta de la petició. La majoria de les peticions a l'\ac{API} s'alimentaran dels serveis comentats al capítol anterior. Aquests serveis en la majoria de casos retornen entitats del nostre model de dades, pero no es pot retornar una entitat o llista d'entitats ja que no són serialitzables. \\
+D'altra banda tenim els \emph{mixins} que ens defineixen el format de la resposta de la petició. La majoria de les peticions a l'\ac{API} s'alimentaran dels serveis comentats al capítol anterior. Aquests serveis en la majoria de casos retornen entitats del nostre model de dades, però aquestes entitats no són serialitzables i no es poden retornar com a cos de la resposta. \\
 
-Abans de retornar les dades a l'usuari final aquestes s'han de presentar en un format serialitzable. Per tal d'agilitzar la tasca al desenvolupador es proporciona un \emph{mixin} que transforma aquestes entitats en un format natiu del llenguatge amb la finalitat que aquest pugui ser serialitzat. Aquest format seràn els diccionaris amb l'atribut com a clau i el seu valor com a valor de la clau.\\
+Abans de retornar les dades a l'usuari final aquestes s'han de transformar a un format serialitzable. Es proporciona un \emph{mixin} que transforma aquestes entitats en un format natiu del llenguatge amb la finalitat que aquest pugui ser serialitzat. Aquest format seràn els diccionaris amb les dades de l'entitat.\\
 
-Cada entitat del model de dades te implementada la funcio \texttt{to\_dict} que transforma l'entitat a un diccionari. El \emph{mixin} que serialitzarà l'entitat (o entitats) cridarà a aquesta funció i en retornarà el seu resultat. Aquest \emph{mixin} s'ha anomenat \texttt{ModelResponseMixin}.\\
+Cada entitat del model de dades té implementada la funcio \texttt{to\_dict} que transforma l'entitat a un diccionari. El \emph{mixin} que serialitzarà l'entitat (o entitats) cridarà a aquesta funció i en retornarà el seu resultat. Aquest \emph{mixin} s'ha anomenat \texttt{ModelResponseMixin}.\\
+
+Aquest \emph{mixin} retorna els resultats en un format natiu del llenguatge. Un altre \emph{mixin} anomenat \texttt{JSONResponseMixin} transforma aquest diccionari a \ac{JSON}. Si es vol que la informació es retorni en format \ac{XML} basta canviar la funció que transforma el diccionari a \ac{JSON} per una altra que el transformi a \ac{XML}.\\
 
 Seguint l'exemple de la petició per obtenir el detall d'una assignatura,  la classe que representa aquesta petició quedaría com la de la figura \ref{fig:subject_detail_class}.
 
@@ -1088,18 +1138,21 @@ class SubjectDetailView(ListAPIViewMixin, ModelResponseMixin):
 		})
 		return subject
 	\end{python}
-	\label{fig:subject_detail_class}
 	\caption{Classe per atendre la petició del detall d'una assignatura}
+	\label{fig:subject_detail_class}
 \end{figure}
 
 \subsubsection{Decoradors}
-Com ja s'ha comentat anteriorment, els decoradors serveixen per encapsular una funció (o classe). Si observam el codi de la figura \ref{fig:subject_detail_class} veurem que a la funció \texttt{get\_action} les variables \texttt{user} i \texttt{subject\_id} venen del paràmetre \texttt{kwargs} (contracció de \emph{keyword arguments}). Aquests paràmetres han estat injectats dins la variable \texttt{kwargs} a partir de decoradors.\\
+
+Com ja s'ha comentat anteriorment, els decoradors serveixen per encapsular una funció (o classe). Si observam el codi de la figura \ref{fig:subject_detail_class} veurem que a la funció \texttt{get\_action} les variables \texttt{user} i \texttt{subject\_id} venen del paràmetre \texttt{kwargs} (contracció de \emph{key-word arguments}). Aquests paràmetres han estat injectats dins la variable \texttt{kwargs} a partir de decoradors.\\
 
 A l'\ac{API} desenvolupada els decoradors s'han usat principalment per dues finalitats: per una banda assegurar la coherència dels paràmetres de la \ac{URL} i per l'altra proporcionar un sistema de control d'accés als recursos. \\
 
-En primer lloc, quan parlam de coherència en els paràmetres de la \ac{URL} ens referim a que quan es sol·liciten per exemple els missatges del grup \texttt{x} de l'assignatura \texttt{y}, assegurar que el grup \texttt{x} pertany a l'assignatura \texttt{y}. Si derivam totes aquestes comprovacions a petites funcions que no formin part del codi de la funció principal de la petició, questa queda lliure de qualsevol comprovació.\\
+En primer lloc, quan parlam de coherència en els paràmetres de la \ac{URL} ens referim a que quan es sol·liciten, per exemple,  els missatges del grup \texttt{x} de l'assignatura \texttt{y}, assegurar que el grup \texttt{x} pertany a l'assignatura \texttt{y}. Si derivam totes aquestes comprovacions a petites funcions que no formin part del codi de la funció principal de la petició, aquesta queda lliure de qualsevol comprovació.\\
 
-En el cas de que la comprovació de la coherència de les dades sigui satisfactòria, s'injectaràn les entitats corresponents dins la variable \texttt{kwargs}. D'aquesta manera, en un futur, si es vol fer ús de les entitats de les quals s'ha fet la comprovació, no s'ha de tornar a realitzar la consulta a la base de dades. Aquestes entitats s'injecten a la variable \texttt{kwargs}. Es pot veure aquest decorador a la figura \ref{fig:decorador_coherencia}.
+Un altre típus de decoradors són els que asseguren que una entitat existeix, donat el seu identificador. Aquests porten el nom de l'entitat seguit del prefixe \texttt{\_exists} i si la comprovació ha estat satisfactòria injectaràn l'entitat a la variable \texttt{kwargs}. D'aquesta manera, en un futur, si es vol fer ús de les entitats de les quals s'ha fet la comprovació, no s'ha de tornar a realitzar la consulta a la base de dades.\\
+
+Es pot veure aquest decorador de comprovació de la coherència entre els paràmetres \texttt{group\_id} i \texttt{subject\_id} a la figura \ref{fig:decorador_coherencia}.\\
 
 \begin{figure}[h!]
 	\begin{python}
@@ -1118,13 +1171,13 @@ def group_belongs_to_subject(fnx):
 		return fnx(*args, **kwargs)
 	return wrapped_fnx
 	\end{python}
+	\caption{Decorador de comprovació de coherència dels paràmetres a la \ac{URL}.}
 	\label{fig:decorador_coherencia}
-	\caption{Decorador de comprovació de coherència dels paràmetres a la \ac{URL}. En aquest cas de que un grup pertany a una assignatura.}
 \end{figure}
 
 Per l'altra banda tenim els decoradors que ens donen suport al control d'accés a determinats recursos de l'\ac{API}. Per exemple, si un alumne intenta accedir a una assignatura a la qual no està matriculat, el sistema ha d'aturar el fluxe d'execució i notificar a l'usuari que no està autoritzat a veure aquest recurs. \\
 
-En el cas de que l'usuari no estigui autoritzat , el decorador llençarà una excepció que serà gestionada pel corresponent \emph{error handler} que es tractarà a la següent secció. Es pot veure aquest decorador a la figura \ref{fig:decorador_control_acces}
+En el cas de que l'usuari no estigui autoritzat, el decorador llençarà una excepció que serà gestionada pel corresponent \emph{error handler} que es tractarà a la següent secció. Es pot veure aquest decorador a la figura \ref{fig:decorador_control_acces}.\\
 
 \begin{figure}[h!]
 	\begin{python}
@@ -1147,24 +1200,161 @@ def user_belongs_to_subject(fnx):
 			raise exception_cls()
 		
 		return fnx(*args, **kwargs)
-	
+
 	return wrapped_fnx
 	\end{python}
 	\label{fig:decorador_control_acces}
-	\caption{Decorador de control d'accés. En aquest cas de que un usuari està matriculat a l'assignatura sol·licitada.}
+	\caption{Decorador de control d'accés.}
 \end{figure}
 
 Python permet l'anidació de decoradors. L'ordre d'execució d'aquests serà el mateix en el que estàn declarats. \\
 
-Com a darrer apunt, s'ha desenvolupat un decorador per donar suport a la validació dels paràmetres tant de la \ac{URL}, als paràmetres del \emph{query string}, als paràmetres POST o als fitxers. Cada funció que atén peticions que cont´enen paràmetres defineix una espècie de contracte d'entrada on s'especifica el nom del paràmetre, la seva procedència (\ac{URL}, POST, etc...) i el seu validador. El seu comportament és el mateix que la validació del contracte d'entrada. Aquest validador s'ha aplicat a la funció que implementa el verb \ac{HTTP} de la petició que s'ha realitzat, als \emph{mixins} explicats anteriorment. 
-
-
+Com a darrer apunt, s'ha desenvolupat un decorador per donar suport a la validació dels paràmetres tant de la \ac{URL}, als paràmetres del \emph{query string}, als paràmetres POST o als fitxers. Cada funció que atén peticions que contenen paràmetres defineix una contracte d'entrada on s'especifica el nom del paràmetre, la seva procedència (\ac{URL}, POST, etc...) i el seu validador. El seu comportament és el mateix que la validació del contracte d'entrada dels serveis. Si la validació és incorrecta llençarà una excepció i es notificarà a l'usuari de quins camps no cumpleixen amb els requeriments del validador.
 
 \subsection{Control d'errors}
 
+Com s'ha comentat en nombrades ocasions, el control d'errors és una part fonemanetal del nostre sistema. Els diferents típus d'errors que es poden produïr al nostre sistema van desde un error en el format o correctesa dels paràmetres de la petició, l'intent d'accedir a un recurs on l'usuari no hi té accés o que el recurs sol·licitat no existeix.\\
 
+La majoria dels errors seràn llançats desde els decoradors (que controlen la coherència dels paràmetres de la \ac{URL} i proporcionen un control d'accés a determinats recursos) o desde la funció que retorna les dades de la petició. El sistema d'errors que s'ha construït està format a base d'excepcions.\\
+
+Cada excepció porta un codi d'estat \ac{HTTP}, un codi alfanumèric i una descripció. Totes les excepcions de l'\ac{API} hereten de l'excepció \texttt{APIError} que conté els valors per defecte d'aquests tres paràmetres si no s'especifiquen.\\
+
+A la taula \ref{table:excepcions} es poden veure les excepcions més rellevants del sistema.
+
+\begin{table}[h!]
+	\begin{center}
+ 		\begin{tabularx}{\textwidth}{|l|l|X|}
+  			\hline
+ 			\bfseries Excepció & \bfseries Codi \ac{HTTP} & \bfseries Descripció\\ \hline
+			\texttt{ObjectNotFoundError} & \texttt{404 Not Found} &  Es llença quan el recurs sol·licitat no s'ha trobat.\\ \hline
+			\texttt{ForbiddenActionError} & \texttt{403 Forbidden} & Es llença quan l'usuari no està autoritzat a veure el recurs. \\ \hline
+			\texttt{ConflictError} & \texttt{409 Conflict} & Es llença quan hi ha conflicte en les dades sol·licitades (coherència en els paràmetres) \\ \hline
+			\texttt{TooManyRequestsError} & \texttt{429 Too Many Requests} & Es llença quan l'usuari fà més peticions de les que està autoritzat \\ \hline
+		\end{tabularx}
+	\end{center}
+	\caption{Excepcions més rellevants del sistema}
+	\label{table:excepcions}
+\end{table}
+
+Aquestes excepcions no seran llençades directament, es crearàn excepcions específiques per a cada ocasió. Vegem-ho amb un exemple: quan un usuari sol·licita una assignatura amb un identificador que no existeix no es llançara l'excepció \texttt{ObjectNotFoundError}, si no que es llençara l'excepció \texttt{SubjectNotFoundError} que hereterà l'anterior i portara un missatge més clar per a l'usuari.\\
+
+Quan una excepció es llença, s'ha de tractar d'alguna manera perque la informació es pugui presentar a l'usuari final en un format llegible. Necessitam un procés de transformació de l'excepció a un format llegible i serialitzable pel sistema. L'excepció \texttt{APIError} té implementat un mètode, \texttt{to\_dict}, que transforma la informació de l'excepció en una estructura nativa del llenguatge, un diccionari.
+
+Un \emph{error handler} no és més que una funció que donada una excepció ,la serialitzarà i retornarà la seva informació a l'usuari final. Es pot veure l'\emph{error handler} que dona suport a les excepcions de típus \texttt{APIError} a la figura \ref{fig:error_handler}.\\
+
+\begin{figure}[h!]
+	\begin{python}
+def api_error_handler(error):
+	data = error.to_dict()
+	response = jsonify(data)
+	response.status_code = error.status_code
+	
+	return response
+	\end{python}
+	\caption{\emph{Error handler} de l'excepció \texttt{APIError}}
+	\label{fig:error_handler}
+
+\end{figure}
+
+A la figura \ref{fig:excepcio_json} es pot veure la resposta \ac{HTTP} quan s'ha llençat una excepció al sistema.
+
+\begin{figure}[h!]
+	\begin{verbatim}
+HTTP/1.1 403 FORBIDDEN
+Server: nginx/1.4.6 (Ubuntu)
+Content-Type: application/json
+Content-Length: 81
+Connection: keep-alive
+
+{
+  "message": "Student is not enrolled to the subject", 
+  "code": "forbidden"
+}
+	\end{verbatim}
+	\caption{Excepció transformada a \ac{JSON}}
+	\label{fig:excepcio_json}
+\end{figure}
+
+Un cas especial d'excepcions són les aquelles derivades d'errors de validació. L'excepció \texttt{ValidationError} n'és el cas. Aquesta excepció va lligada al codi d'estat \texttt{400 Bad Request} que indica que la petició no s'ha realitzat correctament.\\
+
+L'excepció citada anteriorment, apart de portar un codi alfanumèric i un missatge descriptiu, portarà a més els errors específics a de la validació. Per exemple: si quan feim una petició a la \ac{URL} per obtenir el detall d'una assignatura (donat el seu identificador numèric) amb un identificador no numèric, el sistema ens retornarà l'error de que l'identificador no numèric no ès vàlid. Es pot veure la resposta a la petició \ac{HTTP} a la figura \ref{fig:validation_error}.\\
+
+\begin{figure}[h!]
+	\begin{verbatim}
+HTTP/1.1 400 BAD REQUEST
+Server: nginx/1.4.6 (Ubuntu)
+Content-Type: application/json
+Content-Length: 192
+Connection: keep-alive
+
+{
+  "message": "Validation error", 
+  "code": "validation_error", 
+  "errors": [
+    {
+      "field": "subject_id", 
+      "errors": [
+        "The value is not an integer"
+      ]
+    }
+  ]
+}
+	\end{verbatim}
+	\caption{Error de validació corresponent a una petició mal formada}
+	\label{fig:validation_error}
+\end{figure}
+Com succeïx amb l'enrutament, al iniciar-se el servidor que dóna suport a l'\ac{API} es configuren els \emph{error handlers} per a cada típus d'excepció. 
 \section{Contingut multimèdia} \label{contingut_multimedia}
+A la secció \ref{serveis_aplicacio} ja s'han exposat els serveis que gestionen el contingut multimèdia però no s'ha entrat en el detall de la seva implementació. En aquest capítol veurem com s'ha implementat el sistema d'allotjament de contingut multimèdia.\\
+
+Com es pot veure a la figura \ref{fig:model}, es pot distingir entre dos tipus de contingut multimèdia. Per una banda es tenen els avatars d'usuari i per l'altra els fitxers que estàn adjuntats a un missatge.\\
+
+Tots els fitxers es guarden al disc del servidor que allotja l'aplicació. S'ha desenvolupat la classe \texttt{DiskStorage} que implementa les operacions de lectura i escriptura de fitxers al disc. Si es desitja canviar l'allotjament d'aquests i es decideix posar-los al \emph{cloud} només fa falta desenvolupar una altre classe que implementi els mateixos mètodes pero guardant-los a la nova destinació.\\
+
+\subsection{Avatar d'usuari}
+
+Començant pels avatars, un usuari pot modificar el seu avatar les vegades que ell desitgi. Per això s'ha habilitat l'acció \texttt{PUT /user/avatar/} on l'usuari haurà d'especificar juntament a la imatge que vol canviar, el seu tipus \ac{MIME}.
+
+Els avatars es guarden dins la carpeta \texttt{media/avatars/} seguit de la carpeta que correspon a la inicial del seu primer llinatge. El nom del fitxer serà l'identificador de l'usuari passat per una funció de \emph{hash} (s'ha usat el \emph{hash} \texttt{md5}), i aquest no tendrà extensió. \\
+
+Així l'avatar de l'usuari amb identificador 4 i nom Josep Mulet es guardarà dins la carpeta \texttt{media/avatars/m/} i el nom del fitxer serà \texttt{a87ff679a2f3e71d9181a67b7542122c}. D'aquesta manera ens assegurem que no hi ha col·lisió entre noms de fitxer ja que l'identificador és únic per a cada usuari.
+
+\subsection{Fitxers de missatge}
+
+Quan publicam un missatge, sigui del típus que sigui, no tenim la possibilitat de afegir-hi contingut multimèdia directament. És a posteriori que s'han d'afegir. S'ha habilitat l'acció \verb$POST [...]/messages/<message_id>/media/$ per afegir contingut multimèdia a un missatge. Com succeïx amb l'avatar d'usuari, juntament al fitxer, l'usuari haurà d'especificar el tipus \ac{MIME} de cada fitxer que adjunta.
+
+Els missatges es guardaran dins el directori \texttt{media/messages}. Dins aquest directori es poden trobar tres subdirectoris, que corresponen a cada tipus de missatge disponible al sistema: \texttt{chat}, \texttt{group} i \texttt{subject}.\\
+
+En el cas dels missatges directes, el fitxer es guardara dins un subdirectori que tendrà com a nom la inicial del llinatge de l'usuari que ha enviat el missatge. En el cas dels missatges a grups i assignatures, el fitxer anirà dins un subdirectori que tendrà com a nom l'identificador del grup o de l'assignatura. \\
+
+En els tres casos, el nom del fitxer serà l'identificador de l'entitat \texttt{MessageFile} passat per una funció \emph{hash} (al igual que amb els avatars d'usuari aquesta funció de hash serà \texttt{md5}).\\
+
+D'aquesta manera, si l'usuari Josep Mulet adjunta un fitxer a un missatge directe, aquest es guardarà dins el directori \texttt{media/messages/chat/m/} i el nom del fitxer serà l'identificador de l'entitat \texttt{MessageFile} passat per la funció de hash.
+
+\subsection{Enllaç amb \emph{Flask}}
+Juntament amb la sessió de la base de dades, aquest també és un punt crític de la nostra aplicació, on tots els serveis es mesclen amb les estructures de dades del \emph{framework Flask}. A continuació explicarem quina sol·lució s'ha adoptat per minimitzar l'impacte del \emph{framework} dins l'ecosistema dels serveis.\\
+
+Per tal de minimitzar l'impacte que té \emph{Flask} damunt el nostre ecosistema, s'ha optat per convertir aquestes estructures propies del \emph{framweork} a estructures natives del llenguatge. D'aquesta manera, quan a la petició hi hagi un fitxer, es transformarà de l'estructura \texttt{WerkzeugFileStorage\footnote{Werkzeug és una llibreria WSGI de Python que Flask emplea}} a l'objecte \texttt{BytesIO} de Python.\\
+
+D'aquesta manera, tant per llegir com per escriure fitxers emplearem les estructures natives del llenguatge i alliberarem la capa de serveis de qualsevol dependència amb \emph{Flask}. D'aquesta manera també es fa possible en un futur portar l'\ac{API} a un altre \emph{framework}. 
+
+\subsection{Limitacions}
+Per tal de minimitzar la càrrega del disc del nostre servidor s'han establert una sèrie de limitacions damunt els fitxers. Aquestes limitacions són les següents:
+
+\begin{itemize}
+	\item Limitar el tamany dels fitxers que es poden pujar. Aquest tamany es pot canviar en qualsevol moment, només s'ha de canviar del fitxer de preferències la variable \verb$MAX_FILE_SIZE$ i establir els bytes que volem que pesin els fitxers com a màxim.
+	\item Limitar el nombre de fitxers que pot tenir un missatge. Aquest nombre també es pot canviar al fitxer de preferències. El nom de la variable a canviar és \verb$MAX_MESSAGE_FILES$
+	\item Limitar els típus \ac{MIME} que el sistema pot allotjar. Aquests típus \ac{MIME} permesos es poden modificar a la variable \verb$ALLOWED_MIME_TYPES$ del fitxer de preferències.
+\end{itemize}
 	
 \section{Integració contínua}
 
+Una vegada s'han fet canvis a l'\ac{API} testejar-les es una part fonamental antes de desplegar les noves funcionalitats a producció. S'ha elaborat una bateria d'\emph{unit tests} per comprovar que cada nova funcionalitat no afecta a les anteriors ja testejades.\\
 
+Finalment, aquesta bateria de tests s'ha integrat dins el servei \emph{Travis CI} que la executa a cada \emph{push} fet al repositori.
+
+\subsection{\emph{Unit testing}}
+
+Els \emph{unit tests} que s'han desenvolupat fan peticions contra la \ac{URL} de testeig declarada a les variables d'entorn i ataquen a cada recurs de l'\ac{API} provant tant que retornen un codi d'estat \texttt{2xx} quan el seu resultat és satisfactòri, com que quan es dónen errors retornen el seu error corresponent.\\
+
+Aquests \emph{unit tests} es troben dins el directori \texttt{api/tests/} i estan separats en fitxers segons la seva responsabilitat. Aquests responsabilitats són les mateixes que les dels controladors o les dels serveis. 
