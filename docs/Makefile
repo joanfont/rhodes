@@ -11,4 +11,4 @@ all:
 	$(BUILDTEX)
 
 clean:
-	rm -f *.dvi *.log *.bak *.aux *.bbl *.blg *.idx *.ps *.eps *.pdf *.toc *.out *~
+	rm -f *.dvi *.log *.bak *.aux *.bbl *.blg *.idx *.ps *.eps *.pdf *.toc *.out *.log *.lot *.brf *.synctex.gz *.lof *~
