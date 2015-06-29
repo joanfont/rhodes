@@ -7,8 +7,8 @@ A level-1 auxiliary file: Introduccio.aux
 A level-1 auxiliary file: Entorn.aux
 A level-1 auxiliary file: Analisi.aux
 A level-1 auxiliary file: Disseny.aux
+A level-1 auxiliary file: Desenvolupament.aux
 A level-1 auxiliary file: Conclusions.aux
-A level-1 auxiliary file: Adaptacio.aux
 A level-1 auxiliary file: Instalacio.aux
 A level-1 auxiliary file: Manual.aux
 The style file: IEEEtran.bst
@@ -23,44 +23,44 @@ Database file #1: Bibliografia.bib
 -- See the "IEEEtran_bst_HOWTO.pdf" manual for usage information.
 
 Done.
-You've used 20 entries,
+You've used 21 entries,
             4039 wiz_defined-function locations,
-            879 strings with 8449 characters,
-and the built_in function-call counts, 5351 in all, are:
-= -- 326
-> -- 26
+            882 strings with 8537 characters,
+and the built_in function-call counts, 5604 in all, are:
+= -- 341
+> -- 27
 < -- 0
-+ -- 22
++ -- 23
 - -- 2
-* -- 127
-:= -- 920
-add.period$ -- 22
-call.type$ -- 20
-change.case$ -- 20
+* -- 132
+:= -- 962
+add.period$ -- 23
+call.type$ -- 21
+change.case$ -- 21
 chr.to.int$ -- 0
-cite$ -- 20
-duplicate$ -- 486
-empty$ -- 627
+cite$ -- 21
+duplicate$ -- 510
+empty$ -- 658
 format.name$ -- 2
-if$ -- 1139
+if$ -- 1194
 int.to.chr$ -- 0
-int.to.str$ -- 20
-missing$ -- 122
-newline$ -- 123
+int.to.str$ -- 21
+missing$ -- 128
+newline$ -- 128
 num.names$ -- 2
-pop$ -- 476
+pop$ -- 500
 preamble$ -- 1
 purify$ -- 0
 quote$ -- 2
-skip$ -- 397
+skip$ -- 416
 stack$ -- 0
 substring$ -- 0
-swap$ -- 214
+swap$ -- 224
 text.length$ -- 0
 text.prefix$ -- 0
 top$ -- 5
-type$ -- 20
+type$ -- 21
 warning$ -- 0
 while$ -- 2
-width$ -- 22
-write$ -- 186
+width$ -- 23
+write$ -- 194

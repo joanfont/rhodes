@@ -129,4 +129,10 @@ virtualenvwrapper. [Online]. Available:
 nosetests. [Online]. Available: \url{https://nose.readthedocs.org/en/latest/}
 \BIBentrySTDinterwordspacing
 
+\bibitem{djangorestframework}
+\BIBentryALTinterwordspacing
+{Django} {Rest} {Framework}. [Online]. Available:
+  \url{http://www.django-rest-framework.org}
+\BIBentrySTDinterwordspacing
+
 \end{thebibliography}
