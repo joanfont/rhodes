@@ -25,6 +25,9 @@ config/nginx.conf
 *.lof
 *.out
 docs/*.pdf
+*.bbl
+*.bbg
+*.brf
 
 # Env file (environment specific)
 .env
