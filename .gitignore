@@ -28,6 +28,7 @@ docs/*.pdf
 *.bbl
 *.bbg
 *.brf
+*.blg
 
 # Env file (environment specific)
 .env
