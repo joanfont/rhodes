@@ -560,8 +560,6 @@ def can_add_file_to_message(fnx):
         user = kwargs.get('user')
         message = kwargs.get('message')
 
-        print message
-
         if len(message.media) > config.MAX_MESSAGE_FILES:
             raise LimitOfMessageFilesReachedError()
 

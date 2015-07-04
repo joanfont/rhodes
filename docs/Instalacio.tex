@@ -1,8 +1,226 @@
 %!TeX root=MemoriaTFG.tex
 \chapter{Manual d'instalació del servidor}\label{instalacio}
+En aquest annex es detallaran les instruccions per instal·lar el servei de missatgeria a un servidor. En primer lloc s'enumeraran els requisits que el servidor ha de tenir. A continuació s'explicarà com instal·lar-lo i per finalitzar com configurar-lo.
 
-\section{Requeriments}
+\section{Requisits}
 
-\section{Instalació}
+S'ha de disposar d'un ordinador amb qualsevol distribució UNIX (pel servidor de testeig s'ha empleat una Ubuntu 14.04 LTS). S'han de tenir privilegis de \texttt{sudo} al servidor i disposar de connexió a internet.\\
 
+A continuació es relaten quin software i llibreries són necessaris pel correcte funcionament del servei:
+\begin{itemize}
+	\item python2.7
+	\item python-virtualenv
+	\item python-virtualenvwrapper
+	\item mysql-server-5.5
+	\item git
+	\item nginx
+	\item supervisor
+\end{itemize}
+\section{Instal·lació}
+El primer que cal fer és copiar el codi del servidor de missatgeria a la nostra carpeta d'usuari. Aquest codi es pot clonar del repositori de \emph{github} \cite{repo}.
+\begin{verbatim}
+$ cd ~
+$ git clone git@github.com:joanfont/rhodes.git
+\end{verbatim}
+
+Una vegada copiat el codi, crearem un entorn virtual per executar el servidor de missatgeria. Ho farem amb l'ajut de virtualenvwrapper. Una vegada creat l'entorn virtual instal·larem les llibreries de Python necessàries pel projecte. Per aixo ens hem de dirigir al directori on hem tenim el codi.
+
+\begin{verbatim}
+$ cd ~/rhodes
+$ mkvirtualenv rhodes
+$ (rhodes) pip install -r requirements.txt
+\end{verbatim}
+
+Com s'ha comentat anteriorment, hi ha variables que depenen de l'entorn on s'estigui executant el codi. Dins la carpeta del projecte tenim el fitxer \texttt{env.sample}. Aquest fitxer és una plantilla on hi podem trobar les variables que hem de definir. S'ha de crear un fitxer exactament igual però amb les configuracions específiques del servidor on estiguem executant l'aplicació. Aquest fitxer nou ha de portar el nom \texttt{.env}.
+
+\begin{verbatim}
+$ cp env.sample .env
+$ vim .env
+\end{verbatim}
+
+Les variables que hem d'establir estan declarades a la secció \ref{configuracion_entorn}. A la figura \ref{fig:env_sample} es mostra un fitxer \texttt{.env} de mostra:
+
+\begin{figure}[h!]
+	\begin{lstlisting}[language=bash]
+# Directory config
+export PROJECT_DIR='/home/joan/rhodes'
+export VENV_DIR='/home/joan/.virtualenvs/rhodes'
+
+# DB config
+export DB_DRIVER='mysql'
+export DB_HOST='localhost'
+export DB_USER='root'
+export DB_PASS=''
+export DB_NAME='rhodes'
+
+# Server config
+export HOST='http://127.0.0.1:8080'
+
+# Testing config
+export TEST_URL='http://127.0.0.1:8080'
+
+# Fabric config
+export SERVER_URL='missatgeria.uib.cat'
+export SERVER_USER='root'
+	\end{lstlisting}
+	\caption{\texttt{.env} per a l'entorn de desenvolupament local}
+	\label{fig:env_sample}
+\end{figure}
+
+El següent pas es assegurar-mos que quan s'activa l'entorn virtual, es carreguen aquestes variables d'entorn. Els entorns virtuals tenen dos \emph{hooks}: \emph{postactivate} i \emph{postdeactivate}. Es crearan dos enllaços simbòlics als fitxers \texttt{.env} i \texttt{env.sample}.
+
+\begin{verbatim}
+$ cd ~/rhodes
+$ chmod +x .env
+$ chmod +x env.sample
+$ cd /home/joan/.virtualenvs/rhodes/bin
+$ mv postactivate postactivate.old
+$ mv postdeactivate postdeactivate.old
+$ ln -s /home/joan/rhodes/env postactivate
+$ ln -s /home/joan/rhodes/env.sample postdeactivate
+$ workon rhodes
+$ (rhodes) echo $DB_DRIVER
+>> mysql
+$ (rhodes) deactivate
+$ echo $DB_DRIVER
+>>
+\end{verbatim}
+
+Una vegada configurat l'entorn virtual és el moment de configurar el servidor d'aplicacions gunicorn juntament amb l'eina supervisor. S'ha de crear un script de bash per arrencar el servidor gunicorn. A la figura \ref{fig:gunicorn} es pot trobar una plantilla de l'script de bash per gunicorn.
+
+\begin{figure}[h!]
+	\begin{lstlisting}[language=bash]
+#!/bin/bash
+export WORKON_HOME=~/.virtualenvs/
+source /usr/local/bin/virtualenvwrapper.sh
+workon rhodes
+
+USER=`whoami`
+GROUP=`whoami`
+
+LOGFILE=$PROJECT_DIR/log/gunicorn.log
+LOGERRFILE=$PROJECT_DIR/log/gunicorn_err.log
+
+LOGDIR=$(dirname $LOGFILE)
+
+NUM_WORKERS=3
+TIMEOUT=60
+
+HOST=127.0.0.1
+PORT=8080
+
+cd $PROJECT_DIR
+export PYTHONPATH=$PROJECT_DIR:$PYTHONPATH
+
+test -d $LOGDIR || mkdir -p $LOGDIR
+
+exec gunicorn rhodes:app -w $NUM_WORKERS -b $HOST:$PORT\
+    --user=$USER --group=$GROUP\
+    --log-level=info --log-file=$LOGFILE 2>> $LOGERRFILE
+	\end{lstlisting}
+	\caption{Plantilla pel gunicorn}
+	\label{fig:gunicorn}
+\end{figure}
+Aquest script el colocarem a l'arrel del nostre projecte: \texttt{~/joan/rhodes/gunicorn.sh} i li se li ha de donar permis d'execució.\\
+
+Una cop configurat l'script de gunicorn, es el moment de configurar el supervisor pel nostre projecte. A la figura \ref{fig:supervisor} tenim la plantilla del fitxer de configuració de supervisor.
+\begin{figure}[h!]
+	\begin{verbatim}
+[program:rhodes]
+directory = /home/joan/rhodes
+command = /home/joan/rhodes/gunicorn.sh
+user = root # Usuari que executara l'aplicació
+stdout_logfile = /home/joan/rhodes/log/supervisor.log
+stderr_logfile = /home/joan/rhodes/log/supervisor_err.log
+	\end{verbatim}
+	\caption{Plantilla per supervisor}
+	\label{fig:supervisor}
+\end{figure}
+
+Aquest fitxer s'ha de copiar a \texttt{/etc/supervisor/supervisor.d/rhodes.conf}
+
+A continuació hem d'executar les següents comandes per actualitzar el registre d'aplicacions que supervisor controla.
+\begin{verbatim}
+# supervisorctl reread
+# supervisorctl update
+# supervisorctl status
+rhodes	RUNNING	pid 19025, uptime 0:00:08
+\end{verbatim}
+
+D'aquesta manera, cada cop que es reinicii el servidor, supervisor aixecarà el nostre servei mitjançant l'script bash. El comportament de supervisor és semblant als serveis de UNIX.
+
+\begin{verbatim}
+# supervisorctl restart rhodes
+# supervisorctl stop rhodes
+# supervisorctl start rhodes
+\end{verbatim}
+
+La darrera passa és configurar nginx perquè actuí com a \emph{proxy} invers i envii totes les peticions que li arribin cap a gunicorn. S'ha de crear un fitxer a \texttt{/etc/nginx/sites-available} amb el contingut de la figura \ref{fig:nginx}
+
+\begin{figure}[h!]
+	\begin{verbatim}
+server {
+    listen 80;
+    listen 443 ssl;
+	
+    server_name missatgeria.uib.cat;
+
+    # Certificats
+    ssl_certificate /opt/rhodes/rhodes.crt;
+    ssl_certificate_key /opt/rhodes/rhodes.key;
+    
+    access_log /var/log/nginx/rhodes-access.log;
+    error_log /var/log/nginx/rhodes-error.log;
+
+    location / {
+        proxy_set_header Host $host;
+        proxy_pass http://127.0.0.1:8080;
+    }
+}
+	\end{verbatim}
+	\caption{Configuració d'nginx}
+	\label{fig:nginx}
+\end{figure}
 \section{Configuració}
+El primer que s'ha de fer es definir les variables de configuració que no depenen de l'entorn al nostre gust. A la figura \ref{fig:variables_no_entorn} tenim una plantilla del fitxer \texttt{config/config.py} que hem d'emplenar.
+
+\begin{figure}[h!]
+	\begin{python}
+	
+DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
+
+MESSAGE_MAX_LENGTH = 400
+ITEMS_PER_PAGE = 15
+
+ALLOWED_MIME_TYPES = [
+    'image/png',
+    'image/jpeg',
+    'image/pjpeg',
+    'image/gif',
+    'image/bmp',
+]
+
+MAX_FILE_SIZE = 2 * 1024 * 1024
+
+MAX_MESSAGE_FILES = 5
+
+MEDIA_FOLDER = 'media/'
+
+MESSAGE_INTERVAL = 15
+	\end{python}
+	\caption{Variables de configuració que no depenen de l'entorn}
+	\label{fig:variables_no_entorn}
+\end{figure}
+
+Una vegada configurades aquestes variables, el darrer pas es configurar l'estructura de la base de dades.\\
+
+Mitjançant \emph{alembic} es pot fer amb una migració.
+\begin{verbatim}
+$ cd ~/rhodes/application/lib
+$ workon rhodes
+$ (rhodes) alembic revision --autogenerate
+$ (rhodes) alembic upgrade head
+\end{verbatim}
+
+En aquest punt ja tenim l'aplicació llesta. Només ens queda definir els tipus d'usuari a la taula \texttt{user\_type} i els tipus de elements multimèdia a la taula \texttt{media\_type}. Una vegada fetes aquestes insercions l'aplicació ja està llesta per funcionar.
+

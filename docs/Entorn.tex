@@ -3,7 +3,7 @@
 \chapter{Estat de l'art}\label{entorn}
 
 En aquest capítol del document analitzarem en quines tecnologies i metodologies són les més usades a l'hora de desenvolupar una \ac{API} per ser operada via web. Es veurà en detall quines solucions, metodologies s'usen a l'actualitat per desenvolupar \ac{API}s.\\
- En primer lloc veurem en que consisteix una \ac{API}, a continuació analitzarem la metodologia de treball d'arquitectura orientada a serveis, el protocol \ac{HTTP}, l'arquitectura \ac{REST} i la tècnica d'accés a base de dades \ac{ORM}.
+En primer lloc veurem en que consisteix una \ac{API}, a continuació analitzarem la metodologia de treball d'arquitectura orientada a serveis, el protocol \ac{HTTP}, l'arquitectura \ac{REST} i la tècnica d'accés a base de dades \ac{ORM}. Per finalitzar es veurà en detall el format \ac{JSON}.
 
 \section{\ac{API}}\label{sec_api}
 
@@ -109,9 +109,26 @@ Un element important d'una petició \ac{HTTP} és el verb (o mètode) que indica
 	\caption{Verbs \ac{HTTP}} 
 \end{table}
 \section{\ac{REST}}
-La metodologia \ac{REST} és en una patró arquitectònic de software que consisteix en un conjunt de guies i bones pràctiques per crear serveis web escalables. \ac{REST} va néixer com una alternativa a les anteriors metodologies de serveis web \ac{SOAP} i \ac{WSDL}. Al llarg dels darrers anys s'ha anat imposant com a metodologia més usada per a construir serveis web.\\
+La metodologia \ac{REST} és en una patró arquitectònic de software que consisteix en un conjunt de guies i bones pràctiques per crear serveis web escalables. \ac{REST} va néixer com una alternativa a les anteriors metodologies de serveis web basats en les tecnologies \ac{SOAP} i \ac{WSDL}. Al llarg dels darrers anys s'ha anat imposant com a metodologia més usada per a construir serveis web.\\
+
+\ac{REST} treballa amb recursos. Un recurs és un conjunt de dades del nostre servidor, en la majoria de casos els recursos coincideixen amb les entitats de la base de dades.\\
 
 Freqüentment, la metodologia \ac{REST} opera baix el protocol \ac{HTTP} (vist a la secció \ref{sec_http}) i emplea els verbs \ac{HTTP} per indicar quina acció volem realitzar sobre un recurs.\\
+
+A la taula \ref{table:rest_http} es pot veure, donat un recurs, l'acció que realitza una petició \ac{HTTP}.
+
+\begin{table}[h!]
+ 	\begin{center}
+ 		\begin{tabularx}{\textwidth}{|l|X|X|X|X|X|X|X|}
+  			\hline
+ 			\bfseries Recurs & \bfseries GET & \bfseries POST & \bfseries PUT & \bfseries PATCH & \bfseries DELETE\\ \hline
+			/users/ & Llista tots els usuaris. & Afegeix un usuari nou al sistema. & Reemplaça tots els usuaris del sistema. & - & Elimina tots els usuaris del sistema. \\ \hline
+			/users/1/ & Mostra el detall d'aquest usuari. Sol dur més informació que el \texttt{GET} de tots els registres disponibles. & - & Reemplaça tot el contingut de l'usuari & Actualitza només els camps especificats a la petició de l'usuari. & Elimina l'usuari \\ \hline
+		\end{tabularx}
+	\end{center}
+	\label{table:rest_http}
+	\caption{Accions d'una \ac{API} \ac{REST} amb els corresponents verbs \ac{HTTP}} 
+\end{table}
 
 Les característiques d'un servei \ac{REST} són les següents:
 \begin{itemize}
@@ -130,3 +147,46 @@ Les característiques d'un servei \ac{REST} són les següents:
 \ac{ORM} és una tècnica de programació per convertir les dades des de objectes dels llenguatges de programació a la seva representació en bases de dades relacionals a través de la definició de correspondències entre els diferents sistemes. A la pràctica, es crea una base de dades orientada a objectes virtuals que opera sobre la base de dades relacional.\\
 
 Aquesta tècnica permet l'ús de les característiques de la \ac{POO}, com l'herència o polimorfisme,  amb bases de dades.
+
+\section{\ac{JSON}}
+\ac{JSON} és un format de representació de dades, llegible per l'ésser humà usat per a la transmissió d'objectes. Aquest format deriva del llenguatge JavaScript i està format per tuples clau-valor. El seu principal us és per enviar dades entre client i servidor, com a principal alternativa a l'\ac{XML}.\\
+
+
+El format de \ac{JSON} coincideix en moltes ocasions amb el format de les estructures de dades natives dels llenguatges. Python n'és el cas. La representació de llistes i diccionaris en Python és equivalent a la representació en format \ac{JSON}.\\
+
+\ac{JSON} pot representar els següents típus de dades:
+
+\begin{itemize}
+	\item Nombres enters i decimals
+	\item Cadenes de text
+	\item Valors booleans
+	\item Llistes
+	\item Arrays associatius
+	\item Valor nul
+\end{itemize}
+
+A la figura \ref{fig:json_exemple} es pot veure un exemple d'estructura de dades transformada a \ac{JSON}.
+
+\begin{figure}[h!]
+	\begin{python}
+{
+	"nom": "Pere",
+	"llinatges": "Buades Roca",
+	"naixement": "1968-04-24",
+	"es_treballador": true, 
+	"telefons": [
+		{
+			"tipus": "mobil",
+			"telefon": 666777888
+		},
+		{
+			"tipus": "fixe",
+			"telefon": 971123123
+		}
+	],
+	"plana_web": null
+}
+	\end{python}
+	\caption{Exemple de \ac{JSON}}
+	\label{fig:json_exemple}
+\end{figure}

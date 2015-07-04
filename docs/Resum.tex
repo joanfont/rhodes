@@ -1,9 +1,18 @@
 % !TEX root=MemoriaTFG.tex
 
 \chapter{Resum executiu}
+El propòsit d'aquest projecte és desenvolupar una \ac{API} per donar suport a la missatgeria de la comunitat universitària. Aquest missatgeria ha de facilitar l'enviament de missatges a fòrums per cada assignatura, fòrums per cada grup d'assignatura i missatges directes entre integrants de la comunitat universitària. Aquests missatges poden dur fitxers adjuntats. \\
 
-Vivim en la societat de la informació, vivim connectats a internet de manera permanent i exigim de cada vegada més que les comunicacions siguin instantànies. Serveis que abans usavem amb clients d'escriptori o aplicacions web, s'estàn portant al mòbil. Un clar exemple d'aquest fenòmen és el correu electronic: vam començar consultant el correu electronic desde un client d'escriptori al nostre ordinador personal, més tard va aparèixer el \emph{webmail}, clients de correu a internet accessibles desde qualsevol ordinador connectat a la xarxa, i finalment aplicacions mòbils. Fet que significa que quan rebem un correu en sóm concients al moment sense haver d'esperar a estar asseguts davant un ordinador.\\
+Les dades amb les que opera aquesta \ac{API} no són les mateixes dades amb les que la universitat opera. És manté una còpia de les dades al servidor de l'aplicació per no tractar directament amb els sistemes de la universitat.\\
 
-D'altra banda, moltes de les companyies d'internet ofereixen APIs públiques perque qualsevol pugui desenvolupar aplicacions que s'alimentin de les seves dades. Un clar exemple és la API pública de \emph{Twitter} que permet a desenvolupadors aliens a la companyia desenvolupar els seus propis clients de \emph{Twitter }o incorporar funcionalitats de \emph{Twitter} a les seves aplicacions. \\
+L'\ac{API} desenvolupada opera sobre el protocol \ac{HTTP}, segueix els estàndards \ac{REST}, usa un \ac{ORM} com a eina per a accedir a la base de dades i retorna les dades en format \ac{JSON}. \\
 
-Aquest projecte consisteix en una API de missatgeria per a la comunitat universitaria. Les seves principals funcioanlitats són l'enviament de missatges a assignatures i als seus grups i la missatgeria personal entre alumnes i professors.\\
+Es poden distingir dos principals mòduls al producte final. Un és el mòdul que conté els serveis de l'aplicació. Aquests serveis s'han dissenyat seguint l'arquitectura \ac{SOA}. \\
+
+L'altre mòdul és l'\ac{API} \ac{REST} que s'encarrega d'atendre peticions. El mòdul de serveis és independent de l'\ac{API} i es pot usar per exemple per desenvolupar una aplicació d'escriptori.\\
+
+Per assegurar que cada nova funcionalitat desenvolupada no altera el correcte funcionament de les ja existents, s'ha elaborat una bateria de proves unitàries que validen el correcte funcionament del sistema cada vegada que es fa un desplegament.
+
+
+
+

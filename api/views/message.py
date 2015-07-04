@@ -341,6 +341,7 @@ class DirectMessageDetailView(MessageDetailView):
     @peer_exists
     @users_can_conversate
     @message_exists
+    @message_belongs_to_peers
     def get_action(self, *args, **kwargs):
         return super(DirectMessageDetailView, self).get_action(*args, **kwargs)
 
@@ -387,7 +388,6 @@ class AttachFileToSubjectMessageView(AttachFileToMessageView):
     @user_belongs_to_subject
     @message_exists
     @message_belongs_to_subject
-    @can_add_file_to_message
     @file_to_stream('file')
     @file_max_length('file')
     def post_action(self, *args, **kwargs):
@@ -432,6 +432,7 @@ class AttachFileToDirectMessageView(AttachFileToMessageView):
     @peer_exists
     @users_can_conversate
     @message_exists
+    @message_belongs_to_peers
     @can_add_file_to_message
     @file_to_stream('file')
     @file_max_length('file')

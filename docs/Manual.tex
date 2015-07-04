@@ -1,2 +1,1715 @@
 %!TeX root=MemoriaTFG.tex
 \chapter{Especificació de l'API}\label{manual}
+En aquest annex es detallarà cada acció de l'\ac{API}, quins paràmetres necessita i les possibles sortides que pot retornar.
+
+\section{Excepcions}
+
+\subsection{\emph{ValidationError}}
+\begin{itemize}
+	\item \textbf{Descripció:} algun dels camps especificats no està ben formatejat o bé no s'ha especificat.
+	\item \textbf{Codi \ac{HTTP}:} \texttt{400 Bad Request}
+	\item \textbf{Representació:}
+\begin{verbatim}
+{
+  "message": "Validation error",
+  "code": "validation_error",
+  "errors": [
+    {
+      "field": "subject_id",
+      "errors": [
+        "The value is not an integer"
+      ]
+    },
+    {
+      "field": "group_id",
+      "errors": [
+        "The value is not an integer"
+      ]
+    }
+  ]
+}
+\end{verbatim}
+
+\item \textbf{Possibles errors:}
+	\begin{itemize}
+		\item The value is not an integer
+		\item The value is not a string
+		\item The value's length is lower than x
+		\item The value's length is greater than x
+	\end{itemize}
+\end{itemize}
+\subsection{\emph{UserNotFoundError}}
+\begin{itemize}
+	\item \textbf{Descripció:} l'usuari no existeix.
+
+	\item \textbf{Codi \ac{HTTP}:} \texttt{404 Not Found}
+	\item \textbf{Representació:}
+\begin{verbatim}
+{
+  "message": "User not found",
+  "code": "not_found"
+}
+\end{verbatim}
+\end{itemize}
+\subsection{\emph{NotAuthenticatedError}}
+\begin{itemize}
+	\item \textbf{Descripció:} l'usuari no s'ha autenticat.
+	\item \textbf{Codi \ac{HTTP}:} \texttt{401 Unauthorized}
+	\item \textbf{Representació:}
+\begin{verbatim}
+{
+  "message": "You are not authorized to perform this action",
+  "code": "unauthorized"
+}
+\end{verbatim}
+\end{itemize}
+\subsection{\emph{NotEnoughPermissionError}}
+\begin{itemize}
+	\item \textbf{Descripció:} no es tenen suficients permisos per realitzar l'acció.
+	\item \textbf{Codi \ac{HTTP}:} \texttt{403 Forbidden}
+	\item \textbf{Representació:}
+\begin{verbatim}
+{
+  "message": "You don't have enough permissions to perform this action",
+  "code": "forbidden"
+}
+\end{verbatim}
+\end{itemize}
+\subsection{\emph{SubjectNotFoundError}}
+\begin{itemize}
+	\item \textbf{Descripció:} l'assignatura no existeix.
+	\item \textbf{Codi \ac{HTTP}:} \texttt{404 Not Found}
+	\item \textbf{Representació:}
+\begin{verbatim}
+{
+  "message": "Subject not found",
+  "code": "not_found"
+}
+\end{verbatim}
+\end{itemize}
+\subsection{\emph{GroupNotFoundError}}
+\begin{itemize}
+	\item \textbf{Descripció:} el grup no existeix.
+	\item \textbf{Codi \ac{HTTP}:} \texttt{404 Not Found}
+	\item \textbf{Representació:}
+\begin{verbatim}
+{
+  "message": "Group not found",
+  "code": "not_found"
+}
+\end{verbatim}
+\end{itemize}
+\subsection{\emph{GroupDoesNotBelongToSubjectError}}
+\begin{itemize}
+	\item \textbf{Descripció:} el grup no pertany a l'assignatura.
+	\item \textbf{Codi \ac{HTTP}:} \texttt{404 Conflict}
+	\item \textbf{Representació:}
+\begin{verbatim}
+{
+  "message": "Group does not belong to the subject",
+  "code": "conflict"
+}
+\end{verbatim}
+\end{itemize}
+\subsection{\emph{TeacherDoesNotTeachSubjectError}}
+\begin{itemize}
+	\item \textbf{Descripció:} el professor no imparteix l'assignatura.
+	\item \textbf{Codi \ac{HTTP}:} \texttt{403 Forbidden}
+	\item \textbf{Representació:}
+\begin{verbatim}
+{
+  "message": "Teacher does not teach the subject",
+  "code": "forbidden"
+}
+\end{verbatim}
+\end{itemize}
+\subsection{\emph{StudentIsNotEnrolledToSubjectError}}
+\begin{itemize}
+	\item \textbf{Descripció:} l'alumne no està matriculat a l'assignatura.
+	\item \textbf{Codi \ac{HTTP}:} \texttt{403 Forbidden}
+	\item \textbf{Representació:}
+\begin{verbatim}
+{
+  "message": "Student is not enrolled to the subject",
+  "code": "forbidden"
+}
+\end{verbatim}
+\end{itemize}
+
+\subsection{\emph{TeacherDoesNotTeachGroupError}}
+\begin{itemize}
+	\item \textbf{Descripció:} el professor no imparteix el grup.
+	\item \textbf{Codi \ac{HTTP}:} \texttt{403 Forbidden}
+	\item \textbf{Representació:}
+\begin{verbatim}
+{
+  "message": "Teacher does not teach the group",
+  "code": "forbidden"
+}
+\end{verbatim}
+\end{itemize}
+\subsection{\emph{StudentIsNotEnrolledToGroupError}}
+\begin{itemize}
+	\item \textbf{Descripció:} l'alumne no està matriculat al grup.s
+	\item \textbf{Codi \ac{HTTP}:} \texttt{403 Forbidden}
+	\item \textbf{Representació:}
+\begin{verbatim}
+{
+  "message": "Student is not enrolled to the group",
+  "code": "forbidden"
+}
+\end{verbatim}
+\end{itemize}
+
+\subsection{\emph{MessageNotFoundError}}
+\begin{itemize}
+	\item \textbf{Descripció:} el missatge no existeix.
+	\item \textbf{Codi \ac{HTTP}:} \texttt{404 Not Found}
+	\item \textbf{Representació:}
+\begin{verbatim}
+{
+  "message": "Message not found",
+  "code": "not_found"
+}
+\end{verbatim}
+\end{itemize}
+
+\subsection{\emph{DuplicateMessageWithinInterval}}
+\begin{itemize}
+	\item \textbf{Descripció:} s'ha enviat el mateix missatge dins el període estipulat al fitxer \texttt{config.py}.
+	\item \textbf{Codi \ac{HTTP}:} \texttt{429 Too Many Requests}
+	\item \textbf{Representació:}
+\begin{verbatim}
+{
+  "message": "Message with body already exists, try again later",
+  "code": "too_many_requests"
+}
+\end{verbatim}
+\end{itemize}
+
+\subsection{\emph{FileTooLargeError}}
+\begin{itemize}
+	\item \textbf{Descripció:} el fitxer excedeix el tamany estipulat al fitxer \texttt{config.py}
+	\item \textbf{Codi \ac{HTTP}:} \texttt{413 Request Entity Too Large}
+	\item \textbf{Representació:}
+\begin{verbatim}
+{
+  "message": "File too large",
+  "code": "file_too_large"
+}
+\end{verbatim}
+\end{itemize}
+\subsection{\emph{MediaNotFoundError}}
+\begin{itemize}
+	\item \textbf{Descripció:} l'element multimèdia no existeix.
+	\item \textbf{Codi \ac{HTTP}:} \texttt{404 Not Found}
+	\item \textbf{Representació:}
+\begin{verbatim}
+{
+  "message": "Media not found",
+  "code": "not_found"
+}
+\end{verbatim}
+\end{itemize}
+\subsection{\emph{UserCanNotSeeMediaError}}
+\begin{itemize}
+	\item \textbf{Descripció:} l'usuari no pot veure l'element multimèdia.
+	\item \textbf{Codi \ac{HTTP}:} \texttt{403 Forbidden}
+	\item \textbf{Representació:}
+\begin{verbatim}
+{
+  "message": "User can not see media",
+  "code": "forbidden"
+}
+\end{verbatim}
+\end{itemize}
+\subsubsection{\emph{LimitOfMessageFilesReachedError}}
+\begin{itemize}
+	\item \textbf{Descripció:} l'usuari ha excedit el contingut multimèdia permès a un missatge.
+	\item \textbf{Codi \ac{HTTP}:} \texttt{403 Forbidden}
+	\item \textbf{Representació:}
+\begin{verbatim}
+{
+  "message": "Limit of x files has been reached",
+  "code": "forbidden"
+}
+\end{verbatim}
+\end{itemize}
+
+\subsection{\emph{CantAttachMediaToMessageError}}
+\begin{itemize}
+	\item \textbf{Descripció:} l'usuari no pot afegir contingut multimèdia al missatge.
+	\item \textbf{Codi \ac{HTTP}:} \texttt{403 Forbidden}
+	\item \textbf{Representació:}
+\begin{verbatim}
+{
+  "message": "Can't attach media to this message",
+  "code": "forbidden"
+}
+\end{verbatim}
+\end{itemize}
+\subsection{\emph{MessageDoesNotBelongToConversationError}}
+\subsection{\emph{MessageKindIsNotDirectMessageError}}
+\subsection{\emph{MessageDoesNotBelongToGroupError}}
+\subsection{\emph{MessageKindIsNotGroupMessageError}}
+\subsection{\emph{MessageDoesNotBelongToSubjectError}}
+\subsection{\emph{MessageKindIsNotSubjectMessageErrror}}
+
+\section{Autenticació}
+
+\subsection{Obtenció del \emph{token} d'autenticació}
+
+\begin{itemize}
+\item \textbf{\ac{URL}: } \texttt{/login/}.
+\item \textbf{Mètode \ac{HTTP}: } \texttt{POST}.
+\item \textbf{Login requerit:} No.
+\item \textbf{Paràmetres}
+	\begin{itemize}
+		\item \textbf{user:} nom d'usuari.
+			\begin{itemize}
+				\item \textbf{Posició:} paràmetre \texttt{POST} 
+				\item \textbf{Requerit:} si.
+				\item \textbf{Format:} cadena de text.
+			\end{itemize}
+		\item \textbf{password:} contrasenya de l'usuari.
+			\begin{itemize}
+				\item \textbf{Posició:} paràmetre \texttt{POST} 
+				\item \textbf{Requerit:} si.
+				\item \textbf{Format:} cadena de text.
+			\end{itemize}
+	\end{itemize}
+\item \textbf{Resultat satisfactori:} \texttt{200 OK}
+	\begin{verbatim}
+{
+  "token": "OLlmxXLkS2vdi1zEWy44W1vFj02gCFbv76JSI3Q6cS8=",
+  "user": {
+    "first_name": "Joan",
+    "last_name": "Font",
+    "avatar": {
+      "url": "http://missatgeria.uib.cat/media/3/",
+      "mime": "image/jpeg",
+      "id": 3
+    },
+    "type": 2,
+    "id": 1,
+    "user": "JFR164"
+  }
+}
+	\end{verbatim}
+\item \textbf{Possibles errors:}
+	\begin{itemize}
+		\item ValidationError
+		\item UserNotFoundError
+	\end{itemize}
+\end{itemize}
+
+\section{Configuració}
+
+\subsection{Configuració de l'aplicació}
+
+\begin{itemize}
+\item \textbf{\ac{URL}: } \texttt{/config/}.
+\item \textbf{Mètode \ac{HTTP}: } \texttt{GET}.
+\item \textbf{Login requerit:} Si.
+\item \textbf{Paràmetres:} no en necessita.
+	
+\item \textbf{Resultat satisfactori:} \texttt{200 OK}
+	\begin{verbatim}
+{
+  "max_file_size": 2097152,
+  "max_message_files": 5,
+  "message_interval": 15,
+  "message_max_length": 400,
+  "user_types": {
+    "1": "Teacher",
+    "2": "Student"
+  },
+  "allowed_mime_types": [
+    "image/png",
+    "image/jpeg",
+    "image/pjpeg",
+    "image/gif",
+    "image/bmp"
+  ]
+}
+	\end{verbatim}
+\item \textbf{Possibles errors:}
+	\begin{itemize}
+		\item NotAuthenticatedError
+	\end{itemize}
+\end{itemize}
+
+\section{Usuari}
+
+\subsection{Informació de l'usuari}
+
+\begin{itemize}
+\item \textbf{\ac{URL}: } \texttt{/user/}.
+\item \textbf{Mètode \ac{HTTP}: } \texttt{GET}.
+\item \textbf{Login requerit:} Si.
+\item \textbf{Paràmetres:} no en necessita.
+	
+\item \textbf{Resultat satisfactori:} \texttt{200 OK}
+	\begin{verbatim}
+{
+  "first_name": "Joan",
+  "last_name": "Font",
+  "avatar": {
+      "url": "http://missatgeria.uib.cat/media/3/",
+      "mime": "image/jpeg",
+      "id": 3
+   },
+  "type": 2,
+  "id": 1,
+  "user": "JFR164"
+}
+	\end{verbatim}
+\item \textbf{Possibles errors:}
+	\begin{itemize}
+		\item NotAuthenticatedError
+	\end{itemize}
+\end{itemize}
+\subsection{Llistat del professorat d'un usuari}
+\begin{itemize}
+\item \textbf{\ac{URL}: } \texttt{/user/teachers/}.
+\item \textbf{Mètode \ac{HTTP}: } \texttt{GET}.
+\item \textbf{Login requerit:} Si.
+\item \textbf{Paràmetres:} no en necessita.
+	
+\item \textbf{Resultat satisfactori:} \texttt{200 OK}
+	\begin{itemize}
+		\item L'usuari te professorat per llistar
+		\begin{verbatim}
+[
+  {
+    "first_name": "Adelaida",
+    "last_name": "Delgado",
+    "avatar": null,
+    "type": 1,
+    "id": 8,
+    "user": "ADD444"
+  },
+  {
+    "first_name": "Ricardo",
+    "last_name": "Galli",
+    "avatar": null,
+    "type": 1,
+    "id": 5,
+    "user": "RGG111"
+  }
+]
+		\end{verbatim}
+		\item L'usuari no te professorat per llistar
+		\begin{verbatim}
+		[]
+		\end{verbatim}
+	\end{itemize}
+\item \textbf{Possibles errors:}
+	\begin{itemize}
+		\item NotAuthenticatedError
+	\end{itemize}
+\end{itemize}
+\subsection{Llistat de l'alumnat d'un usuari}
+\begin{itemize}
+\item \textbf{\ac{URL}: } \texttt{/user/students/}.
+\item \textbf{Mètode \ac{HTTP}: } \texttt{GET}.
+\item \textbf{Login requerit:} Si.
+\item \textbf{Paràmetres:} no en necessita.
+	
+\item \textbf{Resultat satisfactori:} \texttt{200 OK}
+	\begin{itemize}
+		\item L'usuari te alumnat per llistar
+		\begin{verbatim}
+[
+  {
+    "first_name": "Marc",
+    "last_name": "Perelló",
+    "avatar": null,
+    "type": 2,
+    "id": 3,
+    "user": "MPF705"
+  },
+  {
+    "first_name": "Francesc",
+    "last_name": "Sastre",
+    "avatar": null,
+    "type": 2,
+    "id": 2,
+    "user": "FSC573"
+  }
+]
+		\end{verbatim}
+		\item L'usuari no te alumnat per llistar
+		\begin{verbatim}
+		[]
+		\end{verbatim}
+	\end{itemize}
+\item \textbf{Possibles errors:}
+	\begin{itemize}
+		\item NotAuthenticatedError
+		\item NotEnoughPermissionError: només és accessible si l'usuari es un professor.
+	\end{itemize}
+\end{itemize}
+
+\subsection{Llistat del professorat d'una assignatura}
+
+\begin{itemize}
+\item \textbf{\ac{URL}: } \texttt{/user/subjects/<subject\_id>/teachers/}.
+\item \textbf{Mètode \ac{HTTP}: } \texttt{GET}.
+\item \textbf{Login requerit:} Si.
+\item \textbf{Paràmetres:}
+	\begin{itemize}
+		\item \textbf{subject\_id:} identificador de l'assignatura.
+		\begin{itemize}
+			\item \textbf{Posició:} \ac{URL}
+			\item \textbf{Requerit:} si.
+			\item \textbf{Format:} nombre enter.
+		\end{itemize}
+	\end{itemize}
+	
+\item \textbf{Resultat satisfactori:} \texttt{200 OK}
+	\begin{itemize}
+		\item L'usuari te professorat per llistar
+		\begin{verbatim}
+[
+  {
+    "first_name": "Adelaida",
+    "last_name": "Delgado",
+    "avatar": null,
+    "type": 1,
+    "id": 8,
+    "user": "ADD444"
+  },
+  {
+    "first_name": "Ricardo",
+    "last_name": "Galli",
+    "avatar": null,
+    "type": 1,
+    "id": 5,
+    "user": "RGG111"
+  }
+]
+		\end{verbatim}
+		\item L'usuari no te professorat per llistar
+		\begin{verbatim}
+		[]
+		\end{verbatim}
+	\end{itemize}
+\item \textbf{Possibles errors:}
+	\begin{itemize}
+		\item ValidationError
+		\item NotAuthenticatedError
+		\item SubjectNotFoundError
+		\item TeacherDoesNotTeachSubjectError o StudentIsNotEnrolledToSubjectError, en funció del tipus d'usuari.
+	\end{itemize}
+\end{itemize}
+
+\subsection{Llistat de l'alumnat d'una assignatura}
+\begin{itemize}
+\item \textbf{\ac{URL}: } \texttt{/user/subjects/<subject\_id>/students/}.
+\item \textbf{Mètode \ac{HTTP}: } \texttt{GET}.
+\item \textbf{Login requerit:} Si.
+\item \textbf{Paràmetres:}
+	\begin{itemize}
+		\item \textbf{subject\_id:} identificador de l'assignatura.
+		\begin{itemize}
+			\item \textbf{Posició:} \ac{URL}
+			\item \textbf{Requerit:} si.
+			\item \textbf{Format:} nombre enter.
+		\end{itemize}
+	\end{itemize}
+		
+\item \textbf{Resultat satisfactori:} \texttt{200 OK}
+	\begin{itemize}
+		\item L'usuari te alumnat per llistar
+		\begin{verbatim}
+[
+  {
+    "first_name": "Joan",
+    "last_name": "Font",
+    "avatar":  {
+      "url": "http://missatgeria.uib.com/media/3/",
+      "mime": "image/jpeg",
+      "id": 3
+    },
+    "type": 2,
+    "id": 1,
+    "user": "JFR164"
+  },
+  {
+    "first_name": "Marc",
+    "last_name": "Perelló",
+    "avatar": null,
+    "type": 2,
+    "id": 3,
+    "user": "MPF705"
+  }
+]
+		\end{verbatim}
+		\item L'usuari no te alumnat per llistar
+		\begin{verbatim}
+		[]
+		\end{verbatim}
+	\end{itemize}
+\item \textbf{Possibles errors:}
+	\begin{itemize}
+		\item ValidationError
+		\item NotAuthenticatedError
+		\item NotEnoughPermissionError: només és accessible si l'usuari es un professor.
+		\item SubjectNotFoundError
+		\item TeacherDoesNotTeachSubjectError o StudentIsNotEnrolledToSubjectError, en funció del tipus d'usuari.
+	\end{itemize}
+\end{itemize}
+
+\subsection{Llistat de l'alumnat d'un grup}
+\begin{itemize}
+\item \textbf{\ac{URL}: } \texttt{/user/subjects/<subject\_id>/groups/<group\_id>/students/}.
+\item \textbf{Mètode \ac{HTTP}: } \texttt{GET}.
+\item \textbf{Login requerit:} Si.
+\item \textbf{Paràmetres:} no en necessita.
+		\begin{itemize}
+		\item \textbf{subject\_id:} identificador de l'assignatura.
+		\begin{itemize}
+			\item \textbf{Posició:} \ac{URL}
+			\item \textbf{Requerit:} si.
+			\item \textbf{Format:} nombre enter.
+		\end{itemize}
+		\item \textbf{group\_id:} identificador del grup.
+		\begin{itemize}
+			\item \textbf{Posició:} \ac{URL}
+			\item \textbf{Requerit:} si.
+			\item \textbf{Format:} nombre enter.
+		\end{itemize}
+	\end{itemize}
+	
+\item \textbf{Resultat satisfactori:} \texttt{200 OK}
+	\begin{itemize}
+		\item L'usuari te alumnat per llistar
+		\begin{verbatim}
+[
+  {
+    "first_name": "Marc",
+    "last_name": "Perelló",
+    "avatar": null,
+    "type": 2,
+    "id": 3,
+    "user": "MPF705"
+  }
+]
+		\end{verbatim}
+		\item L'usuari no te alumnat per llistar
+		\begin{verbatim}
+		[]
+		\end{verbatim}
+	\end{itemize}
+\item \textbf{Possibles errors:}
+	\begin{itemize}
+		\item ValidationError
+		\item NotAuthenticatedError
+		\item NotEnoughPermissionError: només és accessible si l'usuari es un professor.
+		\item SubjectNotFoundError
+		\item GroupNotFoundError
+		\item GroupDoesNotBelongToSubject
+		\item TeacherDoesNotTeachGroupError o StudentIsNotEnrolledToGroupError, en funció del tipus d'usuari.
+	\end{itemize}
+\end{itemize}
+
+\subsection{Detall d'un professor o alumne}
+\begin{itemize}
+\item \textbf{\ac{URL}:} 
+	\begin{itemize}
+		\item \texttt{/user/teachers/<user\_id>/}
+		\item \texttt{/user/students/<user\_id>/}
+	\end{itemize}
+\item \textbf{Mètode \ac{HTTP}: } \texttt{GET}.
+\item \textbf{Login requerit:} Si.
+\item \textbf{Paràmetres:} 
+	\item \textbf{user\_id:} identificador de l'usuari.	
+		\begin{itemize}
+			\item \textbf{Posició:} \ac{URL}
+			\item \textbf{Requerit:} si.
+			\item \textbf{Format:} nombre enter.
+		\end{itemize}
+	
+\item \textbf{Resultat satisfactori:} \texttt{200 OK}
+	\begin{verbatim}
+{
+  "first_name": "Marc",
+  "last_name": "Perelló",
+  "avatar": null,
+  "type": 2,
+  "id": 3,
+  "user": "MPF705"
+}
+	\end{verbatim}
+\item \textbf{Possibles errors:}
+	\begin{itemize}
+		\item ValidationError
+		\item NotAuthenticatedError
+		\item NotEnoughPermissionError: per la vista d'alumnes, només si l'usuari que sol·licita el recurs és un alumne.
+		\item TeacherNotFoundError o StudentNotFoundError: en funció del tipus d'usuari que es vulgui consultar
+		\item 
+	\end{itemize}
+\end{itemize}
+
+\section{Assignatura}
+
+\subsection{Llistat de les assignatures de l'usuari}
+\begin{itemize}
+\item \textbf{\ac{URL}:} \texttt{/user/subjects/}
+\item \textbf{Mètode \ac{HTTP}: } \texttt{GET}.
+\item \textbf{Login requerit:} Si.
+\item \textbf{Paràmetres:} no en necessita.
+
+\item \textbf{Resultat satisfactori:} \texttt{200 OK}
+	\begin{itemize}
+		\item L'usuari té assignatures per llistar
+	\begin{verbatim}
+[
+  {
+    "code": 21711,
+    "id": 2,
+    "groups": [
+      {
+        "id": 3,
+        "name": "GG1"
+      }
+    ],
+    "name": "Programació Concurrent"
+  },
+  {
+    "code": 21715,
+    "id": 6,
+    "groups": [
+      {
+        "id": 7,
+        "name": "GG1"
+      },
+      {
+        "id": 8,
+        "name": "GG2"
+      }
+    ],
+    "name": "Sistemes Operatius II"
+  }
+]
+	\end{verbatim}
+	
+	\item L'usuari no té assignatures per llistar
+	
+	\begin{verbatim}
+	[]
+	\end{verbatim}
+	\end{itemize}
+
+
+\item \textbf{Possibles errors:}
+	\begin{itemize}
+		\item NotAuthenticatedError
+	\end{itemize}
+\end{itemize}
+\subsection{Detall d'una assignatura de l'usuari}
+\begin{itemize}
+\item \textbf{\ac{URL}:} \texttt{/user/subjects/<subject\_id>/}
+\item \textbf{Mètode \ac{HTTP}: } \texttt{GET}.
+\item \textbf{Login requerit:} Si.
+\item \textbf{Paràmetres:}
+	\begin{itemize}
+		\item \textbf{subject\_id:} identificador de l'assignatura.
+		\begin{itemize}
+			\item \textbf{Posició:} \ac{URL}
+			\item \textbf{Requerit:} si.
+			\item \textbf{Format:} nombre enter.
+		\end{itemize}
+	\end{itemize}
+
+\item \textbf{Resultat satisfactori:} \texttt{200 OK}
+	\begin{verbatim}
+{
+  "code": 21711,
+  "id": 2,
+  "groups": [
+    {
+      "id": 3,
+      "name": "GG1"
+    }
+  ],
+  "name": "Programació Concurrent"
+}
+	\end{verbatim}
+	
+	
+\item \textbf{Possibles errors:}
+	\begin{itemize}
+		\item ValidationError
+		\item NotAuthenticatedError
+		\item SubjectNotFoundError
+		\item TeacherDoesNotTeachSubjectError o StudentIsNotEnrolledToSubjectError: en funció del tipus d'usuari.
+	\end{itemize}
+\end{itemize}
+
+
+\section{Grup}
+
+\subsection{Llistat dels grups d'una assignatura}
+\begin{itemize}
+\item \textbf{\ac{URL}:} \texttt{/user/subjects/<subject\_id>/groups/}
+\item \textbf{Mètode \ac{HTTP}: } \texttt{GET}.
+\item \textbf{Login requerit:} Si.
+\item \textbf{Paràmetres:}
+	\begin{itemize}
+		\item \textbf{subject\_id:} identificador de l'assignatura.
+		\begin{itemize}
+			\item \textbf{Posició:} \ac{URL}
+			\item \textbf{Requerit:} si.
+			\item \textbf{Format:} nombre enter.
+		\end{itemize}
+	\end{itemize}
+
+\item \textbf{Resultat satisfactori:} \texttt{200 OK}
+	\begin{verbatim}
+[
+  {
+    "id": 3,
+    "name": "GG1"
+  }
+]
+	\end{verbatim}
+	
+	
+\item \textbf{Possibles errors:}
+	\begin{itemize}
+		\item ValidationError
+		\item NotAuthenticatedError
+		\item SubjectNotFoundError
+		\item TeacherDoesNotTeachSubjectError o StudentIsNotEnrolledToSubjectError: en funció del tipus d'usuari.
+	\end{itemize}
+\end{itemize}
+
+\subsection{Detall d'un grup d'una assignatura}
+\begin{itemize}
+\item \textbf{\ac{URL}:} \texttt{/user/subjects/<subject\_id>/groups/<group\_id>/}
+\item \textbf{Mètode \ac{HTTP}: } \texttt{GET}.
+\item \textbf{Login requerit:} Si.
+\item \textbf{Paràmetres:}
+	\begin{itemize}
+		\item \textbf{subject\_id:} identificador de l'assignatura.
+		\begin{itemize}
+			\item \textbf{Posició:} \ac{URL}
+			\item \textbf{Requerit:} si.
+			\item \textbf{Format:} nombre enter.
+		\end{itemize}
+		\item \textbf{group\_id:} identificador del grup.
+		\begin{itemize}
+			\item \textbf{Posició:} \ac{URL}
+			\item \textbf{Requerit:} si.
+			\item \textbf{Format:} nombre enter.
+		\end{itemize}
+	\end{itemize}
+
+\item \textbf{Resultat satisfactori:} \texttt{200 OK}
+	\begin{verbatim}
+{
+  "id": 3,
+  "name": "GG1"
+}
+	\end{verbatim}
+	
+	
+\item \textbf{Possibles errors:}
+	\begin{itemize}
+		\item ValidationError
+		\item NotAuthenticatedError
+		\item NotEnoughPermissionError: només és accessible si l'usuari es un professor.
+		\item SubjectNotFoundError
+		\item GroupNotFoundError
+		\item GroupDoesNotBelongToSubject
+		\item TeacherDoesNotTeachGroupError o StudentIsNotEnrolledToGroupError, en funció del tipus d'usuari.
+	\end{itemize}
+\end{itemize}
+
+\section{Missatge}
+
+\subsection{Llistat de missatges}
+
+	\subsubsection{Assignatura}
+	\begin{itemize}
+\item \textbf{\ac{URL}:} \texttt{/user/subjects/<subject\_id>/messages/}
+\item \textbf{Mètode \ac{HTTP}: } \texttt{GET}.
+\item \textbf{Login requerit:} Si.
+\item \textbf{Paràmetres:}
+	\begin{itemize}
+		\item \textbf{subject\_id:} identificador de l'assignatura.
+		\begin{itemize}
+			\item \textbf{Posició:} \ac{URL}
+			\item \textbf{Requerit:} si.
+			\item \textbf{Format:} nombre enter.
+		\end{itemize}
+	\end{itemize}
+\item \textbf{Resultat satisfactori:} \texttt{200 OK}
+	\begin{verbatim}
+{
+  "count": 1,
+  "total": 1,
+  "more": false,
+  "messages": [
+    {
+      "body": "Lorem ipsum dolor sit amet",
+      "sender": {
+        "first_name": "Ricardo",
+        "last_name": "Galli",
+        "avatar": null,
+        "type": 1,
+        "id": 5,
+        "user": "RGG111"
+      },
+      "media": [],
+      "created_at": "2015-07-04 18:56:43",
+      "id": 21,
+      "subject_id": 2
+    }
+  ]
+}
+	\end{verbatim}
+\item \textbf{Possibles errors:}
+	\begin{itemize}
+		\item ValidationError
+		\item NotAuthenticatedError
+		\item SubjectNotFoundError
+		\item TeacherDoesNotTeachSubjectError o StudentIsNotEnrolledToSubjectError: en funció del tipus d'usuari.
+	
+	\end{itemize}
+	\end{itemize}
+	
+	\subsubsection{Grup}
+	\begin{itemize}
+	\item \textbf{\ac{URL}:} \texttt{/user/subjects/<subject\_id>/groups/<group\_id>/messages/}
+	\item \textbf{Mètode \ac{HTTP}: } \texttt{GET}.
+	\item \textbf{Login requerit:} Si.
+	\item \textbf{Paràmetres:}
+	\begin{itemize}
+		\item \textbf{subject\_id:} identificador de l'assignatura.
+		\begin{itemize}
+			\item \textbf{Posició:} \ac{URL}
+			\item \textbf{Requerit:} si.
+			\item \textbf{Format:} nombre enter.
+		\end{itemize}
+		\item \textbf{subject\_id:} identificador del grup.
+		\begin{itemize}
+			\item \textbf{Posició:} \ac{URL}
+			\item \textbf{Requerit:} si.
+			\item \textbf{Format:} nombre enter.
+		\end{itemize}
+
+	\end{itemize}
+	\item \textbf{Resultat satisfactori:} \texttt{200 OK}
+	\begin{verbatim}
+{
+  "count": 1,
+  "total": 1,
+  "more": false,
+  "messages": [
+    {
+      "body": "Lorem ipsum dolor sit amet",
+      "sender": {
+        "first_name": "Ricardo",
+        "last_name": "Galli",
+        "avatar": null,
+        "type": 1,
+        "id": 5,
+        "user": "RGG111"
+      },
+      "media": [],
+      "created_at": "2015-07-04 18:56:43",
+      "id": 21,
+      "group_id": 2
+    }
+  ]
+}
+	\end{verbatim}
+	\item \textbf{Possibles errors:}
+	\begin{itemize}
+		\item ValidationError
+		\item NotAuthenticatedError
+		\item SubjectNotFoundError
+		\item GroupNotFoundError
+		\item GroupDoesNotBelongToSubject
+		\item TeacherDoesNotTeachSubjectError o StudentIsNotEnrolledToSubjectError, en funció del tipus d'usuari.
+	\end{itemize}
+	\end{itemize}
+	
+	\subsubsection{Directe}
+	\begin{itemize}
+	\item \textbf{\ac{URL}:} \texttt{/user/chats/<peer\_id>/messages/}
+	\item \textbf{Mètode \ac{HTTP}: } \texttt{GET}.
+	\item \textbf{Login requerit:} Si.
+	\item \textbf{Paràmetres:}
+	\begin{itemize}
+		\item \textbf{peer\_id:} identificador de l'usuari el qual es volen consultar els missatges directes.
+		\begin{itemize}
+			\item \textbf{Posició:} \ac{URL}
+			\item \textbf{Requerit:} si.
+			\item \textbf{Format:} nombre enter.
+		\end{itemize}
+	\end{itemize}
+		\item \textbf{Resultat satisfactori:} \texttt{200 OK}
+	\begin{verbatim}
+{
+  "count": 1,
+  "total": 1,
+  "more": false,
+  "messages": [
+    {
+      "body": "Lorem ipsum dolor sit amet",
+      "sender": {
+        "first_name": "Joan",
+        "last_name": "Font",
+        "avatar": null,
+        "type": 2,
+        "id": 1,
+        "user": "JFR164"
+      },
+      "media": [],
+      "created_at": "2015-07-04 13:17:44",
+      "recipient": {
+        "first_name": "Ricardo",
+        "last_name": "Galli",
+        "avatar": null,
+        "type": 1,
+        "id": 5,
+        "user": "RGG111"
+      },
+      "id": 17
+    }
+  ]
+}
+	\end{verbatim}
+	\item \textbf{Possibles errors:}
+	\begin{itemize}
+		\item ValidationError
+		\item NotAuthenticatedError
+		\item UserNotFoundError
+	\end{itemize}
+	\end{itemize}
+
+
+\subsection{Inserció d'un missatge}
+
+	\subsubsection{Assignatura}
+	\begin{itemize}
+\item \textbf{\ac{URL}:} \texttt{/user/subjects/<subject\_id>/messages/}
+\item \textbf{Mètode \ac{HTTP}: } \texttt{POST}.
+\item \textbf{Login requerit:} Si.
+\item \textbf{Paràmetres:}
+	\begin{itemize}
+		\item \textbf{subject\_id:} identificador de l'assignatura.
+		\begin{itemize}
+			\item \textbf{Posició:} \ac{URL}
+			\item \textbf{Requerit:} si.
+			\item \textbf{Format:} nombre enter.
+		\end{itemize}
+		\item \textbf{body:} cos del missatge
+		\begin{itemize}
+			\item \textbf{Posició:} paràmetre \texttt{POST}.
+			\item \textbf{Requerit:} si.
+			\item \textbf{Format:} cadena de text.
+		\end{itemize}
+	\end{itemize}
+\item \textbf{Resultat satisfactori:} \texttt{201 Created}
+	\begin{verbatim}
+	
+{
+  "body": "Lorem ipsum dolor sit amet",
+  "sender": {
+    "first_name": "Ricardo",
+    "last_name": "Galli",
+    "avatar": null,
+    "type": 1,
+    "id": 5,
+    "user": "RGG111"
+  },
+  "media": [],
+  "created_at": "2015-07-04 18:56:43",
+  "id": 21,
+  "subject_id": 2
+}
+	\end{verbatim}
+\item \textbf{Possibles errors:}
+	\begin{itemize}
+		\item ValidationError
+		\item NotAuthenticatedError
+		\item SubjectNotFoundError
+		\item TeacherDoesNotTeachSubjectError o StudentIsNotEnrolledToSubjectError: en funció del tipus d'usuari.
+		\item DuplicateMessageWithinIntervalError
+	\end{itemize}
+	\end{itemize}
+	
+	\subsubsection{Grup}
+	\begin{itemize}
+	\item \textbf{\ac{URL}:} \texttt{/user/subjects/<subject\_id>/groups/<group\_id/messages/}
+	\item \textbf{Mètode \ac{HTTP}: } \texttt{POST}.
+	\item \textbf{Login requerit:} Si.
+	\item \textbf{Paràmetres:}
+	\begin{itemize}
+		\item \textbf{subject\_id:} identificador de l'assignatura.
+		\begin{itemize}
+			\item \textbf{Posició:} \ac{URL}
+			\item \textbf{Requerit:} si.
+			\item \textbf{Format:} nombre enter.
+		\end{itemize}
+		\item \textbf{group\_id:} identificador del grup.
+		\begin{itemize}
+			\item \textbf{Posició:} \ac{URL}
+			\item \textbf{Requerit:} si.
+			\item \textbf{Format:} nombre enter.
+		\end{itemize}
+		\item \textbf{body:} cos del missatge
+		\begin{itemize}
+			\item \textbf{Posició:} paràmetre \texttt{POST}.
+			\item \textbf{Requerit:} si.
+			\item \textbf{Format:} cadena de text.
+		\end{itemize}
+	\end{itemize}
+	\item \textbf{Resultat satisfactori:} \texttt{201 Created}
+	\begin{verbatim}
+	
+{
+  "body": "Lorem ipsum dolor sit amet",
+  "sender": {
+    "first_name": "Ricardo",
+    "last_name": "Galli",
+    "avatar": null,
+    "type": 1,
+    "id": 5,
+    "user": "RGG111"
+  },
+  "media": [],
+  "created_at": "2015-07-04 18:56:43",
+  "id": 21,
+  "group_id": 2
+}
+	\end{verbatim}
+	\item \textbf{Possibles errors:}
+	\begin{itemize}
+
+		\item ValidationError
+		\item NotAuthenticatedError
+		\item SubjectNotFoundError
+		\item GroupNotFoundError
+		\item GroupDoesNotBelongToSubject
+		\item TeacherDoesNotTeachSubjectError o StudentIsNotEnrolledToSubjectError, en funció del tipus d'usuari.
+		\item DuplicateMessageWithinIntervalError
+
+	\end{itemize}
+	\end{itemize}
+	
+	\subsubsection{Directe}
+	\begin{itemize}
+	\item \textbf{\ac{URL}:} \texttt{/user/chats/<peer\_id>/messages/}
+	\item \textbf{Mètode \ac{HTTP}: } \texttt{GET}.
+	\item \textbf{Login requerit:} Si.
+	\item \textbf{Paràmetres:}
+	\begin{itemize}
+		\item \textbf{peer\_id:} identificador de l'usuari el qual es volen consultar els missatges. directes.
+		\begin{itemize}
+			\item \textbf{Posició:} \ac{URL}
+			\item \textbf{Requerit:} si.
+			\item \textbf{Format:} nombre enter.
+		\end{itemize}
+		\item \textbf{body:} cos del missatge.
+		\begin{itemize}
+			\item \textbf{Posició:} paràmetre \texttt{POST}.
+			\item \textbf{Requerit:} si.
+			\item \textbf{Format:} cadena de text.
+		\end{itemize}
+	\end{itemize}
+	\item \textbf{Resultat satisfactori:} \texttt{201 Created}
+	\begin{verbatim}
+{
+  "body": "Lorem ipsum dolor sit amet",
+  "sender": {
+    "first_name": "Joan",
+    "last_name": "Font",
+    "avatar": null,
+    "type": 2,
+    "id": 1,
+    "user": "JFR164"
+  },
+  "media": [],
+  "created_at": "2015-07-04 13:17:44",
+  "recipient": {
+    "first_name": "Ricardo",
+    "last_name": "Galli",
+    "avatar": null,
+    "type": 1,
+    "id": 5,
+    "user": "RGG111"
+  },
+  "id": 17
+}
+	\end{verbatim}
+	\item \textbf{Possibles errors:}
+	\begin{itemize}
+		\item ValidationError
+		\item NotAuthenticatedError
+		\item UserNotFoundError
+		\item NotEnoughPermissionError: si l'usuari no es pot comunicar amb a qui vol enviar-li el missatge.
+	\end{itemize}
+	\end{itemize}
+
+
+\subsection{Detall d'un missatge}
+
+	\subsubsection{Assignatura}
+	\begin{itemize}
+\item \textbf{\ac{URL}:} \texttt{/user/subjects/<subject\_id>/messages/<message\_id>}
+\item \textbf{Mètode \ac{HTTP}: } \texttt{GET}.
+\item \textbf{Login requerit:} Si.
+\item \textbf{Paràmetres:}
+	\begin{itemize}
+		\item \textbf{subject\_id:} identificador de l'assignatura.
+		\begin{itemize}
+			\item \textbf{Posició:} \ac{URL}
+			\item \textbf{Requerit:} si.
+			\item \textbf{Format:} nombre enter.
+		\end{itemize}
+		\item \textbf{message\_id:} identificador del missatge.
+		\begin{itemize}
+			\item \textbf{Posició:} \ac{URL}
+			\item \textbf{Requerit:} si.
+			\item \textbf{Format:} nombre enter.
+		\end{itemize}
+	\end{itemize}
+\item \textbf{Resultat satisfactori:} \texttt{200 OK}
+	\begin{verbatim}
+	
+{
+  "body": "Lorem ipsum dolor sit amet",
+  "sender": {
+    "first_name": "Ricardo",
+    "last_name": "Galli",
+    "avatar": null,
+    "type": 1,
+    "id": 5,
+    "user": "RGG111"
+  },
+  "media": [],
+  "created_at": "2015-07-04 18:56:43",
+  "id": 21,
+  "subject_id": 2
+}
+	\end{verbatim}
+\item \textbf{Possibles errors:}
+	\begin{itemize}
+		\item ValidationError
+		\item NotAuthenticatedError
+		\item SubjectNotFoundError
+		\item TeacherDoesNotTeachSubjectError o StudentIsNotEnrolledToSubjectError: en funció del tipus d'usuari.
+		\item MessageNotFoundError
+		\item MessageDoesNotBelongToSubjectError
+		\item MessageKindIsNotSubjectMessageErrror
+
+	\end{itemize}
+
+	\end{itemize}
+	
+	\subsubsection{Grup}
+	\begin{itemize}
+	\item \textbf{\ac{URL}:} \texttt{/user/subjects/<subject\_id>/groups/<group\_id>/messages/<message\_id>}
+	\item \textbf{Mètode \ac{HTTP}: } \texttt{GET}.
+	\item \textbf{Login requerit:} Si.
+	\item \textbf{Paràmetres:}
+	\begin{itemize}
+		\item \textbf{subject\_id:} identificador de l'assignatura.
+		\begin{itemize}
+			\item \textbf{Posició:} \ac{URL}
+			\item \textbf{Requerit:} si.
+			\item \textbf{Format:} nombre enter.
+		\end{itemize}
+		\item \textbf{group\_id:} identificador del grup.
+		\begin{itemize}
+			\item \textbf{Posició:} \ac{URL}
+			\item \textbf{Requerit:} si.
+			\item \textbf{Format:} nombre enter.
+		\end{itemize}
+		\item \textbf{message\_id:} identificador del missatge.
+		\begin{itemize}
+			\item \textbf{Posició:} \ac{URL}
+			\item \textbf{Requerit:} si.
+			\item \textbf{Format:} nombre enter.
+		\end{itemize}
+	\end{itemize}
+	\item \textbf{Resultat satisfactori:} \texttt{200 OK}
+	\begin{verbatim}
+	
+{
+  "body": "Lorem ipsum dolor sit amet",
+  "sender": {
+    "first_name": "Ricardo",
+    "last_name": "Galli",
+    "avatar": null,
+    "type": 1,
+    "id": 5,
+    "user": "RGG111"
+  },
+  "media": [],
+  "created_at": "2015-07-04 18:56:43",
+  "id": 21,
+  "group_id": 3
+}
+	\end{verbatim}
+	\item \textbf{Possibles errors:}
+	\begin{itemize}
+		\item ValidationError
+		\item NotAuthenticatedError
+		\item SubjectNotFoundError
+		\item GroupNotFoundError
+		\item GroupDoesNotBelongToSubject
+		\item TeacherDoesNotTeachGroupError o StudentIsNotEnrolledToGroupError, en funció del tipus
+		\item MessageNotFoundError
+		\item MessageDoesNotBelongToGroupError
+		\item MessageKindIsNotGroupMessageError
+	\end{itemize}
+	
+	
+	\end{itemize}
+	
+	\subsubsection{Directe}
+	\begin{itemize}
+	\item \textbf{\ac{URL}:} \texttt{/user/chats/<peer\_id>/messages/<message\_id>}
+	\item \textbf{Mètode \ac{HTTP}: } \texttt{GET}.
+	\item \textbf{Login requerit:} Si.
+	\item \textbf{Paràmetres:}
+	\begin{itemize}
+		\item \textbf{peer\_id:} identificador de l'usuari el qual es volen consultar els missatges. directes.
+		\begin{itemize}
+			\item \textbf{Posició:} \ac{URL}
+			\item \textbf{Requerit:} si.
+			\item \textbf{Format:} nombre enter.
+		\end{itemize}
+		\item \textbf{message\_id:} identificador del missatge.
+		\begin{itemize}
+			\item \textbf{Posició:} \ac{URL}
+			\item \textbf{Requerit:} si.
+			\item \textbf{Format:} nombre enter.
+		\end{itemize}
+	\end{itemize}
+	\item \textbf{Resultat satisfactori:} \texttt{200 OK}
+	\begin{verbatim}
+{
+  "body": "Lorem ipsum dolor sit amet",
+  "sender": {
+    "first_name": "Joan",
+    "last_name": "Font",
+    "avatar": null,
+    "type": 2,
+    "id": 1,
+    "user": "JFR164"
+  },
+  "media": [],
+  "created_at": "2015-07-04 13:17:44",
+  "recipient": {
+    "first_name": "Ricardo",
+    "last_name": "Galli",
+    "avatar": null,
+    "type": 1,
+    "id": 5,
+    "user": "RGG111"
+  },
+  "id": 17
+}
+	\end{verbatim}
+	\item \textbf{Possibles errors:}
+	\begin{itemize}
+		\item ValidationError
+		\item NotAuthenticatedError
+		\item UserNotFoundError
+		\item NotEnoughPermissionError
+		\item MessageDoesNotBelongToConversationError
+		\item MessageKindIsNotDirectMessageError
+	\end{itemize}
+	
+	\end{itemize}
+	
+	
+\subsection{Paginació de missatges}
+La paginació de missatges es comporta igual que el llistat de missatges en els tres tipus de missatges. A banda dels paràmetres requerits pel llistat de missatges s'afegeixen els següents.
+\begin{itemize}
+\item \textbf{\ac{URL}:} \verb$[...]/messages/<message_id>/<direction>/[?order=<order>]$
+\item \textbf{Paràmetres:}
+	\begin{itemize}
+		\item \textbf{peer\_id:} identificador de l'usuari el qual es volen consultar els missatges. directes.
+		\item \textbf{message\_id:} identificador del missatge.
+		\begin{itemize}
+			\item \textbf{Posició:} \ac{URL}
+			\item \textbf{Requerit:} si.
+			\item \textbf{Format:} nombre enter.
+		\end{itemize}
+		\item \textbf{direction:} direcció en la qual volem obtenir els missatges.
+		\begin{itemize}
+			\item \textbf{Posició:} \ac{URL}
+			\item \textbf{Requerit:} si.
+			\item \textbf{Format:} cadena de text
+			\item \textbf{Opcions:}
+				\begin{itemize}
+					\item \textbf{previous:} missatges anteriors al missatge amb identificador \texttt{message\_id}.
+					\item \textbf{next:} missatges següents al missatge amb identificador \texttt{message\_id}.
+				\end{itemize}
+				
+
+		\end{itemize}
+		\item \textbf{order:} direcció en la qual volem obtenir els missatges.
+		\begin{itemize}
+			\item \textbf{Posició:} \emph{query string}
+			\item \textbf{Requerit:} no.
+			\item \textbf{Format:} cadena de text
+			\item \textbf{Opcions:}
+				\begin{itemize}
+					\item \textbf{asc:} ordenats de manera ascendent segons la data de creació
+					\item \textbf{desc:} ordenats de manera descendent segons la data de creació
+				\end{itemize}
+		\end{itemize}
+	\end{itemize}
+\end{itemize}
+
+
+\section{Notificacions}
+\subsection{Llistat general}
+\begin{itemize}
+\item \textbf{\ac{URL}:} \texttt{/user/notitications/}
+\item \textbf{Mètode \ac{HTTP}: } \texttt{GET}.
+\item \textbf{Login requerit:} Si.
+\item \textbf{Paràmetres:} no en necessita.
+
+\item \textbf{Resultat satisfactori:} \texttt{200 OK}
+	\begin{itemize}
+		\item L'usuari té missatges per llistar
+	\begin{verbatim}
+{
+  "chats": [
+    {
+      "body": "Lorem ipsum dolor sit amet",
+      "sender": {
+        "first_name": "Joan",
+        "last_name": "Font",
+        "avatar": null,
+        "type": 2,
+        "id": 1,
+        "user": "JFR164"
+      },
+      "media": [],
+      "created_at": "2015-07-04 13:17:44",
+      "recipient": {
+        "first_name": "Ricardo",
+        "last_name": "Galli",
+        "avatar": null,
+        "type": 1,
+        "id": 5,
+        "user": "RGG111"
+      },
+      "id": 17
+    }
+  ],
+  "subjects": [
+    {
+      "body": "Lorem ipsum dolor sit amet,
+      "sender": {
+        "first_name": "Joan",
+        "last_name": "Font",
+        "avatar": null,
+        "type": 2,
+        "id": 1,
+        "user": "JFR164"
+      },
+      "media": [],
+      "created_at": "2015-07-04 13:17:45",
+      "id": 19,
+      "subject_id": 1
+    }
+  ],
+  "groups": [
+    {
+      "body": "Lorem ipsum dolor sit amet a14575d8-821a-4474-a3ca-eb95aacd2c21",
+      "sender": {
+        "first_name": "Joan",
+        "last_name": "Font",
+        "avatar": null,
+        "type": 2,
+        "id": 1,
+        "user": "JFR164"
+      },
+      "media": [],
+      "created_at": "2015-07-04 13:17:44",
+      "group_id": 1,
+      "id": 18
+    }
+  ]
+}
+	\end{verbatim}
+	
+	\item L'usuari no té missatges per llistar
+	
+	\begin{verbatim}
+{
+  "chats": [],
+  "subjects": [],
+  "groups": []
+}
+	\end{verbatim}
+	\end{itemize}
+
+
+\item \textbf{Possibles errors:}
+	\begin{itemize}
+		\item NotAuthenticatedError
+	\end{itemize}
+\end{itemize}
+
+\subsection{Llistat dels darrers missatges de cada assignatura de l'usuari}
+\begin{itemize}
+\item \textbf{\ac{URL}:} \texttt{/user/notitications/subject/}
+\item \textbf{Mètode \ac{HTTP}: } \texttt{GET}.
+\item \textbf{Login requerit:} Si.
+\item \textbf{Paràmetres:} no en necessita.
+
+\item \textbf{Resultat satisfactori:} \texttt{200 OK}
+	\begin{itemize}
+		\item L'usuari té missatges per llistar
+	\begin{verbatim}
+[
+  {
+    "body": "Lorem ipsum dolor sit amet",
+    "sender": {
+      "first_name": "Ricardo",
+      "last_name": "Galli",
+      "avatar": null,
+      "type": 1,
+      "id": 5,
+      "user": "RGG111"
+    },
+    "media": [],
+    "created_at": "2015-07-04 18:56:43",
+    "id": 21,
+    "subject_id": 2
+  }
+]
+	\end{verbatim}
+	
+	\item L'usuari no té assignatures per llistar o les assignatures on pertany no tenen cap missatge
+	
+	\begin{verbatim}
+	[]
+	\end{verbatim}
+	\end{itemize}
+
+
+\item \textbf{Possibles errors:}
+	\begin{itemize}
+		\item NotAuthenticatedError
+	\end{itemize}
+\end{itemize}
+
+\subsection{Llistat dels darrers missatges de cada grup de l'usuari}
+\begin{itemize}
+\item \textbf{\ac{URL}:} \texttt{/user/notitications/group/}
+\item \textbf{Mètode \ac{HTTP}: } \texttt{GET}.
+\item \textbf{Login requerit:} Si.
+\item \textbf{Paràmetres:} no en necessita.
+
+\item \textbf{Resultat satisfactori:} \texttt{200 OK}
+	\begin{itemize}
+		\item L'usuari té missatges per llistar
+	\begin{verbatim}
+[
+  {
+    "body": "Lorem ipsum dolor sit amet",
+    "sender": {
+      "first_name": "Ricardo",
+      "last_name": "Galli",
+      "avatar": null,
+      "type": 1,
+      "id": 5,
+      "user": "RGG111"
+    },
+    "media": [],
+    "created_at": "2015-07-04 18:56:43",
+    "id": 21,
+    "group_id": 3
+  }
+]
+	\end{verbatim}
+	
+	\item L'usuari no té grups per llistar o els grups on pertany l'usuari no tenen cap missatge
+	
+	\begin{verbatim}
+	[]
+	\end{verbatim}
+	\end{itemize}
+
+
+\item \textbf{Possibles errors:}
+	\begin{itemize}
+		\item NotAuthenticatedError
+	\end{itemize}
+\end{itemize}
+\subsection{Llistat dels darrers missatges de cada conversació de l'usuari}
+\begin{itemize}
+\item \textbf{\ac{URL}:} \texttt{/user/notitications/chat/}
+\item \textbf{Mètode \ac{HTTP}: } \texttt{GET}.
+\item \textbf{Login requerit:} Si.
+\item \textbf{Paràmetres:} no en necessita.
+
+\item \textbf{Resultat satisfactori:} \texttt{200 OK}
+	\begin{itemize}
+		\item L'usuari té missatges per llistar
+	\begin{verbatim}
+[
+  {
+    "body": "Lorem ipsum dolor sit amet",
+    "sender": {
+      "first_name": "Joan",
+      "last_name": "Font",
+      "avatar": null,
+      "type": 2,
+      "id": 1,
+      "user": "JFR164"
+    },
+    "media": [],
+    "created_at": "2015-07-04 13:17:44",
+    "recipient": {
+      "first_name": "Ricardo",
+      "last_name": "Galli",
+      "avatar": null,
+      "type": 1,
+      "id": 5,
+      "user": "RGG111"
+    },
+    "id": 17
+  }
+]
+	\end{verbatim}
+	
+	\item L'usuari no té missatges directes per llistar
+	
+	\begin{verbatim}
+	[]
+	\end{verbatim}
+	
+	\end{itemize}
+
+
+\item \textbf{Possibles errors:}
+	\begin{itemize}
+		\item NotAuthenticatedError
+	\end{itemize}
+\end{itemize}
+
+
+\section{Multimèdia}
+
+\subsection{Canvi de l'avatar de l'usuari}
+\begin{itemize}
+\item \textbf{\ac{URL}:} \texttt{/user/avatar/}
+\item \textbf{Mètode \ac{HTTP}: } \texttt{PUT}.
+\item \textbf{Login requerit:} Si.
+\item \textbf{Paràmetres:} 
+	\begin{itemize}
+		\item \textbf{mime:} tipus \ac{MIME} del fitxer.
+		\begin{itemize}
+			\item \textbf{Posició:} paràmetre \ac{PUT}
+			\item \textbf{Requerit:} si.
+			\item \textbf{Format:} cadena de text.
+			\item \textbf{Opcions:} declarat al fitxer \texttt{config.py}
+		\end{itemize}
+		\item \textbf{avatar:} fitxer.
+		\begin{itemize}
+			\item \textbf{Posició:} paràmetre \texttt{FILE}.
+			\item \textbf{Requerit:} si.
+			\item \textbf{Format:} fitxer.
+			\item \textbf{Tamany màxim:} declarat al fitxer \texttt{config.py}
+
+		\end{itemize}
+	\end{itemize}
+
+\item \textbf{Resultat satisfactori:} \texttt{202 Accepted}
+	\begin{verbatim}
+{
+  "url": "http://missatgeria.uib.cat/media/12/",
+  "mime": "image/png",
+  "id": 12
+}
+	\end{verbatim}
+	
+
+\item \textbf{Possibles errors:}
+	\begin{itemize}
+		\item ValidationError
+		\item NotAuthenticatedError
+		\item FileTooLargeError
+	\end{itemize}
+\end{itemize}
+
+\subsection{Inserció de contingut multimèdia a un missatge}
+\begin{itemize}
+\item \textbf{\ac{URL}:} \verb$[...]/messages/media/$
+\item \textbf{Mètode \ac{HTTP}: } \texttt{PUT}.
+\item \textbf{Login requerit:} Si.
+\item \textbf{Paràmetres:}
+	\begin{itemize}
+		\item \textbf{mime:} tipus \ac{MIME} del fitxer.
+		\begin{itemize}
+			\item \textbf{Posició:} paràmetre \ac{PUT}
+			\item \textbf{Requerit:} si.
+			\item \textbf{Format:} cadena de text.
+			\item \textbf{Opcions:} declarat al fitxer \texttt{config.py}
+		\end{itemize}
+		\item \textbf{avatar:} fitxer.
+		\begin{itemize}
+			\item \textbf{Posició:} paràmetre \texttt{FILE}.
+			\item \textbf{Requerit:} si.
+			\item \textbf{Format:} fitxer.
+			\item \textbf{Tamany màxim:} declarat al fitxer \texttt{config.py}
+		\end{itemize}
+	\end{itemize}
+	\item \textbf{Resultat satisfactori:} \texttt{202 Accepted}
+	\begin{verbatim}
+{
+  "url": "http://missatgeria.uib.cat/media/11/",
+  "mime": "image/png",
+  "id": 11
+}
+	\end{verbatim}
+	
+	\item \textbf{Possibles errors:} els mateixos per detallar un missatge i:
+	\begin{itemize}
+		\item FileTooLargeError
+		\item LimitOfMessageFilesReachedError
+		\item CantAttachMediaToMessageError
+	\end{itemize}
+\end{itemize}
+
+
+\subsection{Obtenció d'un element multimèdia}
+\begin{itemize}
+\item \textbf{\ac{URL}:} \texttt{/media/<media\_id}
+\item \textbf{Mètode \ac{HTTP}: } \texttt{GET}.
+\item \textbf{Login requerit:} Si.
+\item \textbf{Paràmetres:}
+	\begin{itemize}
+		\item \textbf{media\_id:} identificador de l'element multimèdia.
+		\begin{itemize}
+			\item \textbf{Posició:} \ac{URL}
+			\item \textbf{Requerit:} si.
+			\item \textbf{Format:} nombre enter.
+		\end{itemize}
+	\end{itemize}
+	\item \textbf{Resultat satisfactori:} \texttt{200 OK}. Retorna l'element multimèdia. A la capçalera hi ha el tipus MIME.
+	
+	\item \textbf{Possibles errors:} els mateixos per detallar un missatge i:
+	\begin{itemize}
+		\item ValidationError
+		\item MediaNotFoundError
+		\item UserCanNotSeeMediaError
+	\end{itemize}
+\end{itemize}
+
