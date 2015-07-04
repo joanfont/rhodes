@@ -249,12 +249,77 @@ En aquest annex es detallarà cada acció de l'\ac{API}, quins paràmetres neces
 \end{verbatim}
 \end{itemize}
 \subsection{\emph{MessageDoesNotBelongToConversationError}}
+\begin{itemize}
+	\item \textbf{Descripció:} el missatge no pertany a una conversació.
+	\item \textbf{Codi \ac{HTTP}:} \texttt{409 Conflict}
+	\item \textbf{Representació:}
+\begin{verbatim}
+{
+  "message": "Message does not belong to conversation",
+  "code": "conflict"
+}
+\end{verbatim}
+\end{itemize}
 \subsection{\emph{MessageKindIsNotDirectMessageError}}
+\begin{itemize}
+	\item \textbf{Descripció:} el tipus del missatge no es \texttt{DirectMessage}.
+	\item \textbf{Codi \ac{HTTP}:} \texttt{409 Conflict}
+	\item \textbf{Representació:}
+\begin{verbatim}
+{
+  "message": "'Message does not belong to any conversation",
+  "code": "conflict"
+}
+\end{verbatim}
+\end{itemize}
 \subsection{\emph{MessageDoesNotBelongToGroupError}}
+\begin{itemize}
+	\item \textbf{Descripció:} el missatge no pertany al grup.
+	\item \textbf{Codi \ac{HTTP}:} \texttt{409 Conflict}
+	\item \textbf{Representació:}
+\begin{verbatim}
+{
+  "message": "Message does not belong to group",
+  "code": "conflict"
+}
+\end{verbatim}
+\end{itemize}
 \subsection{\emph{MessageKindIsNotGroupMessageError}}
+\begin{itemize}
+	\item \textbf{Descripció:} el tipus del missatge no es \texttt{GroupMessage}.
+	\item \textbf{Codi \ac{HTTP}:} \texttt{409 Conflict}
+	\item \textbf{Representació:}
+\begin{verbatim}
+{
+  "message": "'Message does not belong to any group",
+  "code": "conflict"
+}
+\end{verbatim}
+\end{itemize}
 \subsection{\emph{MessageDoesNotBelongToSubjectError}}
+\begin{itemize}
+	\item \textbf{Descripció:} el missatge no pertany a l'assignatura.
+	\item \textbf{Codi \ac{HTTP}:} \texttt{409 Conflict}
+	\item \textbf{Representació:}
+\begin{verbatim}
+{
+  "message": "Message does not belong to subject",
+  "code": "conflict"
+}
+\end{verbatim}
+\end{itemize}
 \subsection{\emph{MessageKindIsNotSubjectMessageErrror}}
-
+\begin{itemize}
+	\item \textbf{Descripció:} el tipus del missatge no es \texttt{SubjectMessage}.
+	\item \textbf{Codi \ac{HTTP}:} \texttt{409 Conflict}
+	\item \textbf{Representació:}
+\begin{verbatim}
+{
+  "message": "'Message does not belong to any subject",
+  "code": "conflict"
+}
+\end{verbatim}
+\end{itemize}
 \section{Autenticació}
 
 \subsection{Obtenció del \emph{token} d'autenticació}

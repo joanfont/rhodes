@@ -348,14 +348,12 @@ def message_belongs_to_peers(fnx):
         user = kwargs.get('user')
         peer = kwargs.get('peer')
         message = kwargs.get('message')
-
-        user_id = int(user.id)
-        peer_id = int(peer.id)
-
-        sender_id = int(message.sender_id)
-        recipient_id = int(message.user_id)
-
         if isinstance(message, DirectMessage):
+            user_id = int(user.id)
+            peer_id = int(peer.id)
+
+            sender_id = int(message.sender_id)
+            recipient_id = int(message.user_id)
 
             cond1 = sender_id == user_id and recipient_id == peer_id
             cond2 = sender_id == peer_id and recipient_id == user_id
