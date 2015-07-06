@@ -4,7 +4,8 @@ En aquest annex es detallarà cada acció de l'\ac{API}, quins paràmetres neces
 
 \section{Excepcions}
 
-\subsection{\emph{ValidationError}}
+\subsection{General}
+\subsubsection{\emph{ValidationError}}
 \begin{itemize}
 	\item \textbf{Descripció:} algun dels camps especificats no està ben formatejat o bé no s'ha especificat.
 	\item \textbf{Codi \ac{HTTP}:} \texttt{400 Bad Request}
@@ -38,7 +39,10 @@ En aquest annex es detallarà cada acció de l'\ac{API}, quins paràmetres neces
 		\item The value's length is greater than x
 	\end{itemize}
 \end{itemize}
-\subsection{\emph{UserNotFoundError}}
+
+\subsection{Usuari}
+
+\subsubsection{\emph{UserNotFoundError}}
 \begin{itemize}
 	\item \textbf{Descripció:} l'usuari no existeix.
 
@@ -51,7 +55,8 @@ En aquest annex es detallarà cada acció de l'\ac{API}, quins paràmetres neces
 }
 \end{verbatim}
 \end{itemize}
-\subsection{\emph{NotAuthenticatedError}}
+
+\subsubsection{\emph{NotAuthenticatedError}}
 \begin{itemize}
 	\item \textbf{Descripció:} l'usuari no s'ha autenticat.
 	\item \textbf{Codi \ac{HTTP}:} \texttt{401 Unauthorized}
@@ -63,7 +68,8 @@ En aquest annex es detallarà cada acció de l'\ac{API}, quins paràmetres neces
 }
 \end{verbatim}
 \end{itemize}
-\subsection{\emph{NotEnoughPermissionError}}
+
+\subsubsection{\emph{NotEnoughPermissionError}}
 \begin{itemize}
 	\item \textbf{Descripció:} no es tenen suficients permisos per realitzar l'acció.
 	\item \textbf{Codi \ac{HTTP}:} \texttt{403 Forbidden}
@@ -75,43 +81,8 @@ En aquest annex es detallarà cada acció de l'\ac{API}, quins paràmetres neces
 }
 \end{verbatim}
 \end{itemize}
-\subsection{\emph{SubjectNotFoundError}}
-\begin{itemize}
-	\item \textbf{Descripció:} l'assignatura no existeix.
-	\item \textbf{Codi \ac{HTTP}:} \texttt{404 Not Found}
-	\item \textbf{Representació:}
-\begin{verbatim}
-{
-  "message": "Subject not found",
-  "code": "not_found"
-}
-\end{verbatim}
-\end{itemize}
-\subsection{\emph{GroupNotFoundError}}
-\begin{itemize}
-	\item \textbf{Descripció:} el grup no existeix.
-	\item \textbf{Codi \ac{HTTP}:} \texttt{404 Not Found}
-	\item \textbf{Representació:}
-\begin{verbatim}
-{
-  "message": "Group not found",
-  "code": "not_found"
-}
-\end{verbatim}
-\end{itemize}
-\subsection{\emph{GroupDoesNotBelongToSubjectError}}
-\begin{itemize}
-	\item \textbf{Descripció:} el grup no pertany a l'assignatura.
-	\item \textbf{Codi \ac{HTTP}:} \texttt{404 Conflict}
-	\item \textbf{Representació:}
-\begin{verbatim}
-{
-  "message": "Group does not belong to the subject",
-  "code": "conflict"
-}
-\end{verbatim}
-\end{itemize}
-\subsection{\emph{TeacherDoesNotTeachSubjectError}}
+
+\subsubsection{\emph{TeacherDoesNotTeachSubjectError}}
 \begin{itemize}
 	\item \textbf{Descripció:} el professor no imparteix l'assignatura.
 	\item \textbf{Codi \ac{HTTP}:} \texttt{403 Forbidden}
@@ -123,7 +94,7 @@ En aquest annex es detallarà cada acció de l'\ac{API}, quins paràmetres neces
 }
 \end{verbatim}
 \end{itemize}
-\subsection{\emph{StudentIsNotEnrolledToSubjectError}}
+\subsubsection{\emph{StudentIsNotEnrolledToSubjectError}}
 \begin{itemize}
 	\item \textbf{Descripció:} l'alumne no està matriculat a l'assignatura.
 	\item \textbf{Codi \ac{HTTP}:} \texttt{403 Forbidden}
@@ -136,7 +107,7 @@ En aquest annex es detallarà cada acció de l'\ac{API}, quins paràmetres neces
 \end{verbatim}
 \end{itemize}
 
-\subsection{\emph{TeacherDoesNotTeachGroupError}}
+\subsubsection{\emph{TeacherDoesNotTeachGroupError}}
 \begin{itemize}
 	\item \textbf{Descripció:} el professor no imparteix el grup.
 	\item \textbf{Codi \ac{HTTP}:} \texttt{403 Forbidden}
@@ -148,7 +119,7 @@ En aquest annex es detallarà cada acció de l'\ac{API}, quins paràmetres neces
 }
 \end{verbatim}
 \end{itemize}
-\subsection{\emph{StudentIsNotEnrolledToGroupError}}
+\subsubsection{\emph{StudentIsNotEnrolledToGroupError}}
 \begin{itemize}
 	\item \textbf{Descripció:} l'alumne no està matriculat al grup.s
 	\item \textbf{Codi \ac{HTTP}:} \texttt{403 Forbidden}
@@ -161,7 +132,48 @@ En aquest annex es detallarà cada acció de l'\ac{API}, quins paràmetres neces
 \end{verbatim}
 \end{itemize}
 
-\subsection{\emph{MessageNotFoundError}}
+\subsection{Assignatura}
+\subsubsection{\emph{SubjectNotFoundError}}
+\begin{itemize}
+	\item \textbf{Descripció:} l'assignatura no existeix.
+	\item \textbf{Codi \ac{HTTP}:} \texttt{404 Not Found}
+	\item \textbf{Representació:}
+\begin{verbatim}
+{
+  "message": "Subject not found",
+  "code": "not_found"
+}
+\end{verbatim}
+\end{itemize}
+\subsection{Grup}
+\subsubsection{\emph{GroupNotFoundError}}
+\begin{itemize}
+	\item \textbf{Descripció:} el grup no existeix.
+	\item \textbf{Codi \ac{HTTP}:} \texttt{404 Not Found}
+	\item \textbf{Representació:}
+\begin{verbatim}
+{
+  "message": "Group not found",
+  "code": "not_found"
+}
+\end{verbatim}
+\end{itemize}
+
+\subsubsection{\emph{GroupDoesNotBelongToSubjectError}}
+\begin{itemize}
+	\item \textbf{Descripció:} el grup no pertany a l'assignatura.
+	\item \textbf{Codi \ac{HTTP}:} \texttt{404 Conflict}
+	\item \textbf{Representació:}
+\begin{verbatim}
+{
+  "message": "Group does not belong to the subject",
+  "code": "conflict"
+}
+\end{verbatim}
+\end{itemize}
+
+\subsection{Missatge}
+\subsubsection{\emph{MessageNotFoundError}}
 \begin{itemize}
 	\item \textbf{Descripció:} el missatge no existeix.
 	\item \textbf{Codi \ac{HTTP}:} \texttt{404 Not Found}
@@ -174,7 +186,8 @@ En aquest annex es detallarà cada acció de l'\ac{API}, quins paràmetres neces
 \end{verbatim}
 \end{itemize}
 
-\subsection{\emph{DuplicateMessageWithinInterval}}
+
+\subsubsection{\emph{DuplicateMessageWithinInterval}}
 \begin{itemize}
 	\item \textbf{Descripció:} s'ha enviat el mateix missatge dins el període estipulat al fitxer \texttt{config.py}.
 	\item \textbf{Codi \ac{HTTP}:} \texttt{429 Too Many Requests}
@@ -187,19 +200,85 @@ En aquest annex es detallarà cada acció de l'\ac{API}, quins paràmetres neces
 \end{verbatim}
 \end{itemize}
 
-\subsection{\emph{FileTooLargeError}}
+\subsubsection{\emph{MessageDoesNotBelongToSubjectError}}
 \begin{itemize}
-	\item \textbf{Descripció:} el fitxer excedeix el tamany estipulat al fitxer \texttt{config.py}
-	\item \textbf{Codi \ac{HTTP}:} \texttt{413 Request Entity Too Large}
+	\item \textbf{Descripció:} el missatge no pertany a l'assignatura.
+	\item \textbf{Codi \ac{HTTP}:} \texttt{409 Conflict}
 	\item \textbf{Representació:}
 \begin{verbatim}
 {
-  "message": "File too large",
-  "code": "file_too_large"
+  "message": "Message does not belong to subject",
+  "code": "conflict"
 }
 \end{verbatim}
 \end{itemize}
-\subsection{\emph{MediaNotFoundError}}
+\subsubsection{\emph{MessageKindIsNotSubjectMessageErrror}}
+\begin{itemize}
+	\item \textbf{Descripció:} el tipus del missatge no es \texttt{SubjectMessage}.
+	\item \textbf{Codi \ac{HTTP}:} \texttt{409 Conflict}
+	\item \textbf{Representació:}
+\begin{verbatim}
+{
+  "message": "'Message does not belong to any subject",
+  "code": "conflict"
+}
+\end{verbatim}
+\end{itemize}
+
+\subsubsection{\emph{MessageDoesNotBelongToGroupError}}
+\begin{itemize}
+	\item \textbf{Descripció:} el missatge no pertany al grup.
+	\item \textbf{Codi \ac{HTTP}:} \texttt{409 Conflict}
+	\item \textbf{Representació:}
+\begin{verbatim}
+{
+  "message": "Message does not belong to group",
+  "code": "conflict"
+}
+\end{verbatim}
+\end{itemize}
+\subsubsection{\emph{MessageKindIsNotGroupMessageError}}
+\begin{itemize}
+	\item \textbf{Descripció:} el tipus del missatge no es \texttt{GroupMessage}.
+	\item \textbf{Codi \ac{HTTP}:} \texttt{409 Conflict}
+	\item \textbf{Representació:}
+\begin{verbatim}
+{
+  "message": "'Message does not belong to any group",
+  "code": "conflict"
+}
+\end{verbatim}
+\end{itemize}
+
+\subsubsection{\emph{MessageDoesNotBelongToConversationError}}
+\begin{itemize}
+	\item \textbf{Descripció:} el missatge no pertany a una conversació.
+	\item \textbf{Codi \ac{HTTP}:} \texttt{409 Conflict}
+	\item \textbf{Representació:}
+\begin{verbatim}
+{
+  "message": "Message does not belong to conversation",
+  "code": "conflict"
+}
+\end{verbatim}
+\end{itemize}
+
+\subsubsection{\emph{MessageKindIsNotDirectMessageError}}
+\begin{itemize}
+	\item \textbf{Descripció:} el tipus del missatge no es \texttt{DirectMessage}.
+	\item \textbf{Codi \ac{HTTP}:} \texttt{409 Conflict}
+	\item \textbf{Representació:}
+\begin{verbatim}
+{
+  "message": "'Message does not belong to any conversation",
+  "code": "conflict"
+}
+\end{verbatim}
+\end{itemize}
+
+
+\subsection{Media}
+\subsubsection{\emph{MediaNotFoundError}}
 \begin{itemize}
 	\item \textbf{Descripció:} l'element multimèdia no existeix.
 	\item \textbf{Codi \ac{HTTP}:} \texttt{404 Not Found}
@@ -211,7 +290,22 @@ En aquest annex es detallarà cada acció de l'\ac{API}, quins paràmetres neces
 }
 \end{verbatim}
 \end{itemize}
-\subsection{\emph{UserCanNotSeeMediaError}}
+
+
+\subsubsection{\emph{FileTooLargeError}}
+\begin{itemize}
+	\item \textbf{Descripció:} el fitxer excedeix el tamany estipulat al fitxer \texttt{config.py}
+	\item \textbf{Codi \ac{HTTP}:} \texttt{413 Request Entity Too Large}
+	\item \textbf{Representació:}
+\begin{verbatim}
+{
+  "message": "File too large",
+  "code": "file_too_large"
+}
+\end{verbatim}
+\end{itemize}
+
+\subsubsection{\emph{UserCanNotSeeMediaError}}
 \begin{itemize}
 	\item \textbf{Descripció:} l'usuari no pot veure l'element multimèdia.
 	\item \textbf{Codi \ac{HTTP}:} \texttt{403 Forbidden}
@@ -236,7 +330,7 @@ En aquest annex es detallarà cada acció de l'\ac{API}, quins paràmetres neces
 \end{verbatim}
 \end{itemize}
 
-\subsection{\emph{CantAttachMediaToMessageError}}
+\subsubsection{\emph{CantAttachMediaToMessageError}}
 \begin{itemize}
 	\item \textbf{Descripció:} l'usuari no pot afegir contingut multimèdia al missatge.
 	\item \textbf{Codi \ac{HTTP}:} \texttt{403 Forbidden}
@@ -248,78 +342,7 @@ En aquest annex es detallarà cada acció de l'\ac{API}, quins paràmetres neces
 }
 \end{verbatim}
 \end{itemize}
-\subsection{\emph{MessageDoesNotBelongToConversationError}}
-\begin{itemize}
-	\item \textbf{Descripció:} el missatge no pertany a una conversació.
-	\item \textbf{Codi \ac{HTTP}:} \texttt{409 Conflict}
-	\item \textbf{Representació:}
-\begin{verbatim}
-{
-  "message": "Message does not belong to conversation",
-  "code": "conflict"
-}
-\end{verbatim}
-\end{itemize}
-\subsection{\emph{MessageKindIsNotDirectMessageError}}
-\begin{itemize}
-	\item \textbf{Descripció:} el tipus del missatge no es \texttt{DirectMessage}.
-	\item \textbf{Codi \ac{HTTP}:} \texttt{409 Conflict}
-	\item \textbf{Representació:}
-\begin{verbatim}
-{
-  "message": "'Message does not belong to any conversation",
-  "code": "conflict"
-}
-\end{verbatim}
-\end{itemize}
-\subsection{\emph{MessageDoesNotBelongToGroupError}}
-\begin{itemize}
-	\item \textbf{Descripció:} el missatge no pertany al grup.
-	\item \textbf{Codi \ac{HTTP}:} \texttt{409 Conflict}
-	\item \textbf{Representació:}
-\begin{verbatim}
-{
-  "message": "Message does not belong to group",
-  "code": "conflict"
-}
-\end{verbatim}
-\end{itemize}
-\subsection{\emph{MessageKindIsNotGroupMessageError}}
-\begin{itemize}
-	\item \textbf{Descripció:} el tipus del missatge no es \texttt{GroupMessage}.
-	\item \textbf{Codi \ac{HTTP}:} \texttt{409 Conflict}
-	\item \textbf{Representació:}
-\begin{verbatim}
-{
-  "message": "'Message does not belong to any group",
-  "code": "conflict"
-}
-\end{verbatim}
-\end{itemize}
-\subsection{\emph{MessageDoesNotBelongToSubjectError}}
-\begin{itemize}
-	\item \textbf{Descripció:} el missatge no pertany a l'assignatura.
-	\item \textbf{Codi \ac{HTTP}:} \texttt{409 Conflict}
-	\item \textbf{Representació:}
-\begin{verbatim}
-{
-  "message": "Message does not belong to subject",
-  "code": "conflict"
-}
-\end{verbatim}
-\end{itemize}
-\subsection{\emph{MessageKindIsNotSubjectMessageErrror}}
-\begin{itemize}
-	\item \textbf{Descripció:} el tipus del missatge no es \texttt{SubjectMessage}.
-	\item \textbf{Codi \ac{HTTP}:} \texttt{409 Conflict}
-	\item \textbf{Representació:}
-\begin{verbatim}
-{
-  "message": "'Message does not belong to any subject",
-  "code": "conflict"
-}
-\end{verbatim}
-\end{itemize}
+
 \section{Autenticació}
 
 \subsection{Obtenció del \emph{token} d'autenticació}
@@ -534,7 +557,7 @@ En aquest annex es detallarà cada acció de l'\ac{API}, quins paràmetres neces
 	
 \item \textbf{Resultat satisfactori:} \texttt{200 OK}
 	\begin{itemize}
-		\item L'usuari te professorat per llistar
+		\item L'usuari té professorat per llistar
 		\begin{verbatim}
 [
   {
@@ -555,7 +578,7 @@ En aquest annex es detallarà cada acció de l'\ac{API}, quins paràmetres neces
   }
 ]
 		\end{verbatim}
-		\item L'usuari no te professorat per llistar
+		\item L'usuari no té professorat per llistar
 		\begin{verbatim}
 		[]
 		\end{verbatim}
@@ -586,7 +609,7 @@ En aquest annex es detallarà cada acció de l'\ac{API}, quins paràmetres neces
 		
 \item \textbf{Resultat satisfactori:} \texttt{200 OK}
 	\begin{itemize}
-		\item L'usuari te alumnat per llistar
+		\item L'usuari té alumnat per llistar
 		\begin{verbatim}
 [
   {
@@ -611,7 +634,7 @@ En aquest annex es detallarà cada acció de l'\ac{API}, quins paràmetres neces
   }
 ]
 		\end{verbatim}
-		\item L'usuari no te alumnat per llistar
+		\item L'usuari no té alumnat per llistar
 		\begin{verbatim}
 		[]
 		\end{verbatim}
@@ -620,7 +643,7 @@ En aquest annex es detallarà cada acció de l'\ac{API}, quins paràmetres neces
 	\begin{itemize}
 		\item ValidationError
 		\item NotAuthenticatedError
-		\item NotEnoughPermissionError: només és accessible si l'usuari es un professor.
+		\item NotEnoughPermissionError: només és accessible si l'usuari és un professor.
 		\item SubjectNotFoundError
 		\item TeacherDoesNotTeachSubjectError o StudentIsNotEnrolledToSubjectError, en funció del tipus d'usuari.
 	\end{itemize}
@@ -636,7 +659,7 @@ En aquest annex es detallarà cada acció de l'\ac{API}, quins paràmetres neces
 		\item \textbf{subject\_id:} identificador de l'assignatura.
 		\begin{itemize}
 			\item \textbf{Posició:} \ac{URL}
-			\item \textbf{Requerit:} si.
+			\item \textbf{Requerit:} sí.
 			\item \textbf{Format:} nombre enter.
 		\end{itemize}
 		\item \textbf{group\_id:} identificador del grup.
@@ -649,7 +672,7 @@ En aquest annex es detallarà cada acció de l'\ac{API}, quins paràmetres neces
 	
 \item \textbf{Resultat satisfactori:} \texttt{200 OK}
 	\begin{itemize}
-		\item L'usuari te alumnat per llistar
+		\item L'usuari té alumnat per llistar
 		\begin{verbatim}
 [
   {
@@ -662,7 +685,7 @@ En aquest annex es detallarà cada acció de l'\ac{API}, quins paràmetres neces
   }
 ]
 		\end{verbatim}
-		\item L'usuari no te alumnat per llistar
+		\item L'usuari no té alumnat per llistar
 		\begin{verbatim}
 		[]
 		\end{verbatim}
@@ -687,7 +710,7 @@ En aquest annex es detallarà cada acció de l'\ac{API}, quins paràmetres neces
 		\item \texttt{/user/students/<user\_id>/}
 	\end{itemize}
 \item \textbf{Mètode \ac{HTTP}: } \texttt{GET}.
-\item \textbf{Login requerit:} Si.
+\item \textbf{Login requerit:} sí.
 \item \textbf{Paràmetres:} 
 	\item \textbf{user\_id:} identificador de l'usuari.	
 		\begin{itemize}
@@ -723,7 +746,7 @@ En aquest annex es detallarà cada acció de l'\ac{API}, quins paràmetres neces
 \begin{itemize}
 \item \textbf{\ac{URL}:} \texttt{/user/subjects/}
 \item \textbf{Mètode \ac{HTTP}: } \texttt{GET}.
-\item \textbf{Login requerit:} Si.
+\item \textbf{Login requerit:} sí.
 \item \textbf{Paràmetres:} no en necessita.
 
 \item \textbf{Resultat satisfactori:} \texttt{200 OK}
@@ -777,7 +800,7 @@ En aquest annex es detallarà cada acció de l'\ac{API}, quins paràmetres neces
 \begin{itemize}
 \item \textbf{\ac{URL}:} \texttt{/user/subjects/<subject\_id>/}
 \item \textbf{Mètode \ac{HTTP}: } \texttt{GET}.
-\item \textbf{Login requerit:} Si.
+\item \textbf{Login requerit:} sí.
 \item \textbf{Paràmetres:}
 	\begin{itemize}
 		\item \textbf{subject\_id:} identificador de l'assignatura.
@@ -826,7 +849,7 @@ En aquest annex es detallarà cada acció de l'\ac{API}, quins paràmetres neces
 		\item \textbf{subject\_id:} identificador de l'assignatura.
 		\begin{itemize}
 			\item \textbf{Posició:} \ac{URL}
-			\item \textbf{Requerit:} si.
+			\item \textbf{Requerit:} sí.
 			\item \textbf{Format:} nombre enter.
 		\end{itemize}
 	\end{itemize}
@@ -885,7 +908,7 @@ En aquest annex es detallarà cada acció de l'\ac{API}, quins paràmetres neces
 	\begin{itemize}
 		\item ValidationError
 		\item NotAuthenticatedError
-		\item NotEnoughPermissionError: només és accessible si l'usuari es un professor.
+		\item NotEnoughPermissionError: només és accessible si l'usuari és un professor.
 		\item SubjectNotFoundError
 		\item GroupNotFoundError
 		\item GroupDoesNotBelongToSubject
@@ -901,13 +924,13 @@ En aquest annex es detallarà cada acció de l'\ac{API}, quins paràmetres neces
 	\begin{itemize}
 \item \textbf{\ac{URL}:} \texttt{/user/subjects/<subject\_id>/messages/}
 \item \textbf{Mètode \ac{HTTP}: } \texttt{GET}.
-\item \textbf{Login requerit:} Si.
+\item \textbf{Login requerit:} sí.
 \item \textbf{Paràmetres:}
 	\begin{itemize}
 		\item \textbf{subject\_id:} identificador de l'assignatura.
 		\begin{itemize}
 			\item \textbf{Posició:} \ac{URL}
-			\item \textbf{Requerit:} si.
+			\item \textbf{Requerit:} sí.
 			\item \textbf{Format:} nombre enter.
 		\end{itemize}
 	\end{itemize}
@@ -950,19 +973,19 @@ En aquest annex es detallarà cada acció de l'\ac{API}, quins paràmetres neces
 	\begin{itemize}
 	\item \textbf{\ac{URL}:} \texttt{/user/subjects/<subject\_id>/groups/<group\_id>/messages/}
 	\item \textbf{Mètode \ac{HTTP}: } \texttt{GET}.
-	\item \textbf{Login requerit:} Si.
+	\item \textbf{Login requerit:} Sí.
 	\item \textbf{Paràmetres:}
 	\begin{itemize}
 		\item \textbf{subject\_id:} identificador de l'assignatura.
 		\begin{itemize}
 			\item \textbf{Posició:} \ac{URL}
-			\item \textbf{Requerit:} si.
+			\item \textbf{Requerit:} sí.
 			\item \textbf{Format:} nombre enter.
 		\end{itemize}
 		\item \textbf{subject\_id:} identificador del grup.
 		\begin{itemize}
 			\item \textbf{Posició:} \ac{URL}
-			\item \textbf{Requerit:} si.
+			\item \textbf{Requerit:} sí.
 			\item \textbf{Format:} nombre enter.
 		\end{itemize}
 
@@ -1007,13 +1030,13 @@ En aquest annex es detallarà cada acció de l'\ac{API}, quins paràmetres neces
 	\begin{itemize}
 	\item \textbf{\ac{URL}:} \texttt{/user/chats/<peer\_id>/messages/}
 	\item \textbf{Mètode \ac{HTTP}: } \texttt{GET}.
-	\item \textbf{Login requerit:} Si.
+	\item \textbf{Login requerit:} sí.
 	\item \textbf{Paràmetres:}
 	\begin{itemize}
-		\item \textbf{peer\_id:} identificador de l'usuari el qual es volen consultar els missatges directes.
+		\item \textbf{peer\_id:} identificador de l'usuari del qual es volen consultar els missatges directes.
 		\begin{itemize}
 			\item \textbf{Posició:} \ac{URL}
-			\item \textbf{Requerit:} si.
+			\item \textbf{Requerit:} sí.
 			\item \textbf{Format:} nombre enter.
 		\end{itemize}
 	\end{itemize}
@@ -1064,19 +1087,19 @@ En aquest annex es detallarà cada acció de l'\ac{API}, quins paràmetres neces
 	\begin{itemize}
 \item \textbf{\ac{URL}:} \texttt{/user/subjects/<subject\_id>/messages/}
 \item \textbf{Mètode \ac{HTTP}: } \texttt{POST}.
-\item \textbf{Login requerit:} Si.
+\item \textbf{Login requerit:} sí.
 \item \textbf{Paràmetres:}
 	\begin{itemize}
 		\item \textbf{subject\_id:} identificador de l'assignatura.
 		\begin{itemize}
 			\item \textbf{Posició:} \ac{URL}
-			\item \textbf{Requerit:} si.
+			\item \textbf{Requerit:} sí.
 			\item \textbf{Format:} nombre enter.
 		\end{itemize}
 		\item \textbf{body:} cos del missatge
 		\begin{itemize}
 			\item \textbf{Posició:} paràmetre \texttt{POST}.
-			\item \textbf{Requerit:} si.
+			\item \textbf{Requerit:} sí.
 			\item \textbf{Format:} cadena de text.
 		\end{itemize}
 	\end{itemize}
@@ -1119,19 +1142,19 @@ En aquest annex es detallarà cada acció de l'\ac{API}, quins paràmetres neces
 		\item \textbf{subject\_id:} identificador de l'assignatura.
 		\begin{itemize}
 			\item \textbf{Posició:} \ac{URL}
-			\item \textbf{Requerit:} si.
+			\item \textbf{Requerit:} sí.
 			\item \textbf{Format:} nombre enter.
 		\end{itemize}
 		\item \textbf{group\_id:} identificador del grup.
 		\begin{itemize}
 			\item \textbf{Posició:} \ac{URL}
-			\item \textbf{Requerit:} si.
+			\item \textbf{Requerit:} sí.
 			\item \textbf{Format:} nombre enter.
 		\end{itemize}
 		\item \textbf{body:} cos del missatge
 		\begin{itemize}
 			\item \textbf{Posició:} paràmetre \texttt{POST}.
-			\item \textbf{Requerit:} si.
+			\item \textbf{Requerit:} sí.
 			\item \textbf{Format:} cadena de text.
 		\end{itemize}
 	\end{itemize}
@@ -1172,19 +1195,19 @@ En aquest annex es detallarà cada acció de l'\ac{API}, quins paràmetres neces
 	\begin{itemize}
 	\item \textbf{\ac{URL}:} \texttt{/user/chats/<peer\_id>/messages/}
 	\item \textbf{Mètode \ac{HTTP}: } \texttt{GET}.
-	\item \textbf{Login requerit:} Si.
+	\item \textbf{Login requerit:} sí.
 	\item \textbf{Paràmetres:}
 	\begin{itemize}
-		\item \textbf{peer\_id:} identificador de l'usuari el qual es volen consultar els missatges. directes.
+		\item \textbf{peer\_id:} identificador de l'usuari del qual es volen consultar els missatges. directes.
 		\begin{itemize}
 			\item \textbf{Posició:} \ac{URL}
-			\item \textbf{Requerit:} si.
+			\item \textbf{Requerit:} sí.
 			\item \textbf{Format:} nombre enter.
 		\end{itemize}
 		\item \textbf{body:} cos del missatge.
 		\begin{itemize}
 			\item \textbf{Posició:} paràmetre \texttt{POST}.
-			\item \textbf{Requerit:} si.
+			\item \textbf{Requerit:} sí.
 			\item \textbf{Format:} cadena de text.
 		\end{itemize}
 	\end{itemize}
@@ -1229,19 +1252,19 @@ En aquest annex es detallarà cada acció de l'\ac{API}, quins paràmetres neces
 	\begin{itemize}
 \item \textbf{\ac{URL}:} \texttt{/user/subjects/<subject\_id>/messages/<message\_id>}
 \item \textbf{Mètode \ac{HTTP}: } \texttt{GET}.
-\item \textbf{Login requerit:} Si.
+\item \textbf{Login requerit:} sí.
 \item \textbf{Paràmetres:}
 	\begin{itemize}
 		\item \textbf{subject\_id:} identificador de l'assignatura.
 		\begin{itemize}
 			\item \textbf{Posició:} \ac{URL}
-			\item \textbf{Requerit:} si.
+			\item \textbf{Requerit:} sí.
 			\item \textbf{Format:} nombre enter.
 		\end{itemize}
 		\item \textbf{message\_id:} identificador del missatge.
 		\begin{itemize}
 			\item \textbf{Posició:} \ac{URL}
-			\item \textbf{Requerit:} si.
+			\item \textbf{Requerit:} sí.
 			\item \textbf{Format:} nombre enter.
 		\end{itemize}
 	\end{itemize}
@@ -1282,25 +1305,25 @@ En aquest annex es detallarà cada acció de l'\ac{API}, quins paràmetres neces
 	\begin{itemize}
 	\item \textbf{\ac{URL}:} \texttt{/user/subjects/<subject\_id>/groups/<group\_id>/messages/<message\_id>}
 	\item \textbf{Mètode \ac{HTTP}: } \texttt{GET}.
-	\item \textbf{Login requerit:} Si.
+	\item \textbf{Login requerit:} sí.
 	\item \textbf{Paràmetres:}
 	\begin{itemize}
 		\item \textbf{subject\_id:} identificador de l'assignatura.
 		\begin{itemize}
 			\item \textbf{Posició:} \ac{URL}
-			\item \textbf{Requerit:} si.
+			\item \textbf{Requerit:} sí.
 			\item \textbf{Format:} nombre enter.
 		\end{itemize}
 		\item \textbf{group\_id:} identificador del grup.
 		\begin{itemize}
 			\item \textbf{Posició:} \ac{URL}
-			\item \textbf{Requerit:} si.
+			\item \textbf{Requerit:} sí.
 			\item \textbf{Format:} nombre enter.
 		\end{itemize}
 		\item \textbf{message\_id:} identificador del missatge.
 		\begin{itemize}
 			\item \textbf{Posició:} \ac{URL}
-			\item \textbf{Requerit:} si.
+			\item \textbf{Requerit:} sí.
 			\item \textbf{Format:} nombre enter.
 		\end{itemize}
 	\end{itemize}
@@ -1343,19 +1366,19 @@ En aquest annex es detallarà cada acció de l'\ac{API}, quins paràmetres neces
 	\begin{itemize}
 	\item \textbf{\ac{URL}:} \texttt{/user/chats/<peer\_id>/messages/<message\_id>}
 	\item \textbf{Mètode \ac{HTTP}: } \texttt{GET}.
-	\item \textbf{Login requerit:} Si.
+	\item \textbf{Login requerit:} sí.
 	\item \textbf{Paràmetres:}
 	\begin{itemize}
-		\item \textbf{peer\_id:} identificador de l'usuari el qual es volen consultar els missatges. directes.
+		\item \textbf{peer\_id:} identificador de l'usuari del qual es volen consultar els missatges. directes.
 		\begin{itemize}
 			\item \textbf{Posició:} \ac{URL}
-			\item \textbf{Requerit:} si.
+			\item \textbf{Requerit:} sí.
 			\item \textbf{Format:} nombre enter.
 		\end{itemize}
 		\item \textbf{message\_id:} identificador del missatge.
 		\begin{itemize}
 			\item \textbf{Posició:} \ac{URL}
-			\item \textbf{Requerit:} si.
+			\item \textbf{Requerit:} sí.
 			\item \textbf{Format:} nombre enter.
 		\end{itemize}
 	\end{itemize}
@@ -1403,17 +1426,17 @@ La paginació de missatges es comporta igual que el llistat de missatges en els 
 \item \textbf{\ac{URL}:} \verb$[...]/messages/<message_id>/<direction>/[?order=<order>]$
 \item \textbf{Paràmetres:}
 	\begin{itemize}
-		\item \textbf{peer\_id:} identificador de l'usuari el qual es volen consultar els missatges. directes.
+		\item \textbf{peer\_id:} identificador de l'usuari del qual es volen consultar els missatges. directes.
 		\item \textbf{message\_id:} identificador del missatge.
 		\begin{itemize}
 			\item \textbf{Posició:} \ac{URL}
-			\item \textbf{Requerit:} si.
+			\item \textbf{Requerit:} sí.
 			\item \textbf{Format:} nombre enter.
 		\end{itemize}
 		\item \textbf{direction:} direcció en la qual volem obtenir els missatges.
 		\begin{itemize}
 			\item \textbf{Posició:} \ac{URL}
-			\item \textbf{Requerit:} si.
+			\item \textbf{Requerit:} sí.
 			\item \textbf{Format:} cadena de text
 			\item \textbf{Opcions:}
 				\begin{itemize}
@@ -1443,7 +1466,7 @@ La paginació de missatges es comporta igual que el llistat de missatges en els 
 \begin{itemize}
 \item \textbf{\ac{URL}:} \texttt{/user/notitications/}
 \item \textbf{Mètode \ac{HTTP}: } \texttt{GET}.
-\item \textbf{Login requerit:} Si.
+\item \textbf{Login requerit:} sí.
 \item \textbf{Paràmetres:} no en necessita.
 
 \item \textbf{Resultat satisfactori:} \texttt{200 OK}
@@ -1494,7 +1517,7 @@ La paginació de missatges es comporta igual que el llistat de missatges en els 
   ],
   "groups": [
     {
-      "body": "Lorem ipsum dolor sit amet a14575d8-821a-4474-a3ca-eb95aacd2c21",
+      "body": "Lorem ipsum dolor sit amet",
       "sender": {
         "first_name": "Joan",
         "last_name": "Font",
@@ -1534,7 +1557,7 @@ La paginació de missatges es comporta igual que el llistat de missatges en els 
 \begin{itemize}
 \item \textbf{\ac{URL}:} \texttt{/user/notitications/subject/}
 \item \textbf{Mètode \ac{HTTP}: } \texttt{GET}.
-\item \textbf{Login requerit:} Si.
+\item \textbf{Login requerit:} sí.
 \item \textbf{Paràmetres:} no en necessita.
 
 \item \textbf{Resultat satisfactori:} \texttt{200 OK}
@@ -1578,7 +1601,7 @@ La paginació de missatges es comporta igual que el llistat de missatges en els 
 \begin{itemize}
 \item \textbf{\ac{URL}:} \texttt{/user/notitications/group/}
 \item \textbf{Mètode \ac{HTTP}: } \texttt{GET}.
-\item \textbf{Login requerit:} Si.
+\item \textbf{Login requerit:} sí.
 \item \textbf{Paràmetres:} no en necessita.
 
 \item \textbf{Resultat satisfactori:} \texttt{200 OK}
@@ -1621,7 +1644,7 @@ La paginació de missatges es comporta igual que el llistat de missatges en els 
 \begin{itemize}
 \item \textbf{\ac{URL}:} \texttt{/user/notitications/chat/}
 \item \textbf{Mètode \ac{HTTP}: } \texttt{GET}.
-\item \textbf{Login requerit:} Si.
+\item \textbf{Login requerit:} sí.
 \item \textbf{Paràmetres:} no en necessita.
 
 \item \textbf{Resultat satisfactori:} \texttt{200 OK}
@@ -1676,20 +1699,20 @@ La paginació de missatges es comporta igual que el llistat de missatges en els 
 \begin{itemize}
 \item \textbf{\ac{URL}:} \texttt{/user/avatar/}
 \item \textbf{Mètode \ac{HTTP}: } \texttt{PUT}.
-\item \textbf{Login requerit:} Si.
+\item \textbf{Login requerit:} sí.
 \item \textbf{Paràmetres:} 
 	\begin{itemize}
 		\item \textbf{mime:} tipus \ac{MIME} del fitxer.
 		\begin{itemize}
 			\item \textbf{Posició:} paràmetre \ac{PUT}
-			\item \textbf{Requerit:} si.
+			\item \textbf{Requerit:} sí
 			\item \textbf{Format:} cadena de text.
 			\item \textbf{Opcions:} declarat al fitxer \texttt{config.py}
 		\end{itemize}
 		\item \textbf{avatar:} fitxer.
 		\begin{itemize}
 			\item \textbf{Posició:} paràmetre \texttt{FILE}.
-			\item \textbf{Requerit:} si.
+			\item \textbf{Requerit:} sí.
 			\item \textbf{Format:} fitxer.
 			\item \textbf{Tamany màxim:} declarat al fitxer \texttt{config.py}
 
@@ -1718,20 +1741,20 @@ La paginació de missatges es comporta igual que el llistat de missatges en els 
 \begin{itemize}
 \item \textbf{\ac{URL}:} \verb$[...]/messages/media/$
 \item \textbf{Mètode \ac{HTTP}: } \texttt{PUT}.
-\item \textbf{Login requerit:} Si.
+\item \textbf{Login requerit:} sí.
 \item \textbf{Paràmetres:}
 	\begin{itemize}
 		\item \textbf{mime:} tipus \ac{MIME} del fitxer.
 		\begin{itemize}
 			\item \textbf{Posició:} paràmetre \ac{PUT}
-			\item \textbf{Requerit:} si.
+			\item \textbf{Requerit:} sí.
 			\item \textbf{Format:} cadena de text.
 			\item \textbf{Opcions:} declarat al fitxer \texttt{config.py}
 		\end{itemize}
 		\item \textbf{avatar:} fitxer.
 		\begin{itemize}
 			\item \textbf{Posició:} paràmetre \texttt{FILE}.
-			\item \textbf{Requerit:} si.
+			\item \textbf{Requerit:} sí.
 			\item \textbf{Format:} fitxer.
 			\item \textbf{Tamany màxim:} declarat al fitxer \texttt{config.py}
 		\end{itemize}
@@ -1758,13 +1781,13 @@ La paginació de missatges es comporta igual que el llistat de missatges en els 
 \begin{itemize}
 \item \textbf{\ac{URL}:} \texttt{/media/<media\_id}
 \item \textbf{Mètode \ac{HTTP}: } \texttt{GET}.
-\item \textbf{Login requerit:} Si.
+\item \textbf{Login requerit:} sí.
 \item \textbf{Paràmetres:}
 	\begin{itemize}
 		\item \textbf{media\_id:} identificador de l'element multimèdia.
 		\begin{itemize}
 			\item \textbf{Posició:} \ac{URL}
-			\item \textbf{Requerit:} si.
+			\item \textbf{Requerit:} sí.
 			\item \textbf{Format:} nombre enter.
 		\end{itemize}
 	\end{itemize}

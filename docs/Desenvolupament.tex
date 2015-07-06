@@ -8,7 +8,7 @@ Aquest projecte s'ha fet mitjançant mètodes àgils de desenvolupament de softw
 
 Abans d'entrar en qüestió s'ha de comentar que aquest projecte nodreix a dos altres projectes més. Es tracta de dues aplicacions mòbils, una pel sistema operatiu Android i l'altre per la plataforma iOS. La coordinació entre els tres projectes ha estat una peça fonamental del desenvolupament del projecte.\\
 
-Cada nova funcionalitat nova va acompanyada dels seus corresponents \emph{unit tests} per comprovar la seva correctesa i que no alteren el correcte funcionament de les funcionalitats ja desplegades. Si aquests test han passat satisfactòriament es pot fer la pujada a producció (els tests es passen primer en l'entorn de desenvolupament local). Cal recordar que quan es fa una pujada a producció automàticament es passen els tests mitjançant l'eina \emph{Travis CI}. Si el resultat d'aquesta passada ha estat satisfactòria mantenim els canvis. Del contrari, tornem a una versió anterior on els test havien passat.\\
+Cada nova funcionalitat nova va acompanyada dels seus corresponents \emph{unit tests} per comprovar el seu correcte funcionament i que no alteri el correcte funcionament de les funcionalitats ja desplegades. Si aquests tests han passat satisfactòriament es pot fer la pujada a producció (els tests es passen primer en l'entorn de desenvolupament local). Cal recordar que quan es fa una pujada a producció automàticament es passen els tests mitjançant l'eina \emph{Travis CI}. Si el resultat d'aquesta passada ha estat satisfactòria mantenim els canvis. Del contrari, tornem a una versió anterior on els tests havien passat.\\
 
 Quan s'havia desplegat una nova funcionalitat al servidor de testeig, els programadors dels altres dos projectes ho començaven a integrar dins la seva aplicació i donaven \emph{feedback} al desenvolupador de l'\ac{API} de possibles millores o falles en el sistema.
 
@@ -33,10 +33,10 @@ El mateix codi que es té en local, s'ha anat publicant a \emph{GitHub} a mode d
 
 Quan una nova funcionalitat està llesta i testejada per ser pujada al servidor de testeig o desenvolupament, s'ha emprat l'eina \emph{Fabric}. \\
 
-Aquesta eina ens permet executar accions remots a un o varis servidors. El desenvolupador ha de codificar l'acció que vol realitzar a un fitxer \texttt{fabfile.py} i situar-lo a l'arrel del projecte. Cada acció està definida per una funció. A continuació es llisten les principals accions del nostre arxiu \texttt{fabfile}.
+Aquesta eina ens permet executar accions remotes a un o varis servidors. El desenvolupador ha de codificar l'acció que vol realitzar a un fitxer \texttt{fabfile.py} i situar-lo a l'arrel del projecte. Cada acció està definida per una funció. A continuació es llisten les principals accions del nostre arxiu \texttt{fabfile}.
 
 \begin{itemize}
-	\item \textbf{update\_dependencies:} comanda per a actualitzar les dependències de les llibreries. \texttt{fab update\_dependencies} instala les noves dependències declarades al fitxer \texttt{requirements.txt}.
+	\item \textbf{update\_dependencies:} comanda per a actualitzar les dependències de les llibreries. \texttt{fab update\_dependencies} instal·la les noves dependències declarades al fitxer \texttt{requirements.txt}.
 	\item \textbf{pull\_branch:} executa la comanda \texttt{git pull} a la carpeta del projecte del servidor remot. Es descarrega els canvis del repositori.
 	\item \textbf{restart:} reinicia tant el \emph{gunicorn} com l'\emph{nginx} al servidor remot. Aquesta acció torna a carregar el codi al servidor d'aplicacions \emph{gunicorn}.
 	\item \textbf{deploy:} executa les tres comandes anteriors. Aquesta és la comanda usada per fer desplegaments a testeig o a producció, agilitzant la tasca al desenvolupador.

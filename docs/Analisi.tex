@@ -1,7 +1,7 @@
 %!TeX root=MemoriaTFG.tex
 
 \chapter{Anàlisi del problema}\label{analisi}
-En aquest capítol es troba un anàlisi del problema a solucionar. Es descriuen els objectius del projecte, quins requisits tant a nivell d'usuari, distingint entre alumne i professor, com de sistema ha de satisfer el producte final. A continuació s'exposaran els requisits tecnològics i per finalitzar les tecnologies elegides pel desenvolupament de la \ac{API}.
+En aquest capítol es troba una anàlisi del problema a solucionar. Es descriuen els objectius del projecte, quins requisits tant a nivell d'usuari, distingint entre alumne i professor, com de sistema ha de satisfer el producte final. A continuació s'exposaran els requisits tecnològics i per finalitzar les tecnologies elegides per al desenvolupament de l'\ac{API}.
 
 \section{Objectius} \label{objectius}
 
@@ -11,11 +11,11 @@ Els objectius generals del projecte són:
 \begin{itemize}
 	\item Estudiar i analitzar el sistema actual que s'usa dins l'àmbit universitari per a la comunicació entre docent i alumne.
 	\item Dissenyar i desenvolupar una \ac{API} per donar suport a la missatgeria entre integrants de la comunitat universitària.
-	\item Proporcionar un servei per que pugui ser explotat des de diversos clients (aplicacions mòbils, aplicacions web, aplicacions d'escriptori, etc...)
-	\item Aïllar el sistema de les dades de la universitat per que aquest pugui ser portable a qualsevol altre universitat o institució educativa.
+	\item Proporcionar un servei per que pugui ser explotat des de diversos clients com: aplicacions mòbils, aplicacions web o clients d'escriptori.
+	\item Crear un sistema aïllat de les dades de la universitat per que aquest pugui ser portable a qualsevol altre universitat o institució educativa.
 \end{itemize}
 \section{Requisits d'usuari}
-Hem dividit els requisits per alumnes i professors. En primer lloc es veuran els requisits que són comuns als dos tipus d'usuari. Seguidament es veuran els requisits per l'alumne, en segon lloc veurem els requisits pel professor.
+Hem dividit els requisits per alumnes i professors. En primer lloc es veuran els requisits que són comuns als dos tipus d'usuari. Seguidament es veuran els requisits per al professor; i per finalitzar es veuran els requisits per a l'alumne.
 
 Ambdós tipus d'usuari podran:
 \begin{itemize}
@@ -34,15 +34,14 @@ Pel que fa a un professor, aquest podrà enviar un missatge a:
 \end{itemize}
 
 \subsection{Requisits d'usuari a nivell d'alumne}
-
 Pel que fa a un alumne, aquest podrà enviar un missatge a:
 \begin{itemize}
 	\item Totes les assignatures a les que ell està matriculat
-	\item Al grup de cada assignatura que ell està matriculat
-	\item Els professors de les assignatures que ell està matriculat.
+	\item Al grup de cada assignatura a la que ell està matriculat
+	\item Els professors de les assignatures a les que ell està matriculat.
 \end{itemize}
 
-Com es pot apreciar, la única diferència que hi ha entre els requisits del professor i de l'alumne es que l'alumne no pot enviar missatges a altres alumnes.
+Com es pot apreciar, la única diferència que hi ha entre els requisits del professor i de l'alumne és que l'alumne no pot enviar missatges a altres alumnes.
 
 \section{Requisits de sistema}
 A continuació s'enumeraran els requisits de sistema del projecte:
@@ -51,65 +50,71 @@ A continuació s'enumeraran els requisits de sistema del projecte:
 	\item La connexió client-servidor ha d'estar encriptada baix el protocol \ac{TLS}
 	\item El sistema ha de proporcionar informació detallada sobre els errors que hi pugui haver a la petició.
 	\item El sistema ha de implementar mètodes de seguretat per assegurar que un usuari només té accés a les dades que està autoritzat a veure.
-	\item El sistema ha de poder distingir usuaris entre els diferents rols de la universitat (estudiant, \ac{PAS}, \ac{PDI}, etcètera...)
+	\item El sistema ha de poder distingir usuaris entre els diferents rols de la universitat (estudiant, \ac{PDI}, \ac{PAS}, etcètera...)
 \end{itemize}
 
-\section{Anàlisi tecnològic}
-En aquesta secció es presenta un anàlisi de les tecnologies que necessitam per a desenvolupar la \ac{API} desitjada. En primer lloc veurem quins requisits han de satisfer aquestes tecnologies. En segon lloc veurem quines tecnologies s'han elegit per dur a terme el desenvolupament.
+\section{Anàlisi tecnològica}
+En aquesta secció es presenta un anàlisi de les tecnologies que necessitam per a desenvolupar l'\ac{API} desitjada. En primer lloc veurem quins requisits han de satisfer aquestes tecnologies. En segon lloc veurem quines tecnologies s'han elegit per dur a terme el desenvolupament.
 
 \subsection{Requisits tecnològics}
 A continuació s'exposaran quins requisits han de tenir els diferents components que composaran la nostra \ac{API}. 
 	
 	\subsubsection{Llenguatge de programació}
-	El llenguatge de programació usat pel desenvolupament ha de tenir suport per atendre peticions \ac{HTTP}. 
+	El llenguatge de programació usat per al desenvolupament ha de tenir suport per atendre peticions \ac{HTTP}. Ha de suportar connexió a una base de dades i la \ac{POO}.
 	
 	\subsubsection{\ac{SGBD}}
 	Per tal d'aconseguir la ja anomenada independència de les dades de la universitat, s'emmagatzemarà una copia d'aquestes al nostre servidor. Aquesta base de dades ha de ser relacional. El \ac{SGBD} que s'usi ha de ser compatible amb l'\ac{ORM} que emprarem.
 
 	
 	\subsubsection{\emph{Framework} web}
-	El \emph{framework} web que s'utilitzarà ha de proporcionar una manera àgil i senzilla de construir una \ac{API} \ac{REST}. No té perquè ser un \emph{framework} \emph{full stack} \cite{web_framework}. Ja que la nostra aplicació final no requereix de planes en format \ac{HTML}, el motor de renderitzat de plantilles no ha de ser un punt fort d'aquest \emph{framework}.
+	El \emph{framework} web que s'utilitzarà ha de proporcionar una manera àgil i senzilla de construir una \ac{API} \ac{REST}. No té perquè ser un \emph{framework} \emph{full stack} \cite{web_framework}.\\
+	
+	 La nostra aplicació final no requereix de planes en format \ac{HTML}, el motor de renderitzat de plantilles no ha de ser un punt fort d'aquest \emph{framework}. No requereix un sistema d'autenticació propi ja que s'implementarà un aposta pel nostre servei.
 	
 	\subsubsection{Presentació de les dades}
-	El format en que la \ac{API} retorna les dades ha de ser senzill, universal i interpretable per la majoria de llenguatges de programació.
+	El format en que l'\ac{API} retorna les dades ha de ser senzill, lleuger interpretable per la majoria de llenguatges de programació.\\
 
 	\subsubsection{Integració contínua}
-	El llenguatge de programació ha d'incorporar tècniques d'\emph{unit testing} per tal d'agilitzar el procés d'integració de noves funcionalitats a l'aplicació També es precisa d'un sistema per assegurar que cada desplegament al servidor de producció o testeig es fa de manera correcta i no altera el funcionament del servei.
+	El llenguatge de programació ha d'incorporar tècniques d'\emph{unit testing} per tal d'agilitzar el procés d'integració de noves funcionalitats a l'aplicació. També es precisa d'un sistema per assegurar que cada desplegament al servidor de producció o testeig es fa de manera correcta i no altera el funcionament del servei.
 
 \subsection{Tecnologies usades}
 Una cop definits els requisits que les tecnologies que es necessiten han de satisfer, es veurà quina és la tecnologia que millor encaixa amb aquests requisits.
 
 	\subsubsection{Llenguatge de programació}
-	El llenguatge de programació que s'ha triat per desenvolupar el projecte ha estat \textbf{Python} \cite{python}, per la quantitat de llibreries existents que hi ha, la seva senzillesa, la gran comunitat de desenvolupadors que hi ha darrera i pel fet de que és un llenguatge prou consolidat en l'àmbit web degut l'elevat nombre de \emph{frameworks} web que estan implementats baix aquest llenguatge (Django, Flask, Pyramid, Bottle, WebPy, CherryPy, etc...)
+	El llenguatge de programació que s'ha triat per desenvolupar el projecte ha estat \textbf{Python} \cite{python}, per la quantitat de llibreries existents que hi ha, la seva senzillesa, la gran comunitat de desenvolupadors que hi ha darrera i pel fet de que és un llenguatge prou consolidat en l'àmbit web degut l'elevat nombre de \emph{frameworks} web que estan implementats baix aquest llenguatge (Django, Flask, Pyramid, Bottle, etc...)
 
 	\subsubsection{\ac{SGBD}}
-	El \ac{SGBD} que s'ha triat per desenvolupar el projecte ha estat \textbf{MySQL} \cite{mysql}. S'ha triat aquest \ac{SGBD} per la seva facilitat d'instal·lació configuració i per la familiaritat que té el desenvolupador en desenvolupar solucions sobre aquest \ac{SGBD}.
+	El \ac{SGBD} que s'ha triat per desenvolupar el projecte ha estat \textbf{MySQL} \cite{mysql}. S'ha triat aquest \ac{SGBD} per la seva facilitat d'instal·lació configuració. Al llarg dels anys MySQL ha quedat consolidat com a principal \ac{SGBD} per aplicacions web.
 
 	\subsubsection{\emph{Framework} web}
-	El \emph{framework} web que s'ha triat ha estat \textbf{Flask} \cite{flask} per la seva senzillesa i extensibilitat. Aquest \emph{framework} es sol usar per a construir aplicacions lleugeres. El seu motor de renderitzat de plantilles (\emph{Jinja} \cite{jinja}) és bastant lleuger i no provoca sobre-càrrega al sistema. 
+	El \emph{framework} web que s'ha triat ha estat \textbf{Flask} \cite{flask} per la seva senzillesa i extensibilitat. Aquest \emph{framework} es sol usar per a construir aplicacions lleugeres. \\
+	
+	Flask no porta \ac{ORM} inclòs, només porta el just i necessari per atendre i servir peticions \ac{HTTP}. Que no porti \ac{ORM} permet a l'usuari triar el que a ell més li convengui. Hi ha extensions per ajuntar l'\ac{ORM} amb el \emph{fremework} com és el cas de \emph{Flask-SQLALchemy} o \emph{Flask-Peewee}. 
 
 	\subsubsection{Presentació de les dades}
-	El format triat en que es presentaran les dades de l'\ac{API} ha estat \ac{JSON} \cite{json}. S'ha elegit \ac{JSON} per que és el principal format per desenvolupar \ac{API} \ac{REST}, és més lleuger que \ac{XML} i quasi tots els llenguatges porten llibreries per parsejar-lo i convertir-lo a les estructures pròpies del llenguatge.
+	El format triat en que es presentaran les dades de l'\ac{API} ha estat \ac{JSON} \cite{json}. S'ha elegit \ac{JSON} perquè és el principal format per desenvolupar \ac{API} \ac{REST}, és més lleuger que \ac{XML} i quasi tots els llenguatges porten llibreries per parsejar-lo i convertir-lo a les estructures pròpies del llenguatge.
 
 	\subsubsection{Llibreries}
-	Per donar suport al desenvolupament s'han empleat una sèrie de llibreries, a continuació es fa una enumeració d'aquestes.\\
+	Per donar suport al desenvolupament s'han utilitzat una sèrie de llibreries. A continuació es fa una enumeració d'aquestes.\\
 
-	Com s'ha comentat anteriorment, per donar suport a l'abstracció de les dades de la base de dades, s'ha empleat la tècnica \ac{ORM}. L'\ac{ORM} que s'ha triat pel projecte, desenvolupat també en Python, ha estat \textbf{SQLAlchemy} \cite{sqlalchemy}. SQLAlchemy proporciona la capa d'abstracció que es cerca dins un \ac{ORM}, definició dels models de dades amb les estructures de dades natives del llenguatge (classes).\\
+	Com s'ha comentat anteriorment, per donar suport a l'abstracció de les dades de la base de dades, s'ha empleat la tècnica \ac{ORM}. L'\ac{ORM} que s'ha triat per al projecte, desenvolupat també en Python, ha estat \textbf{SQLAlchemy} \cite{sqlalchemy}. SQLAlchemy proporciona la capa d'abstracció que es cerca dins un \ac{ORM}, definició dels models de dades amb les estructures de dades natives del llenguatge (classes).\\
 
-	Per donar suport al desplegament al servidor de testeig o producció s'ha triat la llibreria \textbf{Fabric} \cite{fabric} que ens permet realitzar accions remotes a diferents servidors via \ac{SSH}. D'aquesta manera, amb una simple instrucció a la consola podem desplegar el codi al nostre servidor (o servidors) de manera ràpida i centralitzada.\\
+	Per donar suport al desplegament al servidor de testeig o producció s'ha triat la llibreria \textbf{Fabric} \cite{fabric} que ens permet realitzar accions remotes a diferents servidors via \ac{SSH}. D'aquesta manera, amb una simple instrucció a la consola podem desplegar el codi al nostre servidor (o servidors) de manera ràpida i centralitzada, sense haver de passar per cada un d'ells.\\
 
-	Per gestionar els canvis a la base de dades sense haver de desenvolupar el codi \ac{SQL} s'ha triat la llibreria de Python \textbf{Alembic} \cite{alembic} que proporciona uns fitxers anomenats migracions que reflexen els canvis a la base de dades que volem realitzar.\\
+	Per gestionar els canvis a la base de dades sense haver de desenvolupar el codi \ac{SQL} s'ha triat la llibreria de Python \textbf{Alembic} \cite{alembic} que proporciona uns fitxers anomenats migracions que reflecteixen els canvis a la base de dades que volem realitzar.\\
 
-	Quan parlam d'una aplicació web, és difícil no parlar de concurrència. Cada petició web és un procés del sistema de la nostra aplicació i una part crítica d'aquesta concurrència són les connexions a la base de dades. Flask i SQLAlchemy tenen una extensió, \textbf{Flask-SQLAlchemy} \cite{flask_sqlalchemy}, per donar suport a múltiples connexions a la base de dades sense preocupar-se de la concurrència. \\
+	Quan parlam d'una aplicació web, és difícil no parlar de concurrència. Cada petició web va associada a un procés del sistema i aquest procés manté activa una connexió a la base de dades.\\
+	
+	 Flask i SQLAlchemy tenen una extensió, \textbf{Flask-SQLAlchemy} \cite{flask_sqlalchemy}, per donar suport a múltiples connexions a la base de dades sense preocupar-se de la concurrència. \\
 
 	\textbf{Flask-Script} \cite{flask_script} és una eina per invocar scripts de Python que interactuïn amb l'ecosistema de Flask. Podem llançar tests, executar scripts que manipulin dades de la base de dades, etc...\\
 	
 
 	\subsubsection{Servidor d'aplicacions i servidor web}
 	
-	Per servir la nostra aplicació web s'ha triat el servidor d'aplicacions de Python \textbf{gunicorn} \cite{gunicorn} que ens permet d'una manera senzilla configurar-lo i establir-ne el nombre de processos que volem que despongui, la direcció on volem que escolti les peticions o l'usuari que executarà l'aplicació, entre d'altres.\\
+	Per servir la nostra aplicació web s'ha triat el servidor d'aplicacions de Python \textbf{gunicorn} \cite{gunicorn} que ens permet d'una manera senzilla configurar-lo i establir-ne el nombre de processos que volem que disposi, la direcció on volem que escolti les peticions o l'usuari que executarà l'aplicació, entre d'altres.\\
 
-	Per no usar gunicorn com a frontal web, s'ha muntat un servidor web, \textbf{nginx} \cite{nginx}, que actua com a \emph{proxy} invers. Nginx redirigeix tot el tràfic que li arriba cap al servidor d'aplicacions, gunicorn. D'aquesta manera podem gaudir dels avantatges d'nginx, com per exemple: facilitat d'implementar un \emph{load balancer}, implementar redireccions o usar \ac{HTTPS}
+	Per no usar gunicorn com a frontal web, s'ha muntat un servidor web, \textbf{nginx} \cite{nginx}, que actua com a \emph{proxy} invers. Nginx redirigeix tot el tràfic que li arriba cap al servidor d'aplicacions, gunicorn. D'aquesta manera podem gaudir dels avantatges d'nginx, com per exemple: facilitat d'implementar un \emph{load balancer}, implementar redireccions, usar \ac{HTTPS} o beneficiar-se del \emph{buffering} de connexions.
 
 	\subsubsection{Control de versions}
 	Per mantenir un control de versions del codi del projecte s'ha usat \emph{git} \cite{git} amb \emph{GitHub} \cite{github} com a plataforma \emph{online} per allotjar-lo. El fet d'usar GitHub ha facilitat el desplegament àgil al servidor de producció.
@@ -117,17 +122,19 @@ Una cop definits els requisits que les tecnologies que es necessiten han de sati
 
 	\subsubsection{Utilitats}
 
-	Per posar en marxa, aturar o reiniciar la nostra aplicació s'ha usat la utilitat de Linux \textbf{Supervisor} \cite{supervisor} que proporciona una interfície similars als serveis de Unix per controlar la seva execució. \\
+	Per posar en marxa, aturar o reiniciar la nostra aplicació s'ha usat la utilitat de Linux \textbf{Supervisor} \cite{supervisor} que proporciona una interfície silimar als serveis de Unix per controlar la seva execució. \\
+	
+	Un avantatge que té Supervisor és que en cas de reinicii del servidor, tots els serveis que depenen d'ell tornen arrancar automàticament quan es torna a iniciar el sistema.\\
 
-	Per mantenir el nostre codi aïllat de les llibreries de Python que ja té el sistema s'han empleat entorns virtuals. \textbf{virtualenv} \cite{virtualenv} i \textbf{virtualenvwrapper} \cite{virtualenvwrapper} ens ajuden a manejar aquests entorns virtuals. D'aquesta manera podem tenir el nostre projecte en un context únic, sense que altres aplicacions residents al mateix servidor puguin alterar, per exemple, les variables d'entorn. Una altre avantatge d'usar entorns virtuals, es que tendrem el control sobre les llibreries que tenim instal·lades mitjançant \emph{pip} o \emph{easy\_install}.\\
+	Per mantenir el nostre codi aïllat de les llibreries de Python que ja té el sistema s'han utilitzat entorns virtuals. \textbf{virtualenv} \cite{virtualenv} i \textbf{virtualenvwrapper} \cite{virtualenvwrapper} ens ajuden a manejar aquests entorns virtuals. D'aquesta manera podem tenir el nostre projecte en un context únic, sense que altres aplicacions residents al mateix servidor puguin alterar, per exemple, les variables d'entorn. Un altre avantatge d'usar entorns virtuals, és que tendrem el control sobre les llibreries que tenim instal·lades mitjançant \emph{pip} o \emph{easy\_install} i no s'actualitzaran mai fora el nostre consentiment.\\
 
 	\subsubsection{Integració contínua}
 
-	Per donar suport a la ja anomenada integració contínua s'ha triat el servei en línia \textbf{Travis CI}. \cite{travis_ci} Aquest servei ofereix la execució de \emph{unit-test} i notificació dels resultats via \emph{e-mail}. D'aquesta manera quan es fa un desplegament al servidor es rep una notificació del resultat dels tests executats.\\
+	Per donar suport a la ja anomenada integració contínua s'ha u el servei en línia \textbf{Travis CI}. \cite{travis_ci} Aquest servei ofereix la execució de \emph{unit-test} i notificació dels resultats via \emph{e-mail}. D'aquesta manera quan es fa un desplegament al servidor es rep una notificació del resultat dels tests executats.\\
 	
 	\textbf{Nosetests} \cite{nose} és una utilitat de Python per executar \emph{unit test} de manera massiva. A un directori del nostre projecte tenim tots els tests que comproven que el nostre sistema funciona correctament. Amb aquesta utilitat només executant la comanda \texttt{nosetests api/tests/*.py} tendrem el resultat de l'execució de tots els \emph{unit test} dins el directori \texttt{api/tests}.\\
 	
-	La taula \ref{table:tecnologies} mostra una visió global de les tecnologies empleades al projecte.
+	La taula \ref{table:tecnologies} mostra totes les tecnologies utilitzades al projecte.
 
 \begin{table}[h!]
  	\begin{center}
@@ -149,6 +156,6 @@ Una cop definits els requisits que les tecnologies que es necessiten han de sati
 \multirow{2}{*}{Integració contínua} & nosetests \\ & Travis CI \\ \hline
 		\end{tabularx}
 	\end{center}
-	\label{table:tecnologies}
 	\caption{Relació de tecnologies usades al projecte} 
+	\label{table:tecnologies}
 \end{table}

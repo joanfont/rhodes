@@ -2,25 +2,30 @@
 
 \chapter{Estat de l'art}\label{entorn}
 
-En aquest capítol del document analitzarem en quines tecnologies i metodologies són les més usades a l'hora de desenvolupar una \ac{API} per ser operada via web. Es veurà en detall quines solucions, metodologies s'usen a l'actualitat per desenvolupar \ac{API}s.\\
+En aquest capítol del document s'analitzaran en quines tecnologies i metodologies són les més usades a l'hora de desenvolupar una \ac{API} per ser operada via web. Es veurà en detall quines solucions, metodologies s'usen a l'actualitat per desenvolupar \ac{API}s.\\
+
 En primer lloc veurem en que consisteix una \ac{API}, a continuació analitzarem la metodologia de treball d'arquitectura orientada a serveis, el protocol \ac{HTTP}, l'arquitectura \ac{REST} i la tècnica d'accés a base de dades \ac{ORM}. Per finalitzar es veurà en detall el format \ac{JSON}.
 
 \section{\ac{API}}\label{sec_api}
 
 Una \ac{API} és una interfície que especifica com diferents components de programes informàtics haurien d'interaccionar. Dit d'una altra manera, és un conjunt de declaracions que defineix el contracte d'un component informàtic amb qui farà ús dels seus serveis.\\
 
-Una \ac{API} sol venir acompanyada d'un manual d'ús, on s'especifiquen totes les funcions que es poden invocar, els arguments que requereix i quina sortida retorna la funció.
+Una \ac{API} sol venir acompanyada d'un manual d'ús, on s'especifiquen totes les funcions que es poden invocar, els arguments que requereix i quina sortida retorna la funció.\\
 
+Companyies com Facebook, Twitter, Google, GitHub exposen la seva \ac{API} pública operable via web per que qualsevol desenvolupador pugui aprofitar les funcionalitats que brinden aquests serveis. Es poden desenvolupar clients que emprin aquestes \ac{API}s o bé afegir a una aplicació ja existent noves funcionalitats a partir d'aquests serveis.\\
+
+En el nostre cas, es desenvolupa l'\ac{API} per que qualsevol persona pugui desenvolupar clients que es nodreixin de les dades que l'\ac{API} proporciona.
+ 
 \section{\ac{SOA}} \label{sec_soa}
 
 L'arquitectura \ac{SOA} és un patró de disseny de software dirigit a aplicacions distribuïdes. L'ús més comú d'aquest patró és per satisfer les necessitats d'un negoci, proporcionant flexibilitat a l'hora d'integrar els serveis dissenyats amb les aplicacions del negoci. Aquesta metodologia brinda una invocació i una especificació de serveis ben definida, el que facilita la interacció entre diferents sistemes, ja siguin propis o de tercers.\\
-\newline
+
 Entre els principis del patró arquitectònic \ac{SOA} hi podem trobar:
 
 \begin{itemize}
 	\item \textbf{Sense estat.} No manté ni depèn d'una condició existent. Els serveis \ac{SOA} són serveis autònoms.
 
-	\item \textbf{Orquestració.} Al ser serveis totalment autònoms, podem encadenar cridades a diferents serveis i proporcionar logica adicional pel processament de les dades.
+	\item \textbf{Orquestració.} Al ser serveis totalment autònoms, podem encadenar cridades a diferents serveis i proporcionar lògica addicional pel processament de les dades.
 	
 	\item \textbf{Contracte de serveis unificat.} Els serveis tenen un acord de comunicació comú entre ells, tots els serveis són invocats de la mateixa manera.
 	
@@ -34,8 +39,8 @@ Entre els principis del patró arquitectònic \ac{SOA} hi podem trobar:
 \section{\ac{HTTP}}\label{sec_http}
 
 \ac{HTTP} és el protocol usat en cada transacció web que segueix l'esquema de petició-resposta. Un client \ac{HTTP} efectua una petició a un servidor i aquest retorna una resposta a la petició realitzada.\\
-\newline
-Cal destacar que \ac{HTTP} és un protocol sense estat, és a dir, que cada petició no te cap dependència en peticions anteriors. Una petició \ac{HTTP} està composta per els següents elements:
+
+Cal destacar que \ac{HTTP} és un protocol sense estat, és a dir, que cada petició no té cap dependència en peticions anteriors. Una petició \ac{HTTP} està composta per els següents elements:
 \begin{itemize}
 	\item \textbf{Línia de petició:} especifica el recurs demanat al servidor i la versió \ac{HTTP} usada.
 	\item \textbf{Capçaleres de la petició:} meta-informació per a la petició. Credencials d'autenticació, el tamany de la petició, el \emph{host} al qual es fa la petició, entre d'altes.
@@ -102,33 +107,48 @@ Un element important d'una petició \ac{HTTP} és el verb (o mètode) que indica
 			POST & Juntament amb un conjunt de dades, una petició POST s'usa per crear un element del recurs especificat a la petició.\\ \hline
 			PUT & Juntament amb un conjunt de dades, una petició PUT s'usa per modificar tot el contingut d'un element del recurs.\\ \hline
 			DELETE & Aplicat sobre un recurs, indica al servidor l'acció d'eliminar-lo.\\ \hline
-			OPTIONS & Demana al servidor quins mètodes estan disponibles pel recurs sol·licitat.\\ \hline
+			OPTIONS & Demana al servidor quins mètodes estan disponibles per al recurs sol·licitat.\\ \hline
 		\end{tabularx}
 	\end{center}
-	\label{table:verbs_http}
 	\caption{Verbs \ac{HTTP}} 
+	\label{table:verbs_http}
 \end{table}
 \section{\ac{REST}}
 La metodologia \ac{REST} és en una patró arquitectònic de software que consisteix en un conjunt de guies i bones pràctiques per crear serveis web escalables. \ac{REST} va néixer com una alternativa a les anteriors metodologies de serveis web basats en les tecnologies \ac{SOAP} i \ac{WSDL}. Al llarg dels darrers anys s'ha anat imposant com a metodologia més usada per a construir serveis web.\\
 
 \ac{REST} treballa amb recursos. Un recurs és un conjunt de dades del nostre servidor, en la majoria de casos els recursos coincideixen amb les entitats de la base de dades.\\
 
-Freqüentment, la metodologia \ac{REST} opera baix el protocol \ac{HTTP} (vist a la secció \ref{sec_http}) i emplea els verbs \ac{HTTP} per indicar quina acció volem realitzar sobre un recurs.\\
+Freqüentment, la metodologia \ac{REST} opera baix el protocol \ac{HTTP} (vist a la secció \ref{sec_http}) i utilitza els verbs \ac{HTTP} per indicar quina acció volem realitzar sobre un recurs.\\
 
-A la taula \ref{table:rest_http} es pot veure, donat un recurs, l'acció que realitza una petició \ac{HTTP}.
+A continuació es pot veure, donat un conjunt de recurs,os l'acció que realitza una petició \ac{HTTP} amb els diferents verbs a una \ac{API} \ac{REST}.
 
-\begin{table}[h!]
- 	\begin{center}
- 		\begin{tabularx}{\textwidth}{|l|X|X|X|X|X|X|X|}
-  			\hline
- 			\bfseries Recurs & \bfseries GET & \bfseries POST & \bfseries PUT & \bfseries PATCH & \bfseries DELETE\\ \hline
-			/users/ & Llista tots els usuaris. & Afegeix un usuari nou al sistema. & Reemplaça tots els usuaris del sistema. & - & Elimina tots els usuaris del sistema. \\ \hline
-			/users/1/ & Mostra el detall d'aquest usuari. Sol dur més informació que el \texttt{GET} de tots els registres disponibles. & - & Reemplaça tot el contingut de l'usuari & Actualitza només els camps especificats a la petició de l'usuari. & Elimina l'usuari \\ \hline
-		\end{tabularx}
-	\end{center}
-	\label{table:rest_http}
-	\caption{Accions d'una \ac{API} \ac{REST} amb els corresponents verbs \ac{HTTP}} 
-\end{table}
+\begin{itemize}
+	\item \textbf{Recurs:} \texttt{/users/}
+	\item \textbf{Verb \ac{HTTP}:}
+		\begin{itemize}
+			\item \texttt{OPTIONS:} mostra els verbs \ac{HTTP} disponibles per aquest recurs.
+			\item \texttt{GET:} llista tots els usuaris. 
+			\item \texttt{POST:} crea un nou usuari.
+			\item \texttt{PUT:} reemplaça tots els usuaris.
+			\item \texttt{PATCH:} no realitza cap acció.
+			\item \texttt{DELETE:} elimina tots els usuaris.
+		\end{itemize}
+\end{itemize}
+	
+A continuació es pot veure, donat un recurs,os l'acció que realitza una petició \ac{HTTP} amb els diferents verbs a una \ac{API} \ac{REST}.
+
+\begin{itemize}
+	\item \textbf{Recurs:} \texttt{/users/1/}
+	\item \textbf{Verb \ac{HTTP}:}
+		\begin{itemize}
+			\item \texttt{OPTIONS:} mostra els verbs \ac{HTTP} disponibles per aquest recurs.
+			\item \texttt{GET:} mostra el detall de l'usuari amb l'identificador 1.
+			\item \texttt{POST:} no realitza cap acció
+			\item \texttt{PUT:} modifica tot l'usuari.
+			\item \texttt{PATCH:} modifica només els camps especificats a la petició de l'usuari.
+			\item \texttt{DELETE:} elimina l'usuari.
+		\end{itemize}
+\end{itemize}
 
 Les característiques d'un servei \ac{REST} són les següents:
 \begin{itemize}
@@ -143,8 +163,42 @@ Les característiques d'un servei \ac{REST} són les següents:
 	
 \end{itemize}
 
+\ac{REST} defineix un conjunt de bones pràctiques a l'hora de desenvolupar \ac{API}s. A continuació s'enumeren aquestes bones pràctiques.
+
+\begin{itemize}
+
+	\item Les insercions i actualitzacions han de retornar una representació de l'element creat o actualitzat.
+	\item La resposta ha de ser en format \ac{JSON} per defecte. Si escau, es pot especificar el format de sortida de les dades mitjançant un paràmetre al \emph{query string}.
+	\item Emprar \texttt{snake\_case} per a les representacions d'elements. \texttt{snake\_case} casa millor amb \ac{JSON} que \texttt{camelCase}.
+	\item No emprar embolcalls a la resposta per defecte, només quan sigui necessari.
+	\item Emprar codis \ac{HTTP} per notificar el resultat de la resposta. A la taula \ref{table:codis_http} es pot veure la correspondència entre el codi \ac{HTTP} i el seu significat.
+	\item Proporcionar una manera clara de notificació d'errors. Cada error hauria d'anar representat per un codi \ac{HTTP}, i una descripció.
+
+\end{itemize}
+\begin{table}[h!]
+ 	\begin{center}
+ 		\begin{tabularx}{\textwidth}{|l|X|}
+  			\hline
+ 			\bfseries Codi \ac{HTTP} & \bfseries Significat en \ac{REST} \\ \hline
+			\texttt{200 OK} & Resposta a una petició satisfactòria.\\ \hline 
+			\texttt{201 Created} & Resposta a una petició \texttt{POST} que conclou en la creació d'un element nou d'un recurs.\\ \hline
+			\texttt{204 No Content} & Resposta a una petició \texttt{DELETE} sobre un element d'un recurs si aquest ha estat eliminat. Aquesta resposta no sol dur res al cos.\\ \hline
+			\texttt{400 Bad Request} & Resposta a una petició mal formada. S'usa per notificar errors de validació en els paràmetres de la petició.\\ \hline
+			\texttt{401 Unauthorized} & Resposta a una petició quan no s'ha proporcionat autenticació. \\ \hline
+			\texttt{403 Forbidden} & Resposta a una petició quan l'usuari no té permisos per realitzar l'acció.\\ \hline
+			\texttt{404 Not Found} & Resposta a una petició quan l'element sol·licitat no es troba. \\ \hline
+			\texttt{405 Method Not Allowed} & Resposta quan el mètode amb el que s'ha fet la petició no està implementat sobre el recurs sol·licitat.\\ \hline
+			
+			\texttt{409 Conflict} & Resposta quan hi ha conflicte en els paràmetres de la petició.\\ \hline
+			\texttt{413 Request Entity Too Large} & Resposta quan el cos de la petició excedeix el limit establert. \\ \hline
+			\texttt{429 Too Many Requests} & Resposta quan es fa més d'una petició dins el període de temps permès per aquell recurs. \\ \hline
+		\end{tabularx}
+	\end{center}
+	\caption{Codis \ac{HTTP} i el seu significat en \ac{REST}} 
+	\label{table:codis_http}
+\end{table}
 \section{\ac{ORM}}
-\ac{ORM} és una tècnica de programació per convertir les dades des de objectes dels llenguatges de programació a la seva representació en bases de dades relacionals a través de la definició de correspondències entre els diferents sistemes. A la pràctica, es crea una base de dades orientada a objectes virtuals que opera sobre la base de dades relacional.\\
+\ac{ORM} és una tècnica de programació per convertir les dades des d'objectes dels llenguatges de programació a la seva representació en bases de dades relacionals a través de la definició de correspondències entre els diferents sistemes. A la pràctica, es crea una base de dades orientada a objectes virtuals que opera sobre la base de dades relacional.\\
 
 Aquesta tècnica permet l'ús de les característiques de la \ac{POO}, com l'herència o polimorfisme,  amb bases de dades.
 
@@ -154,7 +208,7 @@ Aquesta tècnica permet l'ús de les característiques de la \ac{POO}, com l'her
 
 El format de \ac{JSON} coincideix en moltes ocasions amb el format de les estructures de dades natives dels llenguatges. Python n'és el cas. La representació de llistes i diccionaris en Python és equivalent a la representació en format \ac{JSON}.\\
 
-\ac{JSON} pot representar els següents típus de dades:
+\ac{JSON} pot representar els següents tipus de dades:
 
 \begin{itemize}
 	\item Nombres enters i decimals

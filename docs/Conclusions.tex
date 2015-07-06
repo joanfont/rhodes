@@ -8,7 +8,7 @@ Seguidament es veuran futures millores al projecte com funcionalitats noves que 
 
 \section{Resultats}
 
-El propòsit del projecte d'aquest \ac{TFG} era dissenyar i implementar un sistema de missatgeria per a una comunitat universitària. Aquest servei està pensat per que després es puguin nodrir d'ell diversos clients (mòbils, web o d'escriptori).\\
+El propòsit del projecte d'aquest \ac{TFG} era dissenyar i implementar un sistema de missatgeria per a una comunitat universitària. Aquest servei està pensat per què després es puguin nodrir d'ell diversos clients (mòbils, web o d'escriptori).\\
 
 Per això, s'ha dissenyat i implementat una \ac{API} \ac{REST} per donar suport a la missatgeria. Aquesta \ac{API} contempla dos tipus d'usuaris: els professors i els alumnes. Permet enviar missatges a les assignatures i als grups que l'usuari pertany. També es possibilita l'enviament de missatges personals entre professors i alumnes. Als missatges enviats se li poden adjuntar fitxers.\\
 
@@ -20,17 +20,19 @@ En primer lloc es podria implementar el nou format de sortida de les dades de l'
 
 Es podria realitzar una millora en la gestió de  l'emmagatzemament multimèdia portant-lo a un altre servidor o delegar-ho a un servei   \emph{cloud}. Aquesta millora permetria alliberar espai al disc i la càrrega del servidor de producció. Com s'ha comentat a la seccio \ref{contingut_multimedia} només faria falta re-escriure una nova classe com la de \texttt{DiskStorage} que implementi els mateixos mètodes però per la nova destinació dels fitxers.\\
 
-S'ha comentat en nombroses ocasions que el sistema no està arrelat a les dades de la universitat. Es podrien crear fàcilment altres usuaris o inclús altres tipus d'usuari. La idea seria crear un usuari super-administrador que pogués enviar missatges a qualsevol assignatura, grup o usuari registrat al sistema. Aquest nou usuari podria actuar a mode de avisos per a tota la comunitat universitària o per uns estudis en general. També es podrien crear els rols de cap d'estudis, director, degà que tingués permisos per enviar missatges a un espectre d'usuaris més ampli.
+S'ha comentat en nombroses ocasions que el sistema no està arrelat a les dades de la universitat. Es podrien crear fàcilment altres usuaris o inclús altres tipus d'usuari. La idea seria crear un usuari super-administrador que pogués enviar missatges a qualsevol assignatura, grup o usuari registrat al sistema. Aquest nou usuari podria actuar a mode d'avisos per a tota la comunitat universitària o per uns estudis en general. També es podrien crear els rols de cap d'estudis, director, degà,... que tinguessin permisos per enviar missatges a un espectre d'usuaris més ampli.
+
+Docker \cite{docker} és un \emph{software} per facilitar desplegaments d'aplicacions dins el que anomenen \emph{containers}. Aquests \emph{containers} executen processos de manera aïllada i només contenen les llibreries i el software necessari per executar la nostra aplicació. Una millora al nostre sistema seria \emph{dockeritzar} l'aplicació per tal d'agilitzar el desplegament fent només necessari instal·lar la imatge del \emph{container} al nostre servidor 
 
 
 \section{Opinió personal}
 
-El desenvolupament del projecte m'ha suposat una experiència molt enriquidora. Tant des de el punt de vista tècnic com del punt de vista de organitzatiu.\\
+El desenvolupament del projecte m'ha suposat una experiència molt enriquidora. Tant des del punt de vista tècnic com del punt de vista de organitzatiu.\\
 
-Per la banda tècnica, ha estat la primera \ac{API} \ac{REST} que he desenvolupat per complet, des de zero i pràcticament fora cap \emph{framework}, com Django Rest Framework\cite{djangorestframework},  que doni suport al \ac{REST}. La decisió de fer-ho fora cap \emph{framework} ha estat per poder tenir més control sobre el que es fa en cada moment i de desenvolupar un sistema totalment desacoblat del \emph{framework} que atén i respon peticions web. He de reconèixer que aquesta decisió ha derivat en bastants problemes i que hi he dedicat més temps del que hagués pogut dedicar-li si hagues empleat una solució com Django Rest Framework. Però gràcies a aquests entrebancs he pogut aprendre nous conceptes que fins al moment m'eren desconeguts.\\
+Per la banda tècnica, ha estat la primera \ac{API} \ac{REST} que he desenvolupat per complet, des de zero i pràcticament sense cap \emph{framework}, com Django Rest Framework\cite{djangorestframework},  que doni suport al \ac{REST}. La decisió de fer-ho sense cap \emph{framework} ha estat per poder tenir més control sobre el que es fa en cada moment i de desenvolupar un sistema totalment desacoblat del \emph{framework} que atén i respon peticions web. He de reconèixer que aquesta decisió ha derivat en bastants problemes i que hi he dedicat més temps del que li hagués pogut dedicar si empleat una solució com Django Rest Framework. Però gràcies a aquests entrebancs he pogut aprendre nous conceptes que fins al moment m'eren desconeguts.\\
 
 Cal dir que abans de realitzar el projecte, ja havia fet algunes aplicacions web amb \emph{Flask} però no al mateix nivell que ho he fet en aquest projecte. He pogut conèixer en detall aquest petit \emph{framework} i he pogut comprovar lo senzill que és per dintre. \\
 
 
-Per la part organitzativa, he viscut en primera persona el que és desenvolupar software per a usuaris que no són jo mateix. Els dos alumnes encarregats dels dos clients mòbils han donat la seva opinió, proposat noves funcionalitats i comunicat possibles millores en el sistema. Part d'aquestes millores han estat acceptades, sobretot les que fan referència al format de sortida de les dades
+Per la part organitzativa, he viscut en primera persona el que és desenvolupar software per a usuaris que no són mi mateix. Els dos alumnes encarregats dels dos clients mòbils han donat la seva opinió, proposat noves funcionalitats i comunicat possibles millores en el sistema. Part d'aquestes millores han estat acceptades, sobretot les que fan referència al format de sortida de les dades
 

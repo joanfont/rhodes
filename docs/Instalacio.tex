@@ -1,10 +1,10 @@
 %!TeX root=MemoriaTFG.tex
-\chapter{Manual d'instalació del servidor}\label{instalacio}
+\chapter{Manual d'instal·lació del servidor}\label{instalacio}
 En aquest annex es detallaran les instruccions per instal·lar el servei de missatgeria a un servidor. En primer lloc s'enumeraran els requisits que el servidor ha de tenir. A continuació s'explicarà com instal·lar-lo i per finalitzar com configurar-lo.
 
 \section{Requisits}
 
-S'ha de disposar d'un ordinador amb qualsevol distribució UNIX (pel servidor de testeig s'ha empleat una Ubuntu 14.04 LTS). S'han de tenir privilegis de \texttt{sudo} al servidor i disposar de connexió a internet.\\
+S'ha de disposar d'un ordinador amb qualsevol distribució UNIX (pel servidor de testeig s'ha utilitzat una Ubuntu 14.04 LTS). S'han de tenir privilegis de \texttt{sudo} al servidor i disposar de connexió a internet.\\
 
 A continuació es relaten quin software i llibreries són necessaris pel correcte funcionament del servei:
 \begin{itemize}
@@ -23,7 +23,7 @@ $ cd ~
 $ git clone git@github.com:joanfont/rhodes.git
 \end{verbatim}
 
-Una vegada copiat el codi, crearem un entorn virtual per executar el servidor de missatgeria. Ho farem amb l'ajut de virtualenvwrapper. Una vegada creat l'entorn virtual instal·larem les llibreries de Python necessàries pel projecte. Per aixo ens hem de dirigir al directori on hem tenim el codi.
+Una vegada copiat el codi, crearem un entorn virtual per executar el servidor de missatgeria. Ho farem amb l'ajut de virtualenvwrapper. Una vegada creat l'entorn virtual instal·larem les llibreries de Python necessàries pel projecte. Per això ens hem de dirigir al directori on tenim el codi.
 
 \begin{verbatim}
 $ cd ~/rhodes
@@ -67,7 +67,7 @@ export SERVER_USER='root'
 	\label{fig:env_sample}
 \end{figure}
 
-El següent pas es assegurar-mos que quan s'activa l'entorn virtual, es carreguen aquestes variables d'entorn. Els entorns virtuals tenen dos \emph{hooks}: \emph{postactivate} i \emph{postdeactivate}. Es crearan dos enllaços simbòlics als fitxers \texttt{.env} i \texttt{env.sample}.
+El següent pas es assegurar-nos que quan s'activa l'entorn virtual, es carreguen aquestes variables d'entorn. Els entorns virtuals tenen dos \emph{hooks}: \emph{postactivate} i \emph{postdeactivate}. Es crearan dos enllaços simbòlics als fitxers \texttt{.env} i \texttt{env.sample}.
 
 \begin{verbatim}
 $ cd ~/rhodes
@@ -86,7 +86,7 @@ $ echo $DB_DRIVER
 >>
 \end{verbatim}
 
-Una vegada configurat l'entorn virtual és el moment de configurar el servidor d'aplicacions gunicorn juntament amb l'eina supervisor. S'ha de crear un script de bash per arrencar el servidor gunicorn. A la figura \ref{fig:gunicorn} es pot trobar una plantilla de l'script de bash per gunicorn.
+Una vegada configurat l'entorn virtual és el moment de configurar el servidor d'aplicacions gunicorn juntament amb l'eina supervisor. S'ha de crear un script de bash per arrencar el servidor gunicorn. A la figura \ref{fig:gunicorn} es pot trobar una plantilla de l'script de bash per gunicorn.\\
 
 \begin{figure}[h!]
 	\begin{lstlisting}[language=bash]
@@ -121,9 +121,9 @@ exec gunicorn rhodes:app -w $NUM_WORKERS -b $HOST:$PORT\
 	\caption{Plantilla pel gunicorn}
 	\label{fig:gunicorn}
 \end{figure}
-Aquest script el colocarem a l'arrel del nostre projecte: \texttt{~/joan/rhodes/gunicorn.sh} i li se li ha de donar permis d'execució.\\
+Aquest script el col·locarem a l'arrel del nostre projecte: \texttt{~/joan/rhodes/gunicorn.sh} i li se li ha de donar permís d'execució.\\
 
-Una cop configurat l'script de gunicorn, es el moment de configurar el supervisor pel nostre projecte. A la figura \ref{fig:supervisor} tenim la plantilla del fitxer de configuració de supervisor.
+Una cop configurat l'script de gunicorn, és el moment de configurar el supervisor pel nostre projecte. A la figura \ref{fig:supervisor} tenim la plantilla del fitxer de configuració de supervisor.
 \begin{figure}[h!]
 	\begin{verbatim}
 [program:rhodes]
@@ -147,7 +147,7 @@ A continuació hem d'executar les següents comandes per actualitzar el registre
 rhodes	RUNNING	pid 19025, uptime 0:00:08
 \end{verbatim}
 
-D'aquesta manera, cada cop que es reinicii el servidor, supervisor aixecarà el nostre servei mitjançant l'script bash. El comportament de supervisor és semblant als serveis de UNIX.
+D'aquesta manera, cada cop que es reiniciï el servidor, supervisor aixecarà el nostre servei mitjançant l'script bash. El comportament de supervisor és semblant als serveis de UNIX.
 
 \begin{verbatim}
 # supervisorctl restart rhodes
@@ -155,7 +155,7 @@ D'aquesta manera, cada cop que es reinicii el servidor, supervisor aixecarà el 
 # supervisorctl start rhodes
 \end{verbatim}
 
-La darrera passa és configurar nginx perquè actuí com a \emph{proxy} invers i envii totes les peticions que li arribin cap a gunicorn. S'ha de crear un fitxer a \texttt{/etc/nginx/sites-available} amb el contingut de la figura \ref{fig:nginx}
+La darrera passa és configurar nginx perquè actuï com a \emph{proxy} invers i enviï totes les peticions que li arribin cap a gunicorn. S'ha de crear un fitxer a \texttt{/etc/nginx/sites-available} amb el contingut de la figura \ref{fig:nginx}
 
 \begin{figure}[h!]
 	\begin{verbatim}
@@ -182,7 +182,7 @@ server {
 	\label{fig:nginx}
 \end{figure}
 \section{Configuració}
-El primer que s'ha de fer es definir les variables de configuració que no depenen de l'entorn al nostre gust. A la figura \ref{fig:variables_no_entorn} tenim una plantilla del fitxer \texttt{config/config.py} que hem d'emplenar.
+El primer que s'ha de fer és definir les variables de configuració que no depenen de l'entorn al nostre gust. A la figura \ref{fig:variables_no_entorn} tenim una plantilla del fitxer \texttt{config/config.py} que hem d'emplenar.\\
 
 \begin{figure}[h!]
 	\begin{python}
@@ -212,7 +212,7 @@ MESSAGE_INTERVAL = 15
 	\label{fig:variables_no_entorn}
 \end{figure}
 
-Una vegada configurades aquestes variables, el darrer pas es configurar l'estructura de la base de dades.\\
+Una vegada configurades aquestes variables, el darrer pas és configurar l'estructura de la base de dades.\\
 
 Mitjançant \emph{alembic} es pot fer amb una migració.
 \begin{verbatim}
