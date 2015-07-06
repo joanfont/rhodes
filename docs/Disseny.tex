@@ -1327,6 +1327,7 @@ Per defecte aquestes respostes aniran paginades. L'embolcall de les respostes pa
 
 \begin{itemize}
 	\item \textbf{count:} nombre total de registres.
+	\item \textbf{items\_per\_page:} nombre d'ítems per pàgina.
 	\item \textbf{items:} nombre d'ítems en aquesta petició.
 	\item \textbf{page:} nombre de pàgina actual.
 	\item \textbf{items:} objectes de la resposta.
@@ -1375,7 +1376,7 @@ Per especificar la pàgina a la qual volem accedir ho farem mitjançant el parà
 
 \subsubsection{Obtenció dels grups de cada assignatura}
 
-	Aquesta petició rebrà com a paràmetre al \emph{query string} l'identificador únic de l'assignatura. Al camp \texttt{items} de l'embolcall paginat hi haurà registres amb el següent format:
+	Aquesta petició rebrà com a paràmetre al \emph{query string} l'identificador únic de l'assignatura am el nom \texttt{subject}. Al camp \texttt{items} de l'embolcall paginat hi haurà registres amb el següent format:
 	
 	\begin{itemize}
 		\item \textbf{id:} identificador únic del grup.
