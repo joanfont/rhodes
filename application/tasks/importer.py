@@ -158,6 +158,11 @@ class ImportData(Command):
 
             self.db_session()
 
+    def run(self):
+        self.get_user_types()
+        self.get_users()
+        self.get_subjects()
+
 
 
 
