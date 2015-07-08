@@ -20,7 +20,7 @@ En primer lloc s'exposa una visió global de les parts de l'aplicació. A contin
 Una descripció a alt nivell de l'estructura de l'aplicació seria la següent: quan es fa una petició a l'\ac{API}, aquesta crida a un determinat servei que de manera abstracta realitza operacions sobre les dades (lectura o escriptura) residents a la base de dades. Una vegada fetes les operacions sobre la base de dades, el resultat d'aquesta es serialitza i l'\ac{API} s'encarrega de mostrar les dades a l'usuari final. Es pot veure aquesta estructura a la figura \ref{fig:estructura}.
 
 \begin{figure}[h!]
-    \includegraphics[scale=0.7]{img/estructura.png}
+    \includegraphics[scale=0.6]{img/estructura.png}
     \centering
     \caption{Visió global de com es connecten els tres principals mòduls de l'aplicació}
     \label{fig:estructura}
@@ -1319,8 +1319,6 @@ Aquesta \ac{API} ha de tenir les següents accions:
 		
 	\end{itemize}
 	
-Aquesta \ac{API} no necessàriament ha de tenir aquesta especificació. Cada universitat és lliure a fer la seva pròpia sempre i quant s'adaptin aquests processos d'importació per fer-los compatibles amb el nostre sistema.
-	
 Totes les peticions haurien de retornar les dades en format \ac{JSON}. A continuació s'especifica quin format haurien de tenir les respostes a cada petició.\\
 
 Per defecte aquestes respostes aniran paginades. L'embolcall de les respostes paginades serà el següent:
@@ -1333,7 +1331,16 @@ Per defecte aquestes respostes aniran paginades. L'embolcall de les respostes pa
 	\item \textbf{items:} objectes de la resposta.
 \end{itemize}
 
-Per especificar la pàgina a la qual volem accedir ho farem mitjançant el paràmetre al \emph{query string} \texttt{page}.
+Per especificar la pàgina a la qual volem accedir ho farem mitjançant el paràmetre al \emph{query string} \texttt{page}.\\
+
+Aquesta \ac{API} no necessàriament ha de tenir aquesta especificació. Cada universitat és lliure a fer la seva pròpia sempre i quant s'adaptin aquests processos d'importació per fer-los compatibles amb el nostre sistema. Si es vol canviar el procés d'importació s'ha de modificar el fitxer \texttt{application/tasks/importer.py}.\\
+
+Per llançar la importació s'ha de invocar dins l'entorn virtual la següent comanda:
+
+\begin{verbatim}
+$ python rhodes.py import_data
+\end{verbatim}
+	
 
 \subsection{Obtenció dels usuaris del sistema:} \label{retrieve_users}
 
