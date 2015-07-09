@@ -359,7 +359,7 @@ class GetLastMessage(BasePersistanceService):
 
         last_message_query = self.session.query(message_cls).\
             filter(filter_field == filter_value).\
-            order_by(message_cls.created_at.desc()).\
+            order_by(message_cls.id.desc()).\
             limit(1)
 
         if last_message_query.count():
