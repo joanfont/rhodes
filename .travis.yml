@@ -2,7 +2,5 @@ language: python
 python:
   - "2.7"
 install: "pip install -r requirements.txt"
-env:
-  - TEST_URL=http://rhodes.joan-font.com TOKEN_1='OLlmxXLkS2vdi1zEWy44W1vFj02gCFbv76JSI3Q6cS8=' TOKEN_2='KchqozGR6JsZkB0VO1tojMAWMhIsQcDr3/TVwl/vLO4='
 script:
  - nosetests api/tests/*.py
