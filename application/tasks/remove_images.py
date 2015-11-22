@@ -12,7 +12,7 @@ class RemoveImages(Command):
         medias = session.query(Media).all()
 
         for media in medias:
-            print 'Removing image {image}'.format(image=media.get_path())
+            print('Removing image {image}'.format(image=media.get_path()))
             if os.path.exists(media.get_directory()):
                 shutil.rmtree(media.get_directory())
                 session.delete(media)

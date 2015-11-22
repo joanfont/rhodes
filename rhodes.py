@@ -12,9 +12,7 @@ manager.add_command('import_data', ImportData())
 
 
 @manager.command
-@manager.option('-h', '--host', name='Host')
-@manager.option('-p', '--port', name='Port')
-def runserver(host='127.0.0.1', port=8080):
+def runserver(host='0.0.0.0', port=8080):
     app.run(host=host, port=port, debug=True)
 
 

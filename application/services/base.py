@@ -28,11 +28,11 @@ class BaseService(object):
     def clean_args(self, args):
         cleaned_args = {}
         validation_errors = []
-        for (k, v) in self.input_contract.iteritems():
+        for k, v in self.input_contract.items():
             value = args.get(k)
             try:
                 cleaned_args[k] = v.validate(value)
-            except MyValueError, e:
+            except MyValueError as e:
                 validation_error = {
                     'field': k,
                     'errors': e.get_errors()}

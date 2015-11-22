@@ -1,0 +1,48 @@
+pythonbase: &pythonbase
+  image: joanfont/rhodes
+  links:
+    - db
+  volumes:
+    - ".:/code"
+
+gunicorn:
+  <<: *pythonbase
+  ports:
+    - "8080:8080"
+  command: ["rhodes:app", "-b", "0.0.0.0:8080", "--log-file=-", "--log-level=debug", "--reload"]
+
+db:
+  image: mariadb:10.0
+  environment:
+    - "MYSQL_ROOT_PASSWORD=root"
+    - "MYSQL_USER=rhodes"
+    - "MYSQL_PASSWORD=rhodes"
+    - "MYSQL_DATABASE=rhodes"
+  expose:
+    - 3306
+  ports:
+    - "3306:3306"
+  volumes:
+    - "/opt/tofol/mysql:/var/lib/mysql/data"
+
+manage: &manage
+  <<: *pythonbase
+  entrypoint: ["python", "rhodes.py"]
+
+devel:
+  <<: *manage
+  ports:
+    - "8080:8080"
+  command: "runserver"
+
+alembic: &alembic
+  <<: *pythonbase
+  volumes:
+    - "./application/lib/:/code"
+    - ".:/app/"
+  entrypoint: ["alembic"]
+
+revision:
+  <<: *alembic
+  command: ["revision", "--autogenerate"]
+

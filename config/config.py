@@ -1,12 +1,23 @@
 import os
+import dotenv
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PROJECT_DIR = os.path.dirname(os.path.realpath(__file__))
+
+env_file = os.path.realpath(os.path.join(BASE_DIR, '.env'))
+dotenv.read_dotenv(env_file)
+
 from common.environment import Environment
 
-DB_DSN = '{driver}://{user}:{passw}@{host}/{name}?charset=utf8&use_unicode=0'.format(
-    driver=Environment.get('DB_DRIVER'),
-    user=Environment.get('DB_USER'),
-    passw=Environment.get('DB_PASS'),
-    host=Environment.get('DB_HOST'),
-    name=Environment.get('DB_NAME'))
+DB_DSN = '{driver}://{user}:{passw}@{host}:{port}/{name}?charset=utf8&use_unicode=0'.format(
+    driver=Environment.get('DATABASE_DRIVER'),
+    user=Environment.get('DATABASE_USER'),
+    passw=Environment.get('DATABASE_PASS'),
+    host=Environment.get('DATABASE_HOST'),
+    port=Environment.get('DATABASE_PORT'),
+    name=Environment.get('DATABASE_NAME'))
+
+print(DB_DSN)
 
 DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 

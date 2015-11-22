@@ -2,14 +2,18 @@ from __future__ import with_statement
 
 import sys
 import os
+import dotenv
 
 from alembic import context
 from sqlalchemy import engine_from_config, pool
+from sqlalchemy.ext.declarative import declarative_base
 from logging.config import fileConfig
 
-sys.path.append(os.path.abspath('../../'))
+sys.path.append('/app/')
+
 from application.lib.models import Base
 from config.config import DB_DSN
+
 
 config = context.config
 fileConfig(config.config_file_name)

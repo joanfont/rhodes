@@ -40,7 +40,7 @@ def setup_routing(application):
 
         application.add_url_rule(p, view_func=view_func, methods=view_methods)
 
-    for (pattern, options) in routing.iteritems():
+    for pattern, options in routing.items():
 
         if isinstance(options, list):
             for option in options:
@@ -53,7 +53,7 @@ def setup_routing(application):
 
 def setup_error_handlers(application):
 
-    for (exceptions, handler) in handlers.iteritems():
+    for exceptions, handler in handlers.items():
         if isinstance(exceptions, tuple):
             for exception in exceptions:
                 application.register_error_handler(exception, handler)

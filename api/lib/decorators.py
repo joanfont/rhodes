@@ -43,16 +43,16 @@ def copy_params(fnx):
         url = {}
         files = {}
 
-        for (k, v) in get_params.iteritems():
+        for k, v in get_params.items():
             get[k] = v
 
-        for (k, v) in post_params.iteritems():
+        for k, v in post_params.items():
             post[k] = v
 
-        for (k, v) in url_params.iteritems():
+        for k, v in url_params.items():
             url[k] = v
 
-        for(k, v) in files_params.iteritems():
+        for k, v in files_params.items():
             files[k] = v
 
         kwargs['get'] = get
@@ -82,7 +82,7 @@ def validate(fnx):
         params = self.params()
         validation_errors = []
 
-        for (name, v) in params.iteritems():
+        for name, v in params.items():
 
             source, validator = v
 
@@ -91,7 +91,7 @@ def validate(fnx):
 
             try:
                 dictionary[name] = validator.validate(value)
-            except MyValueError, e:
+            except MyValueError as e:
                 validation_error = {
                     'field': name,
                     'errors': e.get_errors()}

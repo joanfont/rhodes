@@ -59,7 +59,7 @@ class IntegerValidator(BaseValidator):
     def check_value(self, value):
         try:
             int(value)
-        except ValueError:
+        except ValueError as e:
             self.add_error('The value is not an integer')
 
     def clean_value(self, value):
@@ -159,7 +159,7 @@ class WerkzeugFileValidator(BaseValidator):
 
         try:
             from werkzeug.datastructures import FileStorage
-        except ImportError:
+        except ImportError as e:
             raise ImportError('Werkzeug FileStorage not found')
 
         if not Helper.instance_of(value, FileStorage):
@@ -192,7 +192,7 @@ class BytesIOValidator(BaseValidator):
 
         try:
             from io import BytesIO
-        except ImportError:
+        except ImportError as e:
             raise ImportError('BytesIO not found')
 
         if not Helper.instance_of(value, BytesIO):

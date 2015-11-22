@@ -25,7 +25,7 @@ class GenerateUserTokens(Command):
         users = session.query(User).all()
 
         for user in users:
-            print 'Generating token for user {user}'.format(user=user.user)
+            print('Generating token for user {user}'.format(user=user.user))
             self.generate_user_token(user)
 
         session.commit()

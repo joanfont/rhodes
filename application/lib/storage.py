@@ -15,7 +15,7 @@ class DiskStorage(object):
         try:
             with open(path, 'rb') as f:
                 byte_data = BytesIO(f.read())
-        except IOError:
+        except IOError as e:
             pass
 
         return byte_data
