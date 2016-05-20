@@ -1,4 +1,4 @@
-FROM python:3.4
+FROM python:3.4.4
 WORKDIR /code/
 
 RUN apt-get update && \
