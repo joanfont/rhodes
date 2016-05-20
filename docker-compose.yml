@@ -12,16 +12,15 @@ gunicorn:
   command: ["rhodes:app", "-b", "0.0.0.0:8080", "--log-file=-", "--log-level=debug", "--reload"]
 
 db:
-  image: mariadb:10.0
+  image: postgres:9.5.3
   environment:
-    - "MYSQL_ROOT_PASSWORD=root"
-    - "MYSQL_USER=rhodes"
-    - "MYSQL_PASSWORD=rhodes"
-    - "MYSQL_DATABASE=rhodes"
+    - "POSTGRES_USER=rhodes"
+    - "POSTGRES_PASSWORD=rhodes"
+    - "POSTGRES_DB=rhodes"
   expose:
-    - 3306
+    - 5432
   volumes:
-    - "/opt/rhodes/mysql:/var/lib/mysql/data"
+    - "/opt/rhodes/postgresql:/var/lib/postgresql/data"
 
 manage: &manage
   <<: *python

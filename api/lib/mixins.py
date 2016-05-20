@@ -4,7 +4,7 @@ from api.lib.decorators import copy_params
 from application.services.media import GetMediaBytes
 from common import status
 from common.helper import Helper
-import json
+import simplejson as json
 
 
 class JSONResponse(Response):
@@ -13,13 +13,17 @@ class JSONResponse(Response):
     content_type = 'application/json'
 
     def __init__(self, response=None, status_code=None):
-        response = json.dumps(response)
+        response = json.dumps(response, iterable_as_array=True)
         super(JSONResponse, self).__init__(response, status_code, mimetype=self.mimetype,
                                            content_type=self.content_type)
 
 
 class ModelResponse(JSONResponse):
     def __init__(self, data, **options):
+        is_map = Helper.instance_of(data, map)
+        if is_map:
+            data = list(data)
+
         many = Helper.instance_of(data, list)
 
         if many:
@@ -92,9 +96,14 @@ class APIView(BaseResponseMixin, MethodView):
 
     @staticmethod
     def post_data():
-        return dict(
+        post_data = dict(
             (key, request.form.getlist(key) if len(request.form.getlist(key)) > 1 else request.form.getlist(key)[0]) for
             key in request.form.keys())
+
+        if request.headers.get('Content-Type') == 'application/json':
+            post_data.update(request.json)
+
+        return post_data
 
     @staticmethod
     def files_data():

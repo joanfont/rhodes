@@ -24,7 +24,7 @@ class Helper(object):
     @staticmethod
     def md5(text):
         m = hashlib.md5()
-        m.update(text)
+        m.update(text.encode())
         return m.hexdigest()
 
     @staticmethod

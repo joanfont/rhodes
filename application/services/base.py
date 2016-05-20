@@ -1,6 +1,8 @@
 from application.lib.validators import BaseValidator
 from application.exceptions import ValidationError, MyValueError
 from api import db
+from common.helper import Helper
+
 
 class BaseService(object):
     def __init__(self):
@@ -61,6 +63,10 @@ class BaseService(object):
     def call(self, args):
         cleaned_args, output_fnx = self.pre_execute(args)
         result = self.execute(cleaned_args)
+
+        if Helper.instance_of(result, map):
+            result = list(result)
+
         output_valid = output_fnx(result)
 
         self.post_execute(output_valid)

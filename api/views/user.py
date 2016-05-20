@@ -1,5 +1,3 @@
-from io import BytesIO
-import sys
 from api.exceptions.user import UserAvatarNotFoundError
 from api.lib.decorators import login_required, user_belongs_to_subject, subject_exists, is_teacher, auth_token_required, \
     validate, group_exists, user_belongs_to_group, peer_exists, user_is_related_to_peer, peer_is_teacher, \
@@ -12,7 +10,6 @@ from application.services.user import GetSubjectTeachers, GetSubjectStudents, \
     GetGroupStudents, GetUserTeacherPeers, GetTeacherStudentPeers, GetUserConversators, GetUserByUserAndPassword
 from common import status
 from common.auth import encode_password
-from common.helper import Helper
 
 from config import config
 
@@ -43,7 +40,8 @@ class LoginView(CreateAPIViewMixin):
 
         return {
             'user': user.to_dict(),
-            'token': user.auth_token}
+            'token': user.auth_token
+        }
 
 
 class ListSubjectTeachersView(ListAPIViewMixin, ModelResponseMixin):

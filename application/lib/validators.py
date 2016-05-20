@@ -3,8 +3,8 @@ from application.exceptions import MyValueError
 from common.helper import Helper
 from config import config
 
-class BaseValidator(object):
 
+class BaseValidator(object):
     evil_values = [0]
 
     def __init__(self, options):
@@ -77,7 +77,7 @@ class StringValidator(BaseValidator):
         min_length = self.options.get('min_length')
         max_length = self.options.get('max_length')
 
-        if not Helper.instance_of(value, (basestring, unicode, str)):
+        if not Helper.instance_of(value, str):
             self.add_error('The value is not an string')
 
         if min_length and len(value) < min_length:
@@ -87,7 +87,7 @@ class StringValidator(BaseValidator):
             self.add_error('The value\'s length is greater than {max_length}'.format(max_length=max_length))
 
     def clean_value(self, value):
-        return unicode(value)
+        return str(value)
 
 
 class ChoicesValidator(BaseValidator):
@@ -144,7 +144,6 @@ class DateValidator(BaseValidator):
 
 
 class BooleanValidator(BaseValidator):
-
     def check_value(self, value):
         if not Helper.instance_of(value, bool):
             self.add_error('Value is not boolean')
@@ -154,7 +153,6 @@ class BooleanValidator(BaseValidator):
 
 
 class WerkzeugFileValidator(BaseValidator):
-
     def check_value(self, value):
 
         try:
@@ -170,7 +168,6 @@ class WerkzeugFileValidator(BaseValidator):
 
 
 class MultipleWerkzeugFileValidator(BaseValidator):
-
     def check_value(self, value):
 
         try:
@@ -185,9 +182,7 @@ class MultipleWerkzeugFileValidator(BaseValidator):
         return value
 
 
-
 class BytesIOValidator(BaseValidator):
-
     def check_value(self, value):
 
         try:
@@ -203,7 +198,6 @@ class BytesIOValidator(BaseValidator):
 
 
 class ClassValidator(BaseValidator):
-
     def defaults(self):
         _defaults = super(ClassValidator, self).defaults()
         _defaults.update({
@@ -212,7 +206,6 @@ class ClassValidator(BaseValidator):
         return _defaults
 
     def check_value(self, value):
-
         cls = self.options.get('class', object)
 
         if not Helper.instance_of(value, cls):

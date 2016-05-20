@@ -2,7 +2,7 @@ FROM python:3.4.4
 WORKDIR /code/
 
 RUN apt-get update && \
-    apt-get install -y mysql-client && \
+    apt-get install -y postgresql-client && \
     apt-get clean && \
     rm -rf /tmp/* && \
     rm -rf /var/tmp/* && \

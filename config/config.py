@@ -9,15 +9,13 @@ dotenv.read_dotenv(env_file)
 
 from common.environment import Environment
 
-DB_DSN = '{driver}://{user}:{passw}@{host}:{port}/{name}?charset=utf8&use_unicode=0'.format(
+DB_DSN = '{driver}://{user}:{passw}@{host}:{port}/{name}?client_encoding=utf8'.format(
     driver=Environment.get('DATABASE_DRIVER'),
     user=Environment.get('DATABASE_USER'),
     passw=Environment.get('DATABASE_PASS'),
     host=Environment.get('DATABASE_HOST'),
     port=Environment.get('DATABASE_PORT'),
     name=Environment.get('DATABASE_NAME'))
-
-print(DB_DSN)
 
 DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 
