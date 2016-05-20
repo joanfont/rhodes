@@ -1,4 +1,4 @@
-pythonbase: &pythonbase
+python: &python
   image: joanfont/rhodes
   links:
     - db
@@ -6,7 +6,7 @@ pythonbase: &pythonbase
     - ".:/code"
 
 gunicorn:
-  <<: *pythonbase
+  <<: *python
   ports:
     - "8080:8080"
   command: ["rhodes:app", "-b", "0.0.0.0:8080", "--log-file=-", "--log-level=debug", "--reload"]
@@ -20,13 +20,11 @@ db:
     - "MYSQL_DATABASE=rhodes"
   expose:
     - 3306
-  ports:
-    - "3306:3306"
   volumes:
-    - "/opt/tofol/mysql:/var/lib/mysql/data"
+    - "/opt/rhodes/mysql:/var/lib/mysql/data"
 
 manage: &manage
-  <<: *pythonbase
+  <<: *python
   entrypoint: ["python", "rhodes.py"]
 
 devel:
@@ -36,7 +34,7 @@ devel:
   command: "runserver"
 
 alembic: &alembic
-  <<: *pythonbase
+  <<: *python
   volumes:
     - "./application/lib/:/code"
     - ".:/app/"
