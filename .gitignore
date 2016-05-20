@@ -9,6 +9,7 @@ application/lib/migrations/versions/*.py
 
 # Logs
 log/*
+!log/.gitkeep
 
 # Config files (environment specific)
 config/supervisor.conf
