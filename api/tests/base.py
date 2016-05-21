@@ -4,7 +4,7 @@ sys.path.insert(0, os.path.realpath('../../'))
 
 import requests
 import json
-import urllib
+from urllib.parse import urlencode
 
 from api.tests import config as tests_config
 
@@ -42,11 +42,13 @@ class TestUtil(object):
         try:
             json.loads(text)
             return True
-        except Exception, e:
+        except Exception as e:
             return False
 
     @staticmethod
-    def build_url(endpoint, params={}):
+    def build_url(endpoint, params=None):
+        if params is None:
+            params = {}
         base_url = '{host}{endpoint}'.format(host=tests_config.SERVER_URL, endpoint=endpoint)
         if params:
             query_string = TestUtil.build_querystring(params)
@@ -56,7 +58,7 @@ class TestUtil(object):
 
     @staticmethod
     def build_querystring(params):
-        return urllib.urlencode(params)
+        return urlencode(params)
 
 
 

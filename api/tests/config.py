@@ -1,13 +1,16 @@
 from common.environment import Environment
 
-SERVER_URL = Environment.get('TEST_URL')
+SERVER_HOST = Environment.get('GUNICORN_PORT_8080_TCP_ADDR')
+SERVER_PORT = Environment.get('GUNICORN_PORT_8080_TCP_PORT')
+
+SERVER_URL = 'http://{host}:{port}'.format(host=SERVER_HOST, port=SERVER_PORT)
 
 USERS = {
     'student': {
         'id': 1,
         'user': 'JFR164',
         'password': 'jfr164',
-        'token': Environment.get('TOKEN_1'),
+        'token': 'OLlmxXLkS2vdi1zEWy44W1vFj02gCFbv76JSI3Q6cS8=',
         'subjects': {
             'enrolled': 1,
             'not_enrolled': 7
@@ -27,7 +30,7 @@ USERS = {
         'id': 5,
         'user': 'RGG111',
         'password': 'rgg111',
-        'token': Environment.get('TOKEN_2'),
+        'token': 'KchqozGR6JsZkB0VO1tojMAWMhIsQcDr3/TVwl/vLO4=',
         'subjects': {
             'enrolled': 2,
             'not_enrolled': 1

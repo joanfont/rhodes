@@ -39,7 +39,9 @@ alembic: &alembic
     - ".:/app/"
   entrypoint: ["alembic"]
 
-revision:
-  <<: *alembic
-  command: ["revision", "--autogenerate"]
+tests:
+  <<: *python
+  links:
+    - gunicorn
+  entrypoint: ["nosetests", "api/tests"]
 

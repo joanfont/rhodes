@@ -700,7 +700,7 @@ def check_message_interval(fnx):
             'to': to
         })
 
-        messages_with_same_body = filter(_filter_with_same_body, messages)
+        messages_with_same_body = list(filter(_filter_with_same_body, messages))
 
         if len(messages_with_same_body) > 0:
             raise DuplicateMessageWithinIntervalError()

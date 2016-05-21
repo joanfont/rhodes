@@ -20,7 +20,7 @@ class JSONResponse(Response):
 
 class ModelResponse(JSONResponse):
     def __init__(self, data, **options):
-        is_map = Helper.instance_of(data, map)
+        is_map = Helper.instance_of(data, (map, filter))
         if is_map:
             data = list(data)
 
