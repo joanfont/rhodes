@@ -1,4 +1,6 @@
 import os
+from pprint import pprint
+
 import dotenv
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

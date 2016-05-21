@@ -8,9 +8,7 @@ from urllib.parse import urlencode
 
 from api.tests import config as tests_config
 
-
 class TestUtil(object):
-
     endpoint = None
 
     def __init__(self):
@@ -59,6 +57,3 @@ class TestUtil(object):
     @staticmethod
     def build_querystring(params):
         return urlencode(params)
-
-
-

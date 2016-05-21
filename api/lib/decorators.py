@@ -1,4 +1,6 @@
 from flask import request
+
+from api import client
 from api.exceptions.auth import NotAuthenticatedError, NotEnoughPermissionError
 from api.exceptions.group import GroupNotFoundError, GroupDoesNotBelongToSubjectError
 from api.exceptions.media import MediaNotFoundError, UserCanNotSeeMediaError, LimitOfMessageFilesReachedError, \
@@ -27,8 +29,8 @@ from config import config
 from datetime import datetime
 from datetime import timedelta
 
-def copy_params(fnx):
 
+def copy_params(fnx):
     def wrapped_fnx(*args, **kwargs):
 
         self = args[0]
@@ -108,7 +110,6 @@ def validate(fnx):
 
 def login_required(fnx):
     def wrapped_fnx(*args, **kwargs):
-
         user = kwargs.get('post').get('user')
         password = kwargs.get('post').get('password')
 
@@ -141,7 +142,7 @@ def auth_token_required(fnx):
         })
 
         if not user:
-            raise NotAuthenticatedError()
+            raise NotAuthenticatedError('No user found with token %s' % token)
 
         kwargs['user'] = user
 
@@ -164,7 +165,6 @@ def is_teacher(fnx):
 
 
 def is_student(fnx):
-
     # we will assume an instance of User is in kwargs['user']
 
     def wrapped_fnx(*args, **kwargs):
@@ -179,7 +179,6 @@ def is_student(fnx):
 
 
 def subject_exists(fnx):
-
     # we will assume a subject_id is in kwargs['subject_id']
     def wrapped_fnx(*args, **kwargs):
 
@@ -201,7 +200,6 @@ def subject_exists(fnx):
 
 
 def user_belongs_to_subject(fnx):
-
     # we will assume an user instance is in kwargs['user']
     # if not we can't check if a user belongs to subject
     # So this decorator must be called after @login_required
@@ -228,7 +226,6 @@ def user_belongs_to_subject(fnx):
 
 
 def group_exists(fnx):
-
     def wrapped_fnx(*args, **kwargs):
 
         group_id = kwargs.get('group_id')
@@ -247,9 +244,7 @@ def group_exists(fnx):
 
 
 def user_belongs_to_group(fnx):
-
     def wrapped_fnx(*args, **kwargs):
-
         dispatcher = {
             UserType.TEACHER: TeacherDoesNotTeachGroupError,
             UserType.STUDENT: StudentIsNotEnrolledToGroupError,
@@ -271,9 +266,7 @@ def user_belongs_to_group(fnx):
 
 
 def group_belongs_to_subject(fnx):
-
     def wrapped_fnx(*args, **kwargs):
-
         subject = kwargs.get('subject')
         group = kwargs.get('group')
 
@@ -289,7 +282,6 @@ def group_belongs_to_subject(fnx):
 
 
 def message_exists(fnx):
-
     def wrapped_fnx(*args, **kwargs):
 
         message_id = kwargs.get('url').get('message_id')
@@ -306,7 +298,6 @@ def message_exists(fnx):
 
 
 def message_belongs_to_subject(fnx):
-
     def wrapped_fnx(*args, **kwargs):
 
         subject = kwargs.get('subject')
@@ -324,7 +315,6 @@ def message_belongs_to_subject(fnx):
 
 
 def message_belongs_to_group(fnx):
-
     def wrapped_fnx(*args, **kwargs):
 
         group = kwargs.get('group')
@@ -342,7 +332,6 @@ def message_belongs_to_group(fnx):
 
 
 def message_belongs_to_peers(fnx):
-
     def wrapped_fnx(*args, **kwargs):
 
         user = kwargs.get('user')
@@ -369,7 +358,6 @@ def message_belongs_to_peers(fnx):
 
 
 def teacher_exists(fnx):
-
     def wrapped_fnx(*args, **kwargs):
 
         teacher_id = kwargs.get('url').get('teacher_id')
@@ -388,7 +376,6 @@ def teacher_exists(fnx):
 
 
 def student_exists(fnx):
-
     def wrapped_fnx(*args, **kwargs):
 
         student_id = kwargs.get('url').get('student_id')
@@ -407,7 +394,6 @@ def student_exists(fnx):
 
 
 def peer_exists(fnx):
-
     def wrapped_fnx(*args, **kwargs):
 
         peer_id = kwargs.get('url').get('peer_id')
@@ -424,7 +410,6 @@ def peer_exists(fnx):
 
 
 def peer_is_teacher(fnx):
-
     def wrapped_fnx(*args, **kwargs):
         peer = kwargs.get('peer')
         if peer.is_teacher():
@@ -436,7 +421,6 @@ def peer_is_teacher(fnx):
 
 
 def peer_is_student(fnx):
-
     def wrapped_fnx(*args, **kwargs):
         peer = kwargs.get('peer')
         if peer.is_student():
@@ -448,7 +432,6 @@ def peer_is_student(fnx):
 
 
 def user_is_related_to_peer(fnx):
-
     def wrapped_fnx(*args, **kwargs):
 
         user = kwargs.get('user')
@@ -479,7 +462,6 @@ def user_is_related_to_peer(fnx):
 
 
 def users_can_conversate(fnx):
-
     def wrapped_fnx(*args, **kwargs):
 
         user = kwargs.get('user')
@@ -510,9 +492,7 @@ def users_can_conversate(fnx):
 
 
 def user_can_see_teacher(fnx):
-
     def wrapped_fnx(*args, **kwargs):
-
         teacher = kwargs.get('teacher')
         user = kwargs.get('user')
 
@@ -531,9 +511,7 @@ def user_can_see_teacher(fnx):
 
 
 def teacher_can_see_student(fnx):
-
     def wrapped_fnx(*args, **kwargs):
-
         student = kwargs.get('student')
         user = kwargs.get('user')
 
@@ -552,7 +530,6 @@ def teacher_can_see_student(fnx):
 
 
 def can_add_file_to_message(fnx):
-
     def wrapped_fnx(*args, **kwargs):
 
         user = kwargs.get('user')
@@ -570,9 +547,7 @@ def can_add_file_to_message(fnx):
 
 
 def media_exists(fnx):
-
     def wrapped_fnx(*args, **kwargs):
-
         media_id = kwargs.get('url').get('media_id')
 
         get_media_srv = GetMedia()
@@ -590,7 +565,6 @@ def media_exists(fnx):
 
 
 def user_can_see_media(fnx):
-
     def wrapped_fnx(*args, **kwargs):
 
         def check_avatar_media():
@@ -647,11 +621,8 @@ def user_can_see_media(fnx):
 
 
 def file_to_stream(field):
-
     def file_to_stream_decorator(fnx):
-
         def wrapped_fnx(*args, **kwargs):
-
             f = kwargs.get('files').get(field)
             bio = Helper.werkzeug_to_stream(f)
 
@@ -663,12 +634,10 @@ def file_to_stream(field):
 
     return file_to_stream_decorator
 
+
 def file_max_length(field):
-
     def file_max_length_decorator(fnx):
-
         def wrapped_fnx(*args, **kwargs):
-
             f = kwargs.get('streams').get(field)
 
             if len(f.getvalue()) > config.MAX_FILE_SIZE:
@@ -680,8 +649,8 @@ def file_max_length(field):
 
     return file_max_length_decorator
 
-def check_message_interval(fnx):
 
+def check_message_interval(fnx):
     def wrapped_fnx(*args, **kwargs):
 
         def _filter_with_same_body(message):
@@ -708,5 +677,3 @@ def check_message_interval(fnx):
             return fnx(*args, **kwargs)
 
     return wrapped_fnx
-
-

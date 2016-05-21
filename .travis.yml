@@ -1,6 +1,27 @@
-language: python
-python:
-  - "2.7"
-install: "pip install -r requirements.txt"
+sudo: required
+
+services:
+  - docker
+
+language: generic
+
+env:
+  global:
+    - DOCKER_VERSION=1.11.1-0~trusty
+    - DOCKER_COMPOSE_VERSION=1.6.0
+
+before_install:
+  - apt-cache madison docker-engine
+  - sudo apt-get -o Dpkg::Options::="--force-confnew" install -y docker-engine=${DOCKER_VERSION}
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
+  - touch .env
+  - docker-compose up -d db
+  - docker-compose up -d gunicorn
+  - docker-compose run --rm --service-ports alembic revision --autogenerate
+  - docker-compose run --rm --service-ports alembic upgrade head
+  - docker-compose run --rm --service-ports seed
 script:
- - nosetests api/tests/*.py
+  - docker-compose run --rm --service-ports tests

@@ -1,7 +1,7 @@
 from common.environment import Environment
 
-SERVER_HOST = Environment.get('GUNICORN_PORT_8080_TCP_ADDR')
-SERVER_PORT = Environment.get('GUNICORN_PORT_8080_TCP_PORT')
+SERVER_HOST = Environment.get('GUNICORN_HOST')
+SERVER_PORT = Environment.get('GUNICORN_PORT')
 
 SERVER_URL = 'http://{host}:{port}'.format(host=SERVER_HOST, port=SERVER_PORT)
 

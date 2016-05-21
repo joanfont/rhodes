@@ -15,7 +15,6 @@ log/*
 config/supervisor.conf
 config/gunicorn.sh
 config/nginx.conf
-config/fixtures.sql
 
 # LaTeX files
 *.dvi
