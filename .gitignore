@@ -38,3 +38,6 @@ media/messages/chat/*
 media/messages/group/*
 media/messages/subject/*
 media/avatars/*
+
+opt/*
+!opt/.gitkeep

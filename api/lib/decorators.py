@@ -1,6 +1,5 @@
 from flask import request
 
-from api import client
 from api.exceptions.auth import NotAuthenticatedError, NotEnoughPermissionError
 from api.exceptions.group import GroupNotFoundError, GroupDoesNotBelongToSubjectError
 from api.exceptions.media import MediaNotFoundError, UserCanNotSeeMediaError, LimitOfMessageFilesReachedError, \
